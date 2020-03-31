@@ -7,12 +7,13 @@ from litespi.common import *
 from litex.soc.interconnect import stream
 
 # Output enable masks for the tri-state buffers, data mode mask is not included as oe pins default to 0
-cmd_oe_mask = 0b0001
-soft_oe_mask = 0b0001
+cmd_oe_mask  = 0b00000001
+soft_oe_mask = 0b00000001
 addr_oe_mask = {
-    1: 0b0001,
-    2: 0b0011,
-    4: 0b1111,
+    1: 0b00000001,
+    2: 0b00000011,
+    4: 0b00001111,
+    8: 0b11111111,
 }
 
 def GetConfig(flash=None):
@@ -26,7 +27,7 @@ class LiteSPIPHY(Module):
 
     The ``LiteSPIPHY`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
-    It supports single/dual/quad output reads from the flash chips.
+    It supports single/dual/quad/octal output reads from the flash chips.
 
     Parameters
     ----------
@@ -96,7 +97,7 @@ class LiteSPIPHY(Module):
         else:
             bus_width = len(pads.dq)
 
-        assert bus_width in [1, 2, 4]
+        assert bus_width in [1, 2, 4, 8]
 
         dq_o  = Signal(len(pads.dq))
         dq_i  = Signal(len(pads.dq))
