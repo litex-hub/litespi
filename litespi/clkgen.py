@@ -40,15 +40,13 @@ class LiteSPIClkGen(Module):
         self.clk     = clk     = Signal()
         self.en      = en      = Signal()
         cnt          = Signal(8)
-        clkd         = Signal()
 
         self.comb += [
-            posedge.eq(clk & ~clkd),
-            negedge.eq(~clk & clkd),
+            posedge.eq(~clk & (cnt == div)),
+            negedge.eq(clk & (cnt == div)),
         ]
 
         self.sync += [
-            clkd.eq(clk),
             If(en,
                 If(cnt < div,
                     cnt.eq(cnt+1),
