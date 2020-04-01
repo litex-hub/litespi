@@ -133,12 +133,12 @@ class LiteSPIPHY(Module):
         )
         fsm.act("CMD",
             dq_oe.eq(cmd_oe_mask),
-            dq_o.eq(cmd[-1] if cmd_width == 1 else cmd[-cmd_width:]),
+            dq_o.eq(cmd[-cmd_width:]),
             self.shift_out(cmd_width, cmd_bits, "ADDR", op=[NextValue(cmd, cmd<<cmd_width)], trigger=clkgen.negedge, ddr=False),
         )
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
-            dq_o.eq(addr[-1] if addr_width == 1 else addr[-addr_width:]),
+            dq_o.eq(addr[-addr_width:]),
             self.shift_out(addr_width, len(addr), "DUMMY", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
         )
         fsm.act("DUMMY",
