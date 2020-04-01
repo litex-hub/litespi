@@ -12,8 +12,15 @@ class LiteSPIClkGen(Module):
     ----------
     pads : Object
         SPI pads description.
+
     device : str
         Device type for determining how to get output pin if it was not provided in pads.
+
+    cnt_width : int
+        Width of the internal counter ``cnt`` used for dividing the clock.
+
+    with_ddr : bool
+        Generate additional ``sample`` and ``update`` signals.
 
     Attributes
     ----------
@@ -32,23 +39,39 @@ class LiteSPIClkGen(Module):
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
 
+    sample : Signal(), out
+        Outputs 1 when ``sample_cnt==cnt``, can be used to sample incoming DDR data.
+
+    sample_cnt : Signal(8), in
+        Controls generation of the ``sample`` signal.
+
+    update : Signal(), out
+        Outputs 1 when ``update_cnt==cnt``, can be used to update outgoing DDR data.
+
+    update_cnt : Signal(8), in
+        Controls generation of the ``update`` signal.
     """
-    def __init__(self, pads, device):
-        self.div     = div     = Signal(8)
-        self.posedge = posedge = Signal()
-        self.negedge = negedge = Signal()
-        self.clk     = clk     = Signal()
-        self.en      = en      = Signal()
-        cnt          = Signal(8)
-        clkd         = Signal()
+    def __init__(self, pads, device, cnt_width=8, with_ddr=False):
+        self.div        = div        = Signal(cnt_width)
+        self.sample_cnt = sample_cnt = Signal(cnt_width)
+        self.update_cnt = update_cnt = Signal(cnt_width)
+        self.posedge    = posedge    = Signal()
+        self.negedge    = negedge    = Signal()
+        self.sample     = sample     = Signal()
+        self.update     = update     = Signal()
+        self.clk        = clk        = Signal()
+        self.en         = en         = Signal()
+        cnt             = Signal(cnt_width)
+
 
         self.comb += [
-            posedge.eq(clk & ~clkd),
-            negedge.eq(~clk & clkd),
+            posedge.eq(~clk & (cnt == div)),
+            negedge.eq(clk & (cnt == div)),
+            sample.eq(cnt == sample_cnt),
+            update.eq(cnt == update_cnt),
         ]
 
         self.sync += [
-            clkd.eq(clk),
             If(en,
                 If(cnt < div,
                     cnt.eq(cnt+1),
