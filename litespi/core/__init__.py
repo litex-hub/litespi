@@ -61,8 +61,8 @@ class LiteSPICore(Module):
         )
         fsm.act("CMD",
             source.valid.eq(1),
-            source.cmd.eq(1),
-            source.addr.eq(Cat(0, 0, bus.adr)), # convert wb address to bytes
+            source.cmd.eq(CMD),
+            source.data.eq(Cat(0, 0, bus.adr)), # convert wb address to bytes
             If(source.ready & source.valid,
                 NextValue(curr_addr, bus.adr),
                 NextState("READ_REQ"),
@@ -70,6 +70,7 @@ class LiteSPICore(Module):
         )
         fsm.act("READ_REQ",
             source.valid.eq(1),
+            source.cmd.eq(READ),
             If(source.ready & source.valid,
                 NextState("READ_DAT"),
             )
