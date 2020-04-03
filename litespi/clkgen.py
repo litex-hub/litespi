@@ -1,7 +1,9 @@
 from migen import *
 
+from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
-class LiteSPIClkGen(Module):
+
+class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
     """SPI Clock generator
 
     The ``LiteSPIClkGen`` class provides a generic SPI clock generator.
