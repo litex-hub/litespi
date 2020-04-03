@@ -29,6 +29,10 @@ class LiteSPIPHY(Module):
 
     It supports single/dual/quad/octal output reads from the flash chips.
 
+    The following diagram shows how each clock configuration option relates to outputs and input sampling in DDR mode:
+
+    .. wavedrom:: ../../doc/ddr-timing-diagram.json
+
     Parameters
     ----------
     pads : Object
