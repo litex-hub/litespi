@@ -2,10 +2,12 @@ from migen import *
 
 from litex.soc.interconnect import stream
 
+from litex.soc.integration.doc import AutoDoc, ModuleDoc
+
 from litespi.core import LiteSPICore
 
 
-class LiteSPI(Module):
+class LiteSPI(Module, AutoDoc, ModuleDoc):
     """Memory-mapped SPI Flash wrapper.
     
     The ``LiteSPI`` class provides a wrapper that instantiates ``LiteSPICore`` and connects it to PHY provided as parameter.

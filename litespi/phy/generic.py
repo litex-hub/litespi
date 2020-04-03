@@ -6,6 +6,8 @@ from litespi.common import *
 
 from litex.soc.interconnect import stream
 
+from litex.soc.integration.doc import AutoDoc, ModuleDoc
+
 # Output enable masks for the tri-state buffers, data mode mask is not included as oe pins default to 0
 cmd_oe_mask  = 0b00000001
 soft_oe_mask = 0b00000001
@@ -22,12 +24,16 @@ def GetConfig(flash=None):
         # addr_bits, dummy_bits, cmd_width, addr_width, data_width, command, ddr access
         return (24, 8, 1, 1, 1, 0x0b, False)
 
-class LiteSPIPHY(Module):
+class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
     """Generic LiteSPI PHY
 
     The ``LiteSPIPHY`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
     It supports single/dual/quad/octal output reads from the flash chips.
+
+    The following diagram shows how each clock configuration option relates to outputs and input sampling in DDR mode:
+
+    .. wavedrom:: ../../doc/ddr-timing-diagram.json
 
     Parameters
     ----------

@@ -1,0 +1,17 @@
+{
+  "signal": [
+    {"name": "sys_clk", "wave": "p........."},
+    {"name": "spi_clk", "wave": "10...1...0", "node": ".a...b...c"},
+    {"name": ""},
+    {"name": "update",  "wave": "0.10..10..", "node": "..d...e..."},
+    {"name": "do", "wave": "=..x=..x=.", "data": ["n", "n+1", "n+2"]},
+    {"name": ""},
+    {"name": "sample",  "wave": "0..10..10.", "node": "...f...g.."},
+    {"name": "di", "wave": "=x=..x=..x", "data": ["n", "n+1", "n+2"]}
+  ],
+  "edge": [
+    "a-b div", "b-c div",
+    "a|->d update_cnt", "b|->e update_cnt",
+    "a|->f sample_cnt", "b|->g sample_cnt"
+  ]
+}
