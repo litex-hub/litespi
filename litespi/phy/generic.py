@@ -18,11 +18,6 @@ addr_oe_mask = {
     8: 0b11111111,
 }
 
-def GetConfig(flash=None):
-    if flash is None:
-        # TODO: replace with a named tuple/configuration object
-        # addr_bits, dummy_bits, cmd_width, addr_width, data_width, command, ddr access
-        return (24, 8, 1, 1, 1, 0x0b, False)
 
 class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
     """Generic LiteSPI PHY
@@ -40,8 +35,8 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
     pads : Object
         SPI pads description.
 
-    flash : FlashModule
-        FlashModule configuration object or None, if None is provided then the default configuration is used.
+    flash : SpiNorFlashModule
+        SpiNorFlashModule configuration object.
 
     device : str
         Device type for use by the ``LiteSPIClkGen``.
@@ -82,13 +77,30 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
 
         return res
 
-    def __init__(self, pads, flash=None, device="xc7"):
+    def __init__(self, pads, flash, device="xc7"):
         self.source = source = stream.Endpoint(spi_phy_data_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy_ctl_layout)
 
         self.cs_n     = Signal()
 
-        addr_bits, dummy_bits, cmd_width, addr_width, data_width, command, ddr = GetConfig(flash)
+        if hasattr(pads, "miso"):
+            bus_width = 1
+            pads.dq = [pads.mosi, pads.miso]
+        else:
+            bus_width = len(pads.dq)
+
+        assert bus_width in [1, 2, 4, 8]
+
+        # Check if number of pads matches configured mode
+        assert flash.check_bus_width(bus_width)
+
+        addr_bits = flash.addr_bits
+        dummy_bits = flash.dummy_bits
+        cmd_width = flash.cmd_width
+        addr_width = flash.addr_width
+        data_width = flash.bus_width
+        command = flash.read_opcode.code
+        ddr = flash.ddr
 
         self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device, with_ddr=ddr)
 
@@ -101,14 +113,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
         ]
-
-        if hasattr(pads, "miso"):
-            bus_width = 1
-            pads.dq = [pads.mosi, pads.miso]
-        else:
-            bus_width = len(pads.dq)
-
-        assert bus_width in [1, 2, 4, 8]
 
         dq_o  = Signal(len(pads.dq))
         dq_i  = Signal(len(pads.dq))
