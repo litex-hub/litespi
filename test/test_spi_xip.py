@@ -2,15 +2,16 @@ import unittest
 
 from migen import *
 
-from litespi.core import LiteSPICore
+from litespi.core.xip import LiteSPIXIP
+from litespi.common import *
 
 
 class TestSPIXIP(unittest.TestCase):
     def test_spi_xip_core_syntax(self):
-        spi_xip = LiteSPICore()
+        spi_xip = LiteSPIXIP()
 
     def test_spi_xip_read_test(self):
-        dut = LiteSPICore()
+        dut = LiteSPIXIP()
 
         def wb_gen(dut, addr, data):
             dut.data_ok = 0
@@ -36,9 +37,9 @@ class TestSPIXIP(unittest.TestCase):
             while (yield dut.source.valid) == 0:
                 yield
 
-            if (yield dut.source.addr) == (addr<<2): # address cmd
+            if (yield dut.source.data) == (addr<<2): # address cmd
                 dut.addr_ok = 1
-            if (yield dut.source.cmd) == 1:
+            if (yield dut.source.cmd) == CMD:
                 dut.cmd_ok += 1
 
             yield
@@ -46,7 +47,7 @@ class TestSPIXIP(unittest.TestCase):
             while (yield dut.source.valid) == 0:
                 yield
 
-            if (yield dut.source.cmd) == 0: # read cmd
+            if (yield dut.source.cmd) == READ: # read cmd
                 dut.cmd_ok += 1
 
             yield dut.source.ready.eq(0)

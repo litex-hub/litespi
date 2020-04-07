@@ -1,16 +1,16 @@
 from migen import *
 
 from litex.soc.interconnect import stream
-
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
-from litespi.core import LiteSPICore
+from litespi.core.master import LiteSPIMaster
+from litespi.core.xip import LiteSPIXIP
 
 
 class LiteSPI(Module, AutoDoc, ModuleDoc):
     """Memory-mapped SPI Flash wrapper.
     
-    The ``LiteSPI`` class provides a wrapper that instantiates ``LiteSPICore`` and connects it to PHY provided as parameter.
+    The ``LiteSPI`` class provides a wrapper that instantiates ``LiteSPIXIP`` and connects it to PHY provided as parameter.
 
     Parameters
     ----------
@@ -26,11 +26,11 @@ class LiteSPI(Module, AutoDoc, ModuleDoc):
             Wishbone interface for memory-mapped flash access.
     """
     def __init__(self, phy, endianness="big"):
-        self.submodules.core = core = LiteSPICore(endianness)
-        self.bus = core.bus
+        self.submodules.xip = xip = LiteSPIXIP(endianness)
+        self.bus = xip.bus
 
         self.comb += [
-            phy.cs_n.eq(core.cs_n),
-            phy.source.connect(core.sink),
-            core.source.connect(phy.sink),
+            phy.cs_n.eq(xip.cs_n),
+            phy.source.connect(xip.sink),
+            xip.source.connect(phy.sink),
         ]
