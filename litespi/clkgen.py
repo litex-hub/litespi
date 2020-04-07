@@ -35,9 +35,6 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
     negedge : Signal(), out
         Outputs 1 when there is a falling edge on the generated clock, 0 otherwise.
 
-    clk : Signal(), out
-        Clock output, should be connected to ``pads.clk`` directly when using only the HW SPI core.
-
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
 
@@ -61,10 +58,9 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         self.negedge    = negedge    = Signal()
         self.sample     = sample     = Signal()
         self.update     = update     = Signal()
-        self.clk        = clk        = Signal()
         self.en         = en         = Signal()
         cnt             = Signal(cnt_width)
-
+        clk             = Signal()
 
         self.comb += [
             posedge.eq(~clk & (cnt == div)),
@@ -117,3 +113,4 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
             else:
                 raise NotImplementedError
 
+        self.comb += pads.clk.eq(clk)

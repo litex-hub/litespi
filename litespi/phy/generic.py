@@ -100,7 +100,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
-            pads.clk.eq(clkgen.clk),
         ]
 
         if hasattr(pads, "miso"):
