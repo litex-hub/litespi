@@ -1,6 +1,6 @@
 # Generated using 'spi_nor_cfg_gen.py'
 from litespi.spi_nor_flash_module import SpiNorFlashModule
-from litespi.spi_nor_features import SpiNorFeatures
+from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.ids import SpiNorFlashManufacturerIDs
 
 
@@ -14,11 +14,11 @@ class X160S33B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -32,10 +32,10 @@ class X25DF081A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -49,10 +49,10 @@ class X25F160S33B8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -66,10 +66,10 @@ class X25F160S33T8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -83,10 +83,10 @@ class X25F320S33B8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -100,10 +100,10 @@ class X25F320S33T8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -117,10 +117,10 @@ class X25F640S33B8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -134,10 +134,10 @@ class X25F640S33T8(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -151,11 +151,11 @@ class X320S33B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -169,10 +169,10 @@ class X3S1400AN(SpiNorFlashModule):
     page_size   =        528   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -186,10 +186,10 @@ class X3S200AN(SpiNorFlashModule):
     page_size   =        264   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -203,10 +203,10 @@ class X3S400AN(SpiNorFlashModule):
     page_size   =        264   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -220,10 +220,10 @@ class X3S50AN(SpiNorFlashModule):
     page_size   =        264   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -237,10 +237,10 @@ class X3S700AN(SpiNorFlashModule):
     page_size   =        264   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -254,11 +254,11 @@ class X640S33B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -272,13 +272,15 @@ class XM25QH128A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -292,13 +294,15 @@ class XM25QH64A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -312,10 +316,10 @@ class A25L010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -329,10 +333,10 @@ class A25L016(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -346,10 +350,10 @@ class A25L020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -363,10 +367,10 @@ class A25L032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -380,10 +384,10 @@ class A25L040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -397,10 +401,10 @@ class A25L05PT(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -414,10 +418,10 @@ class A25L05PU(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -431,10 +435,10 @@ class A25L080(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -448,10 +452,10 @@ class A25L10PT(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -465,10 +469,10 @@ class A25L10PU(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -482,10 +486,10 @@ class A25L16PT(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -499,10 +503,10 @@ class A25L16PU(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -516,10 +520,10 @@ class A25L20PT(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -533,10 +537,10 @@ class A25L20PU(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -550,10 +554,10 @@ class A25L40PU(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -567,10 +571,10 @@ class A25L512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -584,10 +588,10 @@ class A25L80P(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -601,10 +605,10 @@ class A25LQ032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -618,10 +622,10 @@ class A25LQ16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -635,10 +639,10 @@ class A25LQ32A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -652,11 +656,12 @@ class A25LQ64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -670,10 +675,10 @@ class AT25DF021(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -687,10 +692,10 @@ class AT25DF021A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -704,11 +709,11 @@ class AT25DF041A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -722,10 +727,10 @@ class AT25DF081A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -739,10 +744,10 @@ class AT25DF161(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -756,11 +761,11 @@ class AT25DF321(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -774,11 +779,11 @@ class AT25DF321A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -792,11 +797,11 @@ class AT25DF641(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -810,10 +815,10 @@ class AT25DF641A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -827,10 +832,10 @@ class AT25DL081(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -844,10 +849,10 @@ class AT25DL161(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -861,10 +866,10 @@ class AT25DQ161(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -878,10 +883,10 @@ class AT25F1024(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -895,10 +900,10 @@ class AT25F1024A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -912,10 +917,10 @@ class AT25F2048(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -929,10 +934,10 @@ class AT25F4096(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -946,10 +951,10 @@ class AT25F512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -963,10 +968,10 @@ class AT25F512A(SpiNorFlashModule):
     page_size   =        128   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -980,10 +985,10 @@ class AT25F512B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -997,11 +1002,11 @@ class AT25FS010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1015,11 +1020,11 @@ class AT25FS040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1033,10 +1038,10 @@ class AT25SF041(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1050,10 +1055,10 @@ class AT25SF081(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1067,10 +1072,10 @@ class AT25SF161(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1084,10 +1089,10 @@ class AT25SF321(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1101,11 +1106,12 @@ class AT25SL128A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1119,13 +1125,15 @@ class AT25SL321(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1139,10 +1147,10 @@ class AT26DF041(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1156,11 +1164,11 @@ class AT26DF081A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1174,10 +1182,10 @@ class AT26DF161(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1191,11 +1199,11 @@ class AT26DF161A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1209,11 +1217,11 @@ class AT26DF321(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1227,11 +1235,11 @@ class AT26F004(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1245,10 +1253,10 @@ class AT45DB011D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1262,10 +1270,10 @@ class AT45DB021D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1279,10 +1287,10 @@ class AT45DB041D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1296,11 +1304,11 @@ class AT45DB081D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1314,10 +1322,10 @@ class AT45DB161D(SpiNorFlashModule):
     page_size   =        512   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1331,10 +1339,10 @@ class AT45DB321D(SpiNorFlashModule):
     page_size   =        512   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1348,10 +1356,10 @@ class AT45DB321E(SpiNorFlashModule):
     page_size   =        512   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1365,10 +1373,10 @@ class AT45DB642D(SpiNorFlashModule):
     page_size   =       1024   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1382,10 +1390,10 @@ class CAT25128(SpiNorFlashModule):
     page_size   =         64   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1399,10 +1407,10 @@ class CAT25C03(SpiNorFlashModule):
     page_size   =         16   # bytes
     total_pages =         16
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1416,10 +1424,10 @@ class CAT25C09(SpiNorFlashModule):
     page_size   =         32   # bytes
     total_pages =         32
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1433,10 +1441,10 @@ class CAT25C11(SpiNorFlashModule):
     page_size   =         16   # bytes
     total_pages =          8
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1450,10 +1458,10 @@ class CAT25C17(SpiNorFlashModule):
     page_size   =         32   # bytes
     total_pages =         64
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1467,11 +1475,11 @@ class EN25F32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1485,11 +1493,11 @@ class EN25P32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1503,11 +1511,11 @@ class EN25P64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1521,11 +1529,11 @@ class EN25Q32B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1539,11 +1547,11 @@ class EN25Q64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1557,12 +1565,13 @@ class EN25Q80A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -1576,11 +1585,11 @@ class EN25QH128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1594,12 +1603,13 @@ class EN25QH16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -1613,11 +1623,11 @@ class EN25QH256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1631,11 +1641,11 @@ class EN25QH32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1649,12 +1659,13 @@ class EN25QH64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -1668,11 +1679,11 @@ class EN25S64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1686,10 +1697,10 @@ class F25L008A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1703,11 +1714,11 @@ class F25L32PA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1721,11 +1732,11 @@ class F25L32QA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1739,11 +1750,11 @@ class F25L64QA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -1757,10 +1768,10 @@ class GD25LQ128C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1774,13 +1785,15 @@ class GD25LQ128D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1794,10 +1807,10 @@ class GD25LQ16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1811,13 +1824,15 @@ class GD25LQ32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1831,10 +1846,10 @@ class GD25LQ40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1848,10 +1863,10 @@ class GD25LQ64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1865,10 +1880,10 @@ class GD25LQ64B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1882,13 +1897,15 @@ class GD25LQ64C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1902,10 +1919,10 @@ class GD25LQ80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1919,10 +1936,10 @@ class GD25Q10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -1936,11 +1953,12 @@ class GD25Q127C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1954,13 +1972,15 @@ class GD25Q128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1974,11 +1994,12 @@ class GD25Q128C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -1992,13 +2013,15 @@ class GD25Q16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2012,10 +2035,10 @@ class GD25Q16B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2029,10 +2052,10 @@ class GD25Q16C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2046,10 +2069,10 @@ class GD25Q20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2063,10 +2086,10 @@ class GD25Q20B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2080,20 +2103,21 @@ class GD25Q256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -2107,10 +2131,10 @@ class GD25Q256C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2124,18 +2148,14 @@ class GD25Q256D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -2149,13 +2169,15 @@ class GD25Q32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2169,10 +2191,10 @@ class GD25Q32B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2186,10 +2208,10 @@ class GD25Q32C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2203,10 +2225,10 @@ class GD25Q40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2220,10 +2242,10 @@ class GD25Q40B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2237,10 +2259,10 @@ class GD25Q512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2254,12 +2276,14 @@ class GD25Q512MC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2273,13 +2297,15 @@ class GD25Q64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2293,10 +2319,10 @@ class GD25Q64B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2310,10 +2336,10 @@ class GD25Q64C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2327,10 +2353,10 @@ class GD25Q80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2344,10 +2370,10 @@ class GD25Q80B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2361,10 +2387,10 @@ class GD25T80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2378,11 +2404,12 @@ class GD25VQ16C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2396,11 +2423,12 @@ class GD25VQ21B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2414,11 +2442,12 @@ class GD25VQ41B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2432,11 +2461,12 @@ class GD25VQ80C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2450,10 +2480,10 @@ class GD25WQ80E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2467,11 +2497,11 @@ class IS25CD512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -2485,13 +2515,15 @@ class IS25LP016D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2505,12 +2537,13 @@ class IS25LP032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -2524,12 +2557,13 @@ class IS25LP064(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -2543,13 +2577,15 @@ class IS25LP080D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2563,12 +2599,13 @@ class IS25LP128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -2582,10 +2619,10 @@ class IS25LP128D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2599,20 +2636,21 @@ class IS25LP256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -2626,10 +2664,10 @@ class IS25LP256D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2643,12 +2681,14 @@ class IS25LP512M(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2662,13 +2702,15 @@ class IS25LQ040B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2682,13 +2724,15 @@ class IS25WP032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2702,13 +2746,15 @@ class IS25WP064(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2722,13 +2768,15 @@ class IS25WP128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2742,10 +2790,10 @@ class IS25WP128D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2759,20 +2807,21 @@ class IS25WP256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -2786,10 +2835,10 @@ class IS25WP256D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2803,12 +2852,14 @@ class IS25WP512M(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -2822,10 +2873,10 @@ class LE25FU106B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2839,10 +2890,10 @@ class LE25FU206(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2856,10 +2907,10 @@ class LE25FU206A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2873,10 +2924,10 @@ class LE25FU406B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2890,10 +2941,10 @@ class LE25FU406C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2907,10 +2958,10 @@ class LE25FW106(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2924,10 +2975,10 @@ class LE25FW203A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2941,10 +2992,10 @@ class LE25FW403A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2958,10 +3009,10 @@ class LE25FW406A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2975,10 +3026,10 @@ class LE25FW418A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -2992,10 +3043,10 @@ class LE25FW806(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3009,10 +3060,10 @@ class LE25FW808(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3026,10 +3077,10 @@ class LE25U40CMC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3043,11 +3094,11 @@ class M25P05(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3061,10 +3112,10 @@ class M25P05_A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3078,11 +3129,11 @@ class M25P05_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3096,11 +3147,11 @@ class M25P10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3114,10 +3165,10 @@ class M25P10_A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3131,11 +3182,11 @@ class M25P10_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3149,11 +3200,11 @@ class M25P128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3167,11 +3218,11 @@ class M25P128_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3185,11 +3236,11 @@ class M25P16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3203,11 +3254,11 @@ class M25P16_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3221,11 +3272,11 @@ class M25P20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3239,11 +3290,11 @@ class M25P20_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3257,10 +3308,10 @@ class M25P20_OLD(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3274,11 +3325,11 @@ class M25P32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3292,11 +3343,11 @@ class M25P32_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3310,11 +3361,11 @@ class M25P40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3328,11 +3379,11 @@ class M25P40_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3346,10 +3397,10 @@ class M25P40_OLD(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3363,11 +3414,11 @@ class M25P64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3381,11 +3432,11 @@ class M25P64_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3399,11 +3450,11 @@ class M25P80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3417,11 +3468,11 @@ class M25P80_NONJEDEC(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3435,10 +3486,10 @@ class M25PE10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3452,11 +3503,11 @@ class M25PE16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3470,11 +3521,11 @@ class M25PE20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3488,10 +3539,10 @@ class M25PE40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3505,11 +3556,11 @@ class M25PE80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3523,11 +3574,11 @@ class M25PX16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3541,11 +3592,11 @@ class M25PX32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3559,11 +3610,11 @@ class M25PX32_S0(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3577,11 +3628,11 @@ class M25PX32_S1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3595,11 +3646,11 @@ class M25PX64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3613,11 +3664,11 @@ class M25PX80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3631,11 +3682,11 @@ class M45PE10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3649,11 +3700,11 @@ class M45PE16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3667,10 +3718,10 @@ class M45PE20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3684,10 +3735,10 @@ class M45PE40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3701,11 +3752,11 @@ class M45PE80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3719,10 +3770,10 @@ class M95M02(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3736,11 +3787,11 @@ class MB85RS1MT(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -3754,10 +3805,10 @@ class MR25H10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3771,10 +3822,10 @@ class MR25H128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =         64
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3788,10 +3839,10 @@ class MR25H256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        128
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3805,10 +3856,10 @@ class MR25H40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3822,10 +3873,10 @@ class MT25QL01(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3839,18 +3890,14 @@ class MT25QL01G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -3864,10 +3911,10 @@ class MT25QL02(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =    1048576
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -3881,12 +3928,13 @@ class MT25QL02G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =    1048576
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -3900,18 +3948,14 @@ class MT25QL128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -3925,18 +3969,14 @@ class MT25QL256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -3950,20 +3990,21 @@ class MT25QL256A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -3977,18 +4018,14 @@ class MT25QL512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4002,20 +4039,21 @@ class MT25QL512A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4029,18 +4067,14 @@ class MT25QU01G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4054,12 +4088,13 @@ class MT25QU02G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =    1048576
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -4073,18 +4108,14 @@ class MT25QU128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4098,18 +4129,14 @@ class MT25QU256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4123,20 +4150,21 @@ class MT25QU256A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4150,18 +4178,14 @@ class MT25QU512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4175,20 +4199,21 @@ class MT25QU512A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4202,19 +4227,18 @@ class MT35XU02G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =    1048576
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_OCTAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_8,
+        SpiNorFlashOpCodes.PP_1_1_8,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_8_4B,
+        SpiNorFlashOpCodes.PP_1_1_8_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4228,19 +4252,18 @@ class MT35XU512ABA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_OCTAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_8,
+        SpiNorFlashOpCodes.PP_1_1_8,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_8_4B,
+        SpiNorFlashOpCodes.PP_1_1_8_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4254,10 +4277,10 @@ class MX23L12854(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4271,10 +4294,10 @@ class MX23L1654(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4288,10 +4311,10 @@ class MX23L3254(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4305,10 +4328,10 @@ class MX23L6454(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4322,10 +4345,10 @@ class MX25L1005(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4339,10 +4362,10 @@ class MX25L1005C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4356,10 +4379,10 @@ class MX25L1006E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4373,11 +4396,11 @@ class MX25L12805D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4391,10 +4414,10 @@ class MX25L12835F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4408,10 +4431,10 @@ class MX25L12845(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4425,10 +4448,10 @@ class MX25L12845E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4442,11 +4465,11 @@ class MX25L12855E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4460,10 +4483,10 @@ class MX25L12865E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4477,10 +4500,10 @@ class MX25L1605(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4494,10 +4517,10 @@ class MX25L1605D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4511,11 +4534,11 @@ class MX25L1606E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4529,10 +4552,10 @@ class MX25L1608D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4546,10 +4569,10 @@ class MX25L1635D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4563,10 +4586,10 @@ class MX25L1635E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4580,10 +4603,10 @@ class MX25L1673E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4597,10 +4620,10 @@ class MX25L2005(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4614,11 +4637,11 @@ class MX25L2005A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4632,10 +4655,10 @@ class MX25L2005C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4649,10 +4672,10 @@ class MX25L2006E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4666,13 +4689,15 @@ class MX25L25635E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -4686,18 +4711,14 @@ class MX25L25635F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4711,10 +4732,10 @@ class MX25L25645(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4728,18 +4749,14 @@ class MX25L25645G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4753,11 +4770,11 @@ class MX25L25655E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4771,10 +4788,10 @@ class MX25L3205(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4788,11 +4805,11 @@ class MX25L3205D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4806,10 +4823,10 @@ class MX25L3235D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4823,11 +4840,11 @@ class MX25L3255E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4841,10 +4858,10 @@ class MX25L3273E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4858,10 +4875,10 @@ class MX25L4005(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4875,11 +4892,11 @@ class MX25L4005A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -4893,10 +4910,10 @@ class MX25L4005C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4910,10 +4927,10 @@ class MX25L4006E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4927,10 +4944,10 @@ class MX25L512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4944,10 +4961,10 @@ class MX25L51245(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -4961,18 +4978,14 @@ class MX25L51245G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -4986,11 +4999,11 @@ class MX25L512E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5004,10 +5017,10 @@ class MX25L6405(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5021,11 +5034,11 @@ class MX25L6405D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5039,10 +5052,10 @@ class MX25L6436E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5056,10 +5069,10 @@ class MX25L6445E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5073,10 +5086,10 @@ class MX25L6465E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5090,10 +5103,10 @@ class MX25L6473E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5107,10 +5120,10 @@ class MX25L6473F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5124,10 +5137,10 @@ class MX25L6495F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5141,11 +5154,11 @@ class MX25L8005(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5159,10 +5172,10 @@ class MX25L8006E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5176,10 +5189,10 @@ class MX25L8008E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5193,11 +5206,12 @@ class MX25LM51245(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_OCTAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_8,
+        SpiNorFlashOpCodes.PP_1_1_8,
+    ]
     dummy_bits = 8
 
 
@@ -5211,12 +5225,14 @@ class MX25R1035F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5230,12 +5246,14 @@ class MX25R1635F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5249,12 +5267,14 @@ class MX25R2035F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5268,13 +5288,15 @@ class MX25R3235F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5288,12 +5310,14 @@ class MX25R4035F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5307,12 +5331,14 @@ class MX25R512F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5326,10 +5352,10 @@ class MX25R6435F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5343,12 +5369,14 @@ class MX25R8035F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5362,13 +5390,15 @@ class MX25U12835F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5382,11 +5412,12 @@ class MX25U1635E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5400,11 +5431,11 @@ class MX25U2033E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5418,18 +5449,14 @@ class MX25U25635F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -5443,11 +5470,12 @@ class MX25U3235E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5461,13 +5489,15 @@ class MX25U3235F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5481,11 +5511,11 @@ class MX25U4035(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5499,19 +5529,18 @@ class MX25U51245G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -5525,11 +5554,12 @@ class MX25U6435E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5543,11 +5573,11 @@ class MX25U6435F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5561,10 +5591,10 @@ class MX25U8032E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5578,11 +5608,11 @@ class MX25U8035(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -5596,10 +5626,10 @@ class MX25V512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5613,10 +5643,10 @@ class MX25V512C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5630,10 +5660,10 @@ class MX25V8005(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5647,13 +5677,15 @@ class MX25V8035F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5667,13 +5699,15 @@ class MX66L1G45G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5687,12 +5721,13 @@ class MX66L1G55G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5706,18 +5741,14 @@ class MX66L51235F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -5731,20 +5762,21 @@ class MX66L51235L(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -5758,20 +5790,21 @@ class MX66U51235F(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -5785,12 +5818,13 @@ class N25Q00(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5804,12 +5838,13 @@ class N25Q00A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     524288
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5823,10 +5858,10 @@ class N25Q016(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5840,12 +5875,13 @@ class N25Q016A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5859,12 +5895,13 @@ class N25Q032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5878,10 +5915,10 @@ class N25Q032XX1E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5895,10 +5932,10 @@ class N25Q032XX3E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5912,12 +5949,13 @@ class N25Q032A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5931,12 +5969,13 @@ class N25Q064(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -5950,10 +5989,10 @@ class N25Q064XX1E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5967,10 +6006,10 @@ class N25Q064XX3E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -5984,12 +6023,13 @@ class N25Q064A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6003,10 +6043,10 @@ class N25Q128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6020,12 +6060,13 @@ class N25Q128A11(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6039,12 +6080,13 @@ class N25Q128A13(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6058,10 +6100,10 @@ class N25Q256XX1E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6075,10 +6117,10 @@ class N25Q256XX3E(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6092,13 +6134,15 @@ class N25Q256A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6112,12 +6156,13 @@ class N25Q256AX1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6131,12 +6176,13 @@ class N25Q512A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6150,12 +6196,13 @@ class N25Q512AX3(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6169,10 +6216,10 @@ class PM25LD010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6186,10 +6233,10 @@ class PM25LD010C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6203,10 +6250,10 @@ class PM25LD020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6220,10 +6267,10 @@ class PM25LD020C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6237,10 +6284,10 @@ class PM25LD256C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        128
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6254,10 +6301,10 @@ class PM25LD512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6271,10 +6318,10 @@ class PM25LD512C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6288,10 +6335,10 @@ class PM25LQ016(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6305,10 +6352,10 @@ class PM25LQ020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6322,11 +6369,11 @@ class PM25LQ032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -6340,10 +6387,10 @@ class PM25LQ032C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6357,10 +6404,10 @@ class PM25LQ040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6374,10 +6421,10 @@ class PM25LQ080(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6391,11 +6438,11 @@ class PM25LV010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -6409,10 +6456,10 @@ class PM25LV010A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6426,10 +6473,10 @@ class PM25LV016B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6443,10 +6490,10 @@ class PM25LV020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6460,10 +6507,10 @@ class PM25LV040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6477,10 +6524,10 @@ class PM25LV080B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6494,11 +6541,11 @@ class PM25LV512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -6512,10 +6559,10 @@ class PM25LV512A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6529,10 +6576,10 @@ class S25FL004(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6546,10 +6593,10 @@ class S25FL004A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6563,13 +6610,15 @@ class S25FL004K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6583,10 +6632,10 @@ class S25FL008(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6600,10 +6649,10 @@ class S25FL008A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6617,13 +6666,15 @@ class S25FL008K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6637,10 +6688,10 @@ class S25FL016(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6654,10 +6705,10 @@ class S25FL016A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6671,13 +6722,15 @@ class S25FL016K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6691,10 +6744,10 @@ class S25FL032(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6708,10 +6761,10 @@ class S25FL032A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6725,10 +6778,10 @@ class S25FL032P(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6742,10 +6795,10 @@ class S25FL064(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6759,10 +6812,10 @@ class S25FL064A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6776,11 +6829,11 @@ class S25FL064K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -6794,20 +6847,21 @@ class S25FL064L(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -6821,10 +6875,10 @@ class S25FL064P(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6838,13 +6892,15 @@ class S25FL116K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6858,20 +6914,21 @@ class S25FL128L(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -6885,10 +6942,10 @@ class S25FL128S(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6902,13 +6959,15 @@ class S25FL128S0(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6922,13 +6981,15 @@ class S25FL128S1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6942,10 +7003,10 @@ class S25FL129PXXXXXX1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -6959,13 +7020,15 @@ class S25FL129P0(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6979,13 +7042,15 @@ class S25FL129P1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -6999,11 +7064,11 @@ class S25FL132K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7017,11 +7082,11 @@ class S25FL164K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7035,12 +7100,13 @@ class S25FL204K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -7054,12 +7120,13 @@ class S25FL208K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -7073,10 +7140,10 @@ class S25FL216K(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7090,20 +7157,21 @@ class S25FL256L(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -7117,10 +7185,10 @@ class S25FL256S(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7134,18 +7202,14 @@ class S25FL256SXXXXXX0(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+    ]
     dummy_bits = 8
 
 
@@ -7159,11 +7223,11 @@ class S25FL256S0(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7177,13 +7241,15 @@ class S25FL256S1(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7197,13 +7263,15 @@ class S25FL512S(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7217,13 +7285,15 @@ class S25FS512S(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7237,11 +7307,11 @@ class S25SL004A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7255,11 +7325,11 @@ class S25SL008A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7273,11 +7343,11 @@ class S25SL016A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7291,11 +7361,11 @@ class S25SL032A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7309,13 +7379,15 @@ class S25SL032P(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7329,11 +7401,11 @@ class S25SL064A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7347,13 +7419,15 @@ class S25SL064P(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7367,11 +7441,11 @@ class S25SL12800(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7385,11 +7459,11 @@ class S25SL12801(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7403,11 +7477,11 @@ class S70FL01GS(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7421,10 +7495,10 @@ class SST25LF080(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7438,10 +7512,10 @@ class SST25LF080A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7455,10 +7529,10 @@ class SST25VF010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7472,10 +7546,10 @@ class SST25VF010A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7489,11 +7563,11 @@ class SST25VF016B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7507,10 +7581,10 @@ class SST25VF020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7524,10 +7598,10 @@ class SST25VF020B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7541,11 +7615,11 @@ class SST25VF032B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7559,10 +7633,10 @@ class SST25VF040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7576,11 +7650,11 @@ class SST25VF040B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7594,10 +7668,10 @@ class SST25VF040BXREMS(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7611,11 +7685,11 @@ class SST25VF064C(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7629,11 +7703,11 @@ class SST25VF080B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7647,10 +7721,10 @@ class SST25VF512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7664,10 +7738,10 @@ class SST25VF512A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7681,11 +7755,11 @@ class SST25WF010(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7699,11 +7773,11 @@ class SST25WF020(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7717,11 +7791,11 @@ class SST25WF020A(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7735,11 +7809,11 @@ class SST25WF040(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7753,11 +7827,11 @@ class SST25WF040B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7771,11 +7845,11 @@ class SST25WF080(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7789,10 +7863,10 @@ class SST25WF080B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7806,11 +7880,11 @@ class SST25WF512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7824,12 +7898,13 @@ class SST26VF016B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+    ]
     dummy_bits = 8
 
 
@@ -7843,10 +7918,10 @@ class SST26VF016BA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7860,10 +7935,10 @@ class SST26VF032B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7877,10 +7952,10 @@ class SST26VF032BA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7894,13 +7969,15 @@ class SST26VF064B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7914,10 +7991,10 @@ class SST26VF064BA(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -7931,13 +8008,15 @@ class SST26WF016B(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7951,13 +8030,15 @@ class W25M512JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -7971,11 +8052,11 @@ class W25Q128(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -7989,10 +8070,10 @@ class W25Q128FV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8006,13 +8087,15 @@ class W25Q128FW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8026,13 +8109,15 @@ class W25Q128JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      65536
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8046,13 +8131,15 @@ class W25Q16DW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8066,10 +8153,10 @@ class W25Q16JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8083,13 +8170,15 @@ class W25Q16JV_IM(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8103,13 +8192,15 @@ class W25Q16JV_JM(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8123,11 +8214,11 @@ class W25Q20BW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8141,11 +8232,11 @@ class W25Q20CL(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8159,11 +8250,11 @@ class W25Q20EW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8177,20 +8268,21 @@ class W25Q256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_4BA | \
-		SpiNorFeatures.FEATURE_4BA_NATIVE | \
-		SpiNorFeatures.FEATURE_4BA_WRITE | \
-		SpiNorFeatures.FEATURE_4BA_FAST_READ | \
-		SpiNorFeatures.FEATURE_4BA_READ | \
-		SpiNorFeatures.FEATURE_4BA_EXT_ADDR | \
-		SpiNorFeatures.FEATURE_4BA_ENTER | \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_4_4B,
+    ]
     dummy_bits = 8
 
 
@@ -8204,10 +8296,10 @@ class W25Q256FV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8221,10 +8313,10 @@ class W25Q256JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8238,13 +8330,15 @@ class W25Q256JVM(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8258,13 +8352,15 @@ class W25Q256JW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8278,11 +8374,11 @@ class W25Q32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8296,13 +8392,15 @@ class W25Q32DW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8316,10 +8414,10 @@ class W25Q32FV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8333,13 +8431,15 @@ class W25Q32JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8353,13 +8453,15 @@ class W25Q32JWM(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8373,11 +8475,11 @@ class W25Q64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8391,13 +8493,15 @@ class W25Q64DW(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8411,10 +8515,10 @@ class W25Q64FV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8428,12 +8532,14 @@ class W25Q64JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_QPI | \
-		SpiNorFeatures.FEATURE_DUAL | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
     dummy_bits = 8
 
 
@@ -8447,11 +8553,11 @@ class W25Q80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8465,11 +8571,11 @@ class W25Q80BL(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8483,10 +8589,10 @@ class W25Q80BV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8500,11 +8606,11 @@ class W25X05(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        256
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8518,11 +8624,11 @@ class W25X10(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =        512
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8536,11 +8642,11 @@ class W25X16(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       8192
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8554,11 +8660,11 @@ class W25X20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8572,11 +8678,11 @@ class W25X32(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      16384
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8590,11 +8696,11 @@ class W25X40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8608,11 +8714,11 @@ class W25X64(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =      32768
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8626,11 +8732,11 @@ class W25X80(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       4096
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_FAST_READ | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+    ]
     dummy_bits = 8
 
 
@@ -8644,10 +8750,10 @@ class ZD25D20(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       1024
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
@@ -8661,10 +8767,10 @@ class ZD25D40(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =       2048
 
-    supported_modes = \
-		SpiNorFeatures.FEATURE_ADDR_WIDTH_1 | \
-		SpiNorFeatures.FEATURE_SINGLE 
-
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
     dummy_bits = 8
 
 
