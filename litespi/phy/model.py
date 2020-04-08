@@ -41,15 +41,16 @@ class LiteSPIPHYModel(Module):
 
         self.specials += mem, read_port
 
+        commands = {
+            CMD: [NextValue(read_addr, sink.data[2:31])], # word addressed memory
+            READ: [NextState("DATA")],
+        }
+
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             sink.ready.eq(1),
             If(sink.ready & sink.valid,
-                If(sink.cmd,
-                    NextValue(read_addr, sink.addr[2:31]), # word addressed memory
-                ).Else(
-                    NextState("DATA"),
-                ),
+                Case(sink.cmd, commands),
             ),
         )
         fsm.act("DATA",

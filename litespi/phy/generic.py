@@ -58,8 +58,12 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         Flash CS signal.
 
     """
-    def shift_out(self, width, bits, next_state, trigger=None, op=None, ddr=False):
-        edge = self.clkgen.negedge if not ddr else trigger
+    def shift_out(self, width, bits, next_state, trigger=[], op=[], ddr=False):
+        if type(trigger) is not list:
+            trigger = [trigger]
+            op = [op]
+
+        edge = self.clkgen.negedge if not ddr else trigger[0]
 
         res = [
             self.clkgen.en.eq(1),
@@ -72,8 +76,9 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
             ),
         ]
 
-        if trigger is not None and op is not None:
-            res += [If(trigger, *op)]
+        if len(trigger) == len(op):
+            for i in range(len(trigger)):
+                res += [If(trigger[i], *op[i])]
 
         return res
 
@@ -95,7 +100,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
-            pads.clk.eq(clkgen.clk),
         ]
 
         if hasattr(pads, "miso"):
@@ -124,17 +128,44 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         data         = Signal(data_bits)
         cmd          = Signal(cmd_bits)
 
+        usr_dout  = Signal().like(sink.data)
+        usr_din   = Signal().like(sink.data)
+        usr_len   = Signal().like(sink.len)
+        usr_width = Signal().like(sink.width)
+        usr_mask  = Signal().like(sink.mask)
+
+        din_width_cases = {1: [NextValue(usr_din, Cat(dq_i[1], usr_din))]}
+        for i in [2, 4, 8]:
+            din_width_cases[i] = [NextValue(usr_din, Cat(dq_i[0:i], usr_din))]
+
+        dout_width_cases = {}
+        for i in [1, 2, 4, 8]:
+            dout_width_cases[i] = [dq_o.eq(usr_dout[-i:])]
+
+        commands = {
+            CMD: [
+                NextValue(addr, sink.data),
+                NextValue(cmd, command),
+                NextState("CMD")
+            ],
+            READ: [
+                NextState("DATA")
+            ],
+            USER: [
+                NextValue(usr_dout, sink.data<<(32-sink.len)),
+                NextValue(usr_din, 0),
+                NextValue(usr_len, sink.len),
+                NextValue(usr_width, sink.width),
+                NextValue(usr_mask, sink.mask),
+                NextState("USER")
+            ],
+        }
+
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             sink.ready.eq(1),
             If(sink.ready & sink.valid,
-                If(sink.cmd, # command request
-                    NextValue(addr, sink.addr),
-                    NextValue(cmd, command),
-                    NextState("CMD"),
-                ).Else( # data request
-                    NextState("DATA"),
-                ),
+                Case(sink.cmd, commands),
             ),
         )
         fsm.act("CMD",
@@ -153,6 +184,24 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         )
         fsm.act("DATA",
             self.shift_out(data_width, data_bits, "SEND_DATA", op=[NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data))], trigger=clkgen.posedge if not ddr else clkgen.sample, ddr=ddr)
+        )
+        fsm.act("USER",
+            dq_oe.eq(usr_mask),
+            Case(usr_width, dout_width_cases),
+            self.shift_out(usr_width, usr_len, "SEND_USER_DATA", trigger=[
+                clkgen.posedge, # data sampling
+                clkgen.negedge, # data update
+            ], op=[
+                [Case(usr_width, din_width_cases)],
+                [NextValue(usr_dout, usr_dout<<usr_width)],
+            ], ddr=False)
+        ),
+        fsm.act("SEND_USER_DATA",
+            source.valid.eq(1),
+            source.data.eq(usr_din),
+            If(source.ready & source.valid,
+                NextState("IDLE"),
+            )
         )
         fsm.act("SEND_DATA",
             source.valid.eq(1),
