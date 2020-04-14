@@ -19,32 +19,8 @@ class SpiNorFeatures(enum.Flag):
 
     FEATURE_WRSR_EITHER     = FEATURE_WRSR_EWSR | FEATURE_WRSR_WREN
 
-    FEATURE_SINGLE          = enum.auto()
-    """Supports Single-SPI-mode"""
-
-    FEATURE_DUAL            = enum.auto()
-    """Supports Dual-SPI-mode"""
-
     FEATURE_QPI             = enum.auto()
-    """Supports Quad-SPI-mode"""
-
-    FEATURE_OCTAL           = enum.auto()
-    """Supports Octal-SPI-mode"""
-
-    FEATURE_FAST_READ       = enum.auto()
-    """24-bit fast read instruction (0x0b) is supported"""
-
-    FEATURE_ADDR_WIDTH_1    = enum.auto()
-    """Protocols 1_1_1 are supported (sending address on 1 line)"""
-
-    FEATURE_ADDR_WIDTH_2    = enum.auto()
-    """Protocols x_2_2 are supported (sending address on 2 lines)"""
-
-    FEATURE_ADDR_WIDTH_4    = enum.auto()
-    """Protocols x_4_4 are supported (sending address on 4 lines)"""
-
-    FEATURE_ADDR_WIDTH_8    = enum.auto()
-    """Protocols x_8_8 are supported (sending address on 8 lines)"""
+    """Supports Quad-SPI-mode - ???"""
 
     FEATURE_4BA_ENTER       = enum.auto()
     """Can enter/exit 4BA mode with instructions 0xb7/0xe9 w/o WREN."""

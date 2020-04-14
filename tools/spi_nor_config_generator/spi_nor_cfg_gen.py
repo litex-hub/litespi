@@ -18,7 +18,7 @@ from flash_module_template import generate_class
 from pull_flashrom_data import dump_flashrom_data
 
 from litespi.ids import SpiNorFlashManufacturerIDs as ManIDs
-from litespi.spi_nor_features import SpiNorFeatures as Config
+from litespi.opcodes import SpiNorFlashOpCodes
 
 # This file produces JSONs with SPI NOR configs from Flashrom,
 # OpenOCD and Linux SPI NOR driver and generate Python file with classes.
@@ -234,6 +234,82 @@ def separate_names(rawname, mod_var, chip_var):
     return lnames
 
 
+cmds_ignore_list = list() # Used to skip duplicate exceptions
+
+def generate_supported_commands(entry, logger):
+    # Generate list of possible opcodes configurations (1_1_1, 1_2_2, 1_1_4 etc.)
+    template = "{cmd_w}_{addr_w}_{data_w}"
+    opcodes = ['1_1_1']
+
+    # Check for fast read support
+    if entry["fast_read_support"]:
+        opcodes.append('1_1_1_FAST')
+
+    for cmdw in entry["cmd_widths"]:
+        for addrw in entry["addr_widths"]:
+            if entry["dual_support"]:
+                opcodes.append(template.format(cmd_w=cmdw,
+                                               addr_w=addrw,
+                                               data_w=2,))
+            if entry["quad_support"]:
+                opcodes.append(template.format(cmd_w=cmdw,
+                                               addr_w=addrw,
+                                               data_w=4,))
+            if entry["octal_support"]:
+                opcodes.append(template.format(cmd_w=cmdw,
+                                               addr_w=addrw,
+                                               data_w=8,))
+
+    # Check for DDR support
+    if entry["ddr_support"]:
+        ddr_ops = list()
+        for op in opcodes:
+            ddr_ops.append(op + '_DTR')
+        opcodes += ddr_ops
+
+    # Check for 4B support
+    if entry["addr32_support"]:
+        addr32_ops = list()
+        for op in opcodes:
+            addr32_ops.append(op + '_4B')
+        opcodes += addr32_ops
+
+    # Assemble all possible opcodes
+    commands = list()
+
+    # READ/PP commands
+    for op in opcodes:
+        # Generate READ commands
+        key = 'READ_' + op
+        if key in cmds_ignore_list:
+            continue
+        if hasattr(SpiNorFlashOpCodes, key):
+            commands.append('SpiNorFlashOpCodes.' + key)
+        else:
+            msg = ("""Command ``%s`` not implemented!
+Please add it to litespi.opcodes or ignore it.
+Skipping command ``%s`` ...\n""" % (key, key))
+            logger.std_print(msg)
+            cmds_ignore_list.append(key)
+            continue
+
+        # Generate PP commands
+        key = 'PP_' + op
+        if key in cmds_ignore_list:
+            continue
+        if hasattr(SpiNorFlashOpCodes, key):
+            commands.append('SpiNorFlashOpCodes.' + key)
+        else:
+            msg = ("""Command ``%s`` not implemented!
+Please add it to litespi.opcodes or ignore it.
+Skipping command ``%s`` ...\n""" % (key, key))
+            logger.std_print(msg)
+            cmds_ignore_list.append(key)
+            continue
+
+    return commands
+
+
 def generate_final(logger, output_class):
     # Merge JSONs
     all_entries = list()
@@ -303,30 +379,26 @@ def generate_final(logger, output_class):
             raise
         del entry["id"]
         entry["total_pages"] = int(entry["total_size"] / entry["page_size"])
+        # Set defaults (override them in next step if needed)
         entry["dummy_bits"] = 8
-        entry["supported_modes"] = Config.FEATURE_ADDR_WIDTH_1 | Config.FEATURE_SINGLE
-        if entry["dual_support"]:
-            entry["supported_modes"] |= Config.FEATURE_DUAL
-        if entry["quad_support"]:
-            entry["supported_modes"] |= Config.FEATURE_QPI
-        if entry["octal_support"]:
-            entry["supported_modes"] |= Config.FEATURE_OCTAL
-        if entry["fast_read_support"]:
-            entry["supported_modes"] |= Config.FEATURE_FAST_READ
-        if entry["addr32_support"]:
-            entry["supported_modes"] |= Config.FEATURE_4BA
+        entry["addr_widths"] = [1]
+        entry["ddr_support"] = False
+        entry["cmd_widths"] = [1]
 
-    # Override config if possible
+
+    # Override config if possible and generate supported opcodes
     for entry in uniqs:
         # Override configs
         if entry["chip_name"] in override_chip_cfg.keys():
             for key in override_chip_cfg[entry["chip_name"]]:
                 entry[key] = override_chip_cfg[entry["chip_name"]][key]
 
+        entry["supported_commands"] = generate_supported_commands(entry, logger)
+
     with open(output_class, "w") as pyfile:
         pyfile.write("""# Generated using 'spi_nor_cfg_gen.py'
 from litespi.spi_nor_flash_module import SpiNorFlashModule
-from litespi.spi_nor_features import SpiNorFeatures
+from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.ids import SpiNorFlashManufacturerIDs
 
 
@@ -340,7 +412,7 @@ from litespi.ids import SpiNorFlashManufacturerIDs
                                         entry["page_size"],
                                         entry["total_pages"],
                                         entry["dummy_bits"],
-                                        entry["supported_modes"]
+                                        entry["supported_commands"]
                                         )
                         )
 
