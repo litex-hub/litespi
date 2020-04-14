@@ -375,7 +375,9 @@ def generate_final(logger, output_class):
         try:
             entry["vendor_id"] = ManIDs(vendor_id)
         except:
-            print("Vendor id: 0x{vid:04x} does not exist in SpiNorFlashManufacturerIDs enum.\nCheck vendor ID for {name}".format(vid=vendor_id, name=entry["chip_name"]))
+            logger.std_print("""\
+Vendor id: 0x{vid:04x} does not exist in SpiNorFlashManufacturerIDs enum.
+Check vendor ID for {name}""".format(vid=vendor_id, name=entry["chip_name"]))
             raise
         del entry["id"]
         entry["total_pages"] = int(entry["total_size"] / entry["page_size"])
@@ -420,11 +422,11 @@ from litespi.ids import SpiNorFlashManufacturerIDs
 
 
 def main():
-    parser = argparse.ArgumentParser(description='\
-        This tool downloads modules: \
-        Flashrom, OpenOCD, Linux SPI NOR driver, patch them \
-        and use JSONs generated from them to generate Python classes \
-        used later on to configure LiteX SPI NOR controller.')
+    parser = argparse.ArgumentParser(description='''\
+This tool downloads modules:
+Flashrom, OpenOCD, Linux SPI NOR driver, patches them
+and use JSONs generated from them to generate Python classes
+used later on to configure LiteX SPI NOR controller.''')
     parser.add_argument('--modules-out', required=True, action='store',
             help='Generate Python modules.')
     parser.add_argument('--nproc', required=False, action='store',
