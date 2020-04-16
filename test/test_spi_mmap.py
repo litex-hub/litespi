@@ -2,16 +2,16 @@ import unittest
 
 from migen import *
 
-from litespi.core.xip import LiteSPIXIP
+from litespi.core.mmap import LiteSPIMMAP
 from litespi.common import *
 
 
-class TestSPIXIP(unittest.TestCase):
-    def test_spi_xip_core_syntax(self):
-        spi_xip = LiteSPIXIP()
+class TestSPIMMAP(unittest.TestCase):
+    def test_spi_mmap_core_syntax(self):
+        spi_mmap = LiteSPIMMAP()
 
-    def test_spi_xip_read_test(self):
-        dut = LiteSPIXIP()
+    def test_spi_mmap_read_test(self):
+        dut = LiteSPIMMAP()
 
         def wb_gen(dut, addr, data):
             dut.data_ok = 0
