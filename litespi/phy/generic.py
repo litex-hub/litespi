@@ -180,7 +180,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
             dq_o.eq(addr[-addr_width:]),
-            self.shift_out(addr_width, len(addr), "DUMMY", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
+            self.shift_out(addr_width, len(addr), "DUMMY" if dummy_bits else "IDLE", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
         )
         fsm.act("DUMMY",
             If(self.fsm_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
