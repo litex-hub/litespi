@@ -95,7 +95,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         assert flash.check_bus_width(bus_width)
 
         addr_bits = flash.addr_bits
-        dummy_bits = flash.dummy_bits
+        dummy_bits = flash.dummy_bits if flash.fast_mode else 0
         cmd_width = flash.cmd_width
         addr_width = flash.addr_width
         data_width = flash.bus_width
