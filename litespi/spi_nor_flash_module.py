@@ -126,7 +126,7 @@ class SpiNorFlashModule(metaclass=MetaSizes):
         self._read_opcode = read_cmd
 
     def check_bus_width(self, width):
-        return width == self.bus_width
+        return width >= self.bus_width
 
     def _configure_chip(self, default_read_cmd,
                         erase_cmd,
