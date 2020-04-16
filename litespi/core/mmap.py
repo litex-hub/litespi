@@ -7,10 +7,10 @@ from litex.gen.common import reverse_bytes
 from litespi.common import *
 
 
-class LiteSPIXIP(Module):
+class LiteSPIMMAP(Module):
     """Memory-mapped SPI Flash controller.
 
-    The ``LiteSPIXIP`` class provides a Wishbone slave that must be connected to a LiteSPI PHY.
+    The ``LiteSPIMMAP`` class provides a Wishbone slave that must be connected to a LiteSPI PHY.
 
     It supports sequential access so that command and address is only sent when necessary.
 
