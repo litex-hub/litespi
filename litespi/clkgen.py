@@ -2,6 +2,8 @@ from migen import *
 
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
+from litex.build.io import SDROutput
+
 
 class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
     """SPI Clock generator
@@ -60,6 +62,7 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         self.update     = update     = Signal()
         self.en         = en         = Signal()
         cnt             = Signal(cnt_width)
+        en_int          = Signal()
         clk             = Signal()
 
         self.comb += [
@@ -70,7 +73,7 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         ]
 
         self.sync += [
-            If(en,
+            If(en | en_int,
                 If(cnt < div,
                     cnt.eq(cnt+1),
                 ).Else(
@@ -84,33 +87,24 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         ]
 
         if not hasattr(pads, "clk"):
-            pads.clk = Signal()
             if device == "xc7":
-                e2_clk = Signal()
-                e2_net = Signal()
-                e2_cnt = Signal(4)
+                cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
                     i_CLK=0,
                     i_GSR=0,
                     i_GTS=0,
                     i_KEYCLEARB=0,
                     i_PACK=0,
-                    i_USRCCLKO=e2_net,
+                    i_USRCCLKO=clk,
                     i_USRCCLKTS=0,
                     i_USRDONEO=1,
                     i_USRDONETS=1,
                 )
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
-                self.comb += If(e2_cnt == 6,
-                                 e2_net.eq(pads.clk)
-                             ).Else(
-                                 e2_net.eq(e2_clk)
-                             )
-                self.sync += If(e2_cnt < 6,
-                                 e2_cnt.eq(e2_cnt+1),
-                                 e2_clk.eq(~e2_clk)
-                             )
+                self.comb += en_int.eq(cycles < 3)
+                self.sync += If(en_int & posedge, cycles.eq(cycles+1))
             else:
                 raise NotImplementedError
+        else:
+            self.specials += SDROutput(i=clk, o=pads.clk)
 
-        self.comb += pads.clk.eq(clk)

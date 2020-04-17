@@ -6,6 +6,8 @@ from litespi.common import *
 
 from litex.soc.interconnect import stream
 
+from litex.build.io import SDRTristate
+
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 # Output enable masks for the tri-state buffers, data mode mask is not included as oe pins default to 0
@@ -119,13 +121,12 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         dq_oe = Signal(len(pads.dq))
 
         for i in range(len(pads.dq)):
-            t = TSTriple()
-            self.specials += t.get_tristate(pads.dq[i])
-            self.comb += [
-                dq_i[i].eq(t.i),
-                t.o.eq(dq_o[i]),
-                t.oe.eq(dq_oe[i]),
-            ]
+            self.specials += SDRTristate(
+                io = pads.dq[i],
+                o  = dq_o[i],
+                oe = dq_oe[i],
+                i  = dq_i[i],
+            )
 
         self.fsm_cnt = Signal(8)
         addr         = Signal(addr_bits if not ddr else addr_bits+addr_width) # dummy data for the first register shift
@@ -180,7 +181,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
             dq_o.eq(addr[-addr_width:]),
-            self.shift_out(addr_width, len(addr), "DUMMY", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
+            self.shift_out(addr_width, len(addr), "DUMMY" if dummy_bits else "IDLE", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
         )
         fsm.act("DUMMY",
             If(self.fsm_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
