@@ -203,6 +203,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         ),
         fsm.act("SEND_USER_DATA",
             source.valid.eq(1),
+            source.last.eq(1),
             source.data.eq(usr_din),
             If(source.ready & source.valid,
                 NextState("IDLE"),
@@ -210,6 +211,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         )
         fsm.act("SEND_DATA",
             source.valid.eq(1),
+            source.last.eq(1),
             source.data.eq(data),
             If(source.ready & source.valid,
                 NextState("IDLE"),

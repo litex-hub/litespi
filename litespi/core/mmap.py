@@ -72,6 +72,7 @@ class LiteSPIMMAP(Module):
             source.valid.eq(1),
             source.cmd.eq(READ),
             If(source.ready & source.valid,
+                source.last.eq(1),
                 NextState("READ_DAT"),
             )
         )
