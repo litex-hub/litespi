@@ -71,6 +71,7 @@ class LiteSPIMaster(Module, AutoCSR):
             tx_fifo.sink.len.eq(self._phyconfig.fields.len),
             tx_fifo.sink.width.eq(self._phyconfig.fields.width),
             tx_fifo.sink.mask.eq(self._phyconfig.fields.mask),
+            tx_fifo.sink.last.eq(1),
         ]
 
         # RX

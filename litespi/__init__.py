@@ -5,6 +5,7 @@ from litex.soc.interconnect import wishbone, stream
 from litex.soc.interconnect.csr import *
 
 from litespi.common import *
+from litespi.crossbar import LiteSPICrossbar
 from litespi.core.master import LiteSPIMaster
 from litespi.core.mmap import LiteSPIMMAP
 
@@ -47,20 +48,26 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
             CSRField("mux_sel", size=1, offset=0, description="SPI PHY multiplexer bit (0=SPIMMAP module attached to PHY, 1=SPI Master attached to PHY)")
         ])
 
-        self.submodules.mmap   = mmap   = LiteSPIMMAP(mmap_endianness) if with_mmap else LiteSPICore()
-        self.submodules.master = master = LiteSPIMaster() if with_master else LiteSPICore()
+        self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel)
 
         if with_mmap:
+            self.submodules.mmap = mmap = LiteSPIMMAP(mmap_endianness)
+            port_mmap = crossbar.get_port(MMAP_PORT, mmap.cs_n)
             self.bus = mmap.bus
+            self.comb += [
+                port_mmap.source.connect(mmap.sink),
+                mmap.source.connect(port_mmap.sink),
+            ]
+        if with_master:
+            self.submodules.master = master = LiteSPIMaster()
+            port_master = crossbar.get_port(MASTER_PORT, master.cs_n)
+            self.comb += [
+                port_master.source.connect(master.sink),
+                master.source.connect(port_master.sink),
+            ]
 
         self.comb += [
-            If(self._cfg.fields.mux_sel,
-                master.source.connect(phy.sink),
-                phy.source.connect(master.sink),
-                phy.cs_n.eq(master.cs_n),
-            ).Else(
-                mmap.source.connect(phy.sink),
-                phy.source.connect(mmap.sink),
-                phy.cs_n.eq(mmap.cs_n),
-            )
+            crossbar.master.source.connect(phy.sink),
+            phy.source.connect(crossbar.master.sink),
+            phy.cs_n.eq(crossbar.cs_n),
         ]
