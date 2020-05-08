@@ -65,7 +65,8 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         en_int          = Signal()
         clk             = Signal()
 
-        self.comb += [
+        # Delay signals by 1 cycle due to usage of SDRTristate
+        self.sync += [
             posedge.eq(~clk & (cnt == div)),
             negedge.eq(clk & (cnt == div)),
             sample.eq(cnt == sample_cnt),
