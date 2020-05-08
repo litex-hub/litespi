@@ -110,7 +110,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         cmd_bits = 8
 
         self.comb += [
-            clkgen.div.eq(2), # TODO: clkgen options should be SoftCPU configurable
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
