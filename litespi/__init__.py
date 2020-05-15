@@ -48,8 +48,9 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
             CSRField("mux_sel", size=1, offset=0, description="SPI PHY multiplexer bit (0=SPIMMAP module attached to PHY, 1=SPI Master attached to PHY)")
         ])
 
-        self.clk_divisor  = clk_div  = CSRStorage(8, reset=default_divisor)
-        self.sys_clk_freq = clk_freq = CSRStatus(32)
+        self.clk_divisor  = clk_div    = CSRStorage(8, reset=default_divisor)
+        self.dummy_bits   = dummy_bits = CSRStorage(8, reset=phy.default_dummy_bits)
+        self.sys_clk_freq = clk_freq   = CSRStatus(32)
         self.comb += clk_freq.status.eq(sys_clk_freq)
 
         self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel)
@@ -75,4 +76,5 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
             phy.source.connect(crossbar.master.sink),
             phy.cs_n.eq(crossbar.cs_n),
             phy.clkgen.div.eq(self.clk_divisor.storage),
+            phy.dummy_bits.eq(dummy_bits.storage)
         ]
