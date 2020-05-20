@@ -41,12 +41,17 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
         bus : Interface(), out
             Wishbone interface for memory-mapped flash access.
     """
-    def __init__(self, phy, with_mmap=True, with_master=True, mmap_endianness="big"):
+    def __init__(self, phy, sys_clk_freq, with_mmap=True, with_master=True, mmap_endianness="big", default_divisor=9):
         assert with_mmap or with_master
 
         self._cfg = CSRStorage(fields=[
             CSRField("mux_sel", size=1, offset=0, description="SPI PHY multiplexer bit (0=SPIMMAP module attached to PHY, 1=SPI Master attached to PHY)")
         ])
+
+        self.clk_divisor  = clk_div    = CSRStorage(8, reset=default_divisor)
+        self.dummy_bits   = dummy_bits = CSRStorage(8, reset=phy.default_dummy_bits)
+        self.sys_clk_freq = clk_freq   = CSRStatus(32)
+        self.comb += clk_freq.status.eq(sys_clk_freq)
 
         self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel)
 
@@ -70,4 +75,6 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
             crossbar.master.source.connect(phy.sink),
             phy.source.connect(crossbar.master.sink),
             phy.cs_n.eq(crossbar.cs_n),
+            phy.clkgen.div.eq(self.clk_divisor.storage),
+            phy.dummy_bits.eq(dummy_bits.storage)
         ]

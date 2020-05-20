@@ -83,7 +83,9 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         self.source = source = stream.Endpoint(spi_phy_data_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy_ctl_layout)
 
-        self.cs_n     = Signal()
+        self.cs_n               = Signal()
+        self.default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
+        self.dummy_bits         = dummy_bits = Signal(8)
 
         if hasattr(pads, "miso"):
             bus_width = 1
@@ -97,7 +99,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         assert flash.check_bus_width(bus_width)
 
         addr_bits = flash.addr_bits
-        dummy_bits = flash.dummy_bits if flash.fast_mode else 0
         cmd_width = flash.cmd_width
         addr_width = flash.addr_width
         data_width = flash.bus_width
@@ -110,7 +111,6 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         cmd_bits = 8
 
         self.comb += [
-            clkgen.div.eq(2), # TODO: clkgen options should be SoftCPU configurable
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
@@ -181,7 +181,11 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
             dq_o.eq(addr[-addr_width:]),
-            self.shift_out(addr_width, len(addr), "DUMMY" if dummy_bits else "IDLE", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
+            If(dummy_bits > 0,
+                self.shift_out(addr_width, len(addr), "DUMMY", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
+            ).Else(
+                self.shift_out(addr_width, len(addr), "IDLE", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
+            )
         )
         fsm.act("DUMMY",
             If(self.fsm_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
