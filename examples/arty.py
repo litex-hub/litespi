@@ -12,9 +12,15 @@ from litex.boards.platforms import arty
 from litex.build.xilinx.vivado import vivado_build_args, vivado_build_argdict
 
 from litex.soc.cores.clock import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
+
+from litespi.modules import S25FL128S
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+from litespi.phy.generic import LiteSPIPHY
+from litespi import LiteSPI
 
 from litedram.modules import MT41K128M16
 from litedram.phy import s7ddrphy
@@ -51,7 +57,7 @@ class _CRG(Module):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, **kwargs):
+    def __init__(self, sys_clk_freq=int(100e6), with_ethernet=False, with_etherbone=False, with_spiflash=False, **kwargs):
         platform = arty.Platform()
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -77,6 +83,15 @@ class BaseSoC(SoCCore):
                 l2_cache_min_data_width = kwargs.get("min_l2_data_width", 128),
                 l2_cache_reverse        = True
             )
+
+        # SPIFlash ---------------------------------------------------------------------------------
+        if with_spiflash:
+            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1))
+            self.submodules.spiflash_mmap = LiteSPI(phy=self.spiflash_phy, mmap_endianness=self.cpu.endianness)
+            self.add_csr("spiflash_mmap")
+            spiflash_size   = 1024*1024*16
+            spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=spiflash_size, cached=False)
+            self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)
 
         # Ethernet ---------------------------------------------------------------------------------
         if with_ethernet:
@@ -105,10 +120,14 @@ def main():
     vivado_build_args(parser)
     parser.add_argument("--with-ethernet",  action="store_true", help="Enable Ethernet support")
     parser.add_argument("--with-etherbone", action="store_true", help="Enable Etherbone support")
+    parser.add_argument("--with-spiflash",  action="store_true", help="Enable SPIFlash support")
     args = parser.parse_args()
 
     assert not (args.with_ethernet and args.with_etherbone)
-    soc = BaseSoC(with_ethernet=args.with_ethernet, with_etherbone=args.with_etherbone,
+    soc = BaseSoC(
+        with_ethernet  = args.with_ethernet,
+        with_etherbone = args.with_etherbone,
+        with_spiflash  = args.with_spiflash,
         **soc_sdram_argdict(args))
     builder = Builder(soc, **builder_argdict(args))
     builder.build(**vivado_build_argdict(args), run=args.build)
