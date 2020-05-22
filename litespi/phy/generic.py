@@ -105,6 +105,32 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         command = flash.read_opcode.code
         ddr = flash.ddr
 
+        # For Output modes there is a constant 8 dummy cycles, for I/O and DTR modes
+        # there are different number of dummy cycles and in some cases they can be configurable.
+        # We control a number of dummy cycles by substracting addr_width value from dummy_bits,
+        # so to achieve a proper number of dummy cycles when using shift_out function
+        # we need to calculate total dummy bits which depends on addr_width value.
+        # NOTE: these values are just default ones, in case chip has
+        # different default dummy cycles for these modes or dummy cycles can be configured,
+        # please adjust the dummy bits value via CSR in liblitespi accordingly.
+        if (addr_width > 1):
+            # DTR mode
+            if (ddr):
+                if (addr_width == 2):
+                    self.default_dummy_bits = 6 * addr_width
+                elif (addr_width == 4):
+                    self.default_dummy_bits = 8 * addr_width
+                else:
+                    self.default_dummy_bits = 16 * addr_width
+            # I/O mode
+            else:
+                if (addr_width == 2):
+                    self.default_dummy_bits = 4 * addr_width
+                elif (addr_width == 4):
+                    self.default_dummy_bits = 6 * addr_width
+                else:
+                    self.default_dummy_bits = 16 * addr_width
+
         self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device, with_ddr=ddr)
 
         data_bits = 32
