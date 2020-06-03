@@ -1,10 +1,12 @@
 from migen import *
 from migen.genlib.fsm import FSM, NextState
+from migen.genlib.cdc import MultiReg
 
 from litespi.clkgen import LiteSPIClkGen
 from litespi.common import *
 
 from litex.soc.interconnect import stream
+from litex.soc.interconnect.csr import *
 
 from litex.build.io import SDRTristate
 
@@ -21,10 +23,10 @@ addr_oe_mask = {
 }
 
 
-class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
-    """Generic LiteSPI PHY
+class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
+    """LiteSPI PHY instantiator
 
-    The ``LiteSPIPHY`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
+    The ``LiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
     It supports single/dual/quad/octal output reads from the flash chips.
 
@@ -43,6 +45,9 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
     device : str
         Device type for use by the ``LiteSPIClkGen``.
 
+    default_divisor : int
+        Default frequency divisor for clkgen.
+
     Attributes
     ----------
     source : Endpoint(spi_phy_data_layout), out
@@ -54,7 +59,13 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
     cs_n : Signal(), in
         Flash CS signal.
 
+    clk_divisor : CSRStorage
+        Register which holds a clock divisor value applied to clkgen.
+
+    dummy_bits : CSRStorage
+        Register which hold a number of dummy bits to send during transmission.
     """
+
     def shift_out(self, width, bits, next_state, trigger=[], op=[], ddr=False):
         if type(trigger) is not list:
             trigger = [trigger]
@@ -79,14 +90,28 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
 
         return res
 
-    def __init__(self, pads, flash, device="xc7"):
-        self.source = source = stream.Endpoint(spi_phy_data_layout)
-        self.sink   = sink   = stream.Endpoint(spi_phy_ctl_layout)
+    def __init__(self, pads, flash, device, clock_domain, default_divisor):
+        self.source                 = source = stream.Endpoint(spi_phy_data_layout)
+        self.sink                   = sink   = stream.Endpoint(spi_phy_ctl_layout)
+        self.cs_n                   = Signal()
+        self._spi_clk_divisor       = spi_clk_divisor   = Signal(8)
+        self._spi_dummy_bits        = spi_dummy_bits    = Signal(8)
+        self._default_dummy_bits    = flash.dummy_bits if flash.fast_mode else 0
+        self._default_divisor       = default_divisor
 
-        self.cs_n               = Signal()
-        self.default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
-        self.dummy_bits         = dummy_bits = Signal(8)
+        self.clk_divisor            = clk_divisor       = CSRStorage(8, reset=self._default_divisor)
+        self.dummy_bits             = dummy_bits        = CSRStorage(8, reset=self._default_dummy_bits)
 
+        if clock_domain is not "sys":
+            self.specials += [
+                MultiReg(clk_divisor.storage, spi_clk_divisor, "litespi"),
+                MultiReg(dummy_bits.storage, spi_dummy_bits, "litespi"),
+            ]
+        else:
+            self.comb += [
+                spi_clk_divisor.eq(clk_divisor.storage),
+                spi_dummy_bits.eq(dummy_bits.storage),
+            ]
         if hasattr(pads, "miso"):
             bus_width = 1
             pads.dq = [pads.mosi, pads.miso]
@@ -107,7 +132,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
 
         # For Output modes there is a constant 8 dummy cycles, for I/O and DTR modes
         # there are different number of dummy cycles and in some cases they can be configurable.
-        # We control a number of dummy cycles by substracting addr_width value from dummy_bits,
+        # We control a number of dummy cycles by substracting addr_width value from spi_dummy_bits,
         # so to achieve a proper number of dummy cycles when using shift_out function
         # we need to calculate total dummy bits which depends on addr_width value.
         # NOTE: these values are just default ones, in case chip has
@@ -137,6 +162,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         cmd_bits = 8
 
         self.comb += [
+            clkgen.div.eq(spi_clk_divisor),
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
             pads.cs_n.eq(self.cs_n),
@@ -207,7 +233,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
             dq_o.eq(addr[-addr_width:]),
-            If(dummy_bits > 0,
+            If(spi_dummy_bits > 0,
                 self.shift_out(addr_width, len(addr), "DUMMY", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
             ).Else(
                 self.shift_out(addr_width, len(addr), "IDLE", op=[NextValue(addr, addr<<addr_width)], trigger=clkgen.negedge if not ddr else clkgen.update, ddr=ddr)
@@ -215,7 +241,7 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
         )
         fsm.act("DUMMY",
             If(self.fsm_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
-            self.shift_out(addr_width, dummy_bits, "IDLE"),
+            self.shift_out(addr_width, spi_dummy_bits, "IDLE"),
         )
         fsm.act("DATA",
             self.shift_out(data_width, data_bits, "SEND_DATA", op=[NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data))], trigger=clkgen.posedge if not ddr else clkgen.sample, ddr=ddr)
@@ -247,3 +273,57 @@ class LiteSPIPHY(Module, AutoDoc, ModuleDoc):
                 NextState("IDLE"),
             )
         )
+
+
+class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
+    """LiteSPI PHY instantiator
+
+    The ``LiteSPIPHY`` class instantiate generic PHY - ``LiteSPIPHYCore`` that can be connected to the ``LiteSPICore``,
+    handles optional clock domain wrapping for whole PHY and interfaces streams and CS signal from PHY logic.
+
+    Parameters
+    ----------
+    pads : Object
+        SPI pads description.
+
+    flash : SpiNorFlashModule
+        SpiNorFlashModule configuration object.
+
+    device : str
+        Device type for use by the ``LiteSPIClkGen``.
+
+    clock_domain : str
+        Name of LiteSPI clock domain.
+
+    default_divisor : int
+        Default frequency divisor for clkgen.
+
+    Attributes
+    ----------
+    source : Endpoint(spi_phy_data_layout), out
+        Data stream from ``LiteSPIPHYCore``.
+
+    sink : Endpoint(spi_phy_ctl_layout), in
+        Control stream from ``LiteSPIPHYCore``.
+
+    cs_n : Signal(), in
+        Flash CS signal from ``LiteSPIPHYCore``.
+    """
+
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9):
+        self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, default_divisor)
+
+        self.source         = self.phy.source
+        self.sink           = self.phy.sink
+        self.cs_n           = self.phy.cs_n
+
+        if clock_domain is not "sys":
+            self.clock_domains.cd_litespi = ClockDomain()
+            self.phy = ClockDomainsRenamer("litespi")(self.phy)
+            self.comb += self.cd_litespi.clk.eq(ClockSignal(clock_domain))
+            self.comb += self.cd_litespi.rst.eq(ResetSignal(clock_domain))
+
+        self.submodules.spiflash_phy = self.phy
+
+    def get_csrs(self):
+        return self.spiflash_phy.get_csrs()

@@ -24,11 +24,22 @@ class LiteSPISlavePort:
 
 
 class LiteSPICrossbar(Module):
-    def __init__(self, rx_mux, cd="sys"):
+    def __init__(self, rx_mux, cd):
         self.cd = cd
         self.users = OrderedDict()
         self.rx_mux = rx_mux
         self.master = LiteSPIMasterPort()
+
+        if cd is not "sys":
+            rx_cdc = stream.AsyncFIFO(spi_phy_data_layout, 32, buffered=True)
+            tx_cdc = stream.AsyncFIFO(spi_phy_ctl_layout, 32, buffered=True)
+            self.submodules.rx_cdc = ClockDomainsRenamer({"write": "litespi", "read": "sys"})(rx_cdc)
+            self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": "litespi"})(tx_cdc)
+            self.comb += [
+                self.rx_cdc.source.connect(self.master.sink),
+                self.master.source.connect(self.tx_cdc.sink),
+            ]
+
         self.cs_n = Signal()
         self.user_cs = {}
 
