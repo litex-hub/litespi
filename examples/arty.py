@@ -86,11 +86,12 @@ class BaseSoC(SoCCore):
 
         # SPIFlash ---------------------------------------------------------------------------------
         if with_spiflash:
-            self.submodules.spiflash_phy  = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1))
-            self.submodules.spiflash_mmap = LiteSPI(phy=self.spiflash_phy,
-                sys_clk_freq    = sys_clk_freq,
+            self.submodules.spiflash_phy    = LiteSPIPHY(platform.request("spiflash"), S25FL128S(Codes.READ_1_1_1))
+            self.submodules.spiflash_mmap   = LiteSPI(phy=self.spiflash_phy,
+                clk_freq        = sys_clk_freq,
                 mmap_endianness = self.cpu.endianness)
             self.add_csr("spiflash_mmap")
+            self.add_csr("spiflash_phy")
             spiflash_size   = 1024*1024*16
             spiflash_region = SoCRegion(origin=self.mem_map.get("spiflash", None), size=spiflash_size, cached=False)
             self.bus.add_slave(name="spiflash", slave=self.spiflash_mmap.bus, region=spiflash_region)

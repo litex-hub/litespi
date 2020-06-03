@@ -9,23 +9,31 @@ from litespi.crossbar import LiteSPICrossbar
 from litespi.core.master import LiteSPIMaster
 from litespi.core.mmap import LiteSPIMMAP
 
+
 class LiteSPICore(Module):
     def __init__(self):
         self.source = stream.Endpoint(spi_phy_ctl_layout)
         self.sink   = stream.Endpoint(spi_phy_data_layout)
         self.cs_n   = Signal()
 
+
 class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
     """SPI Controller wrapper.
     
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
 
-    Both options can be used at the same time with help of ``mux_sel`` register which allows to share access to PHY.
+    Both options can be used at the same time with help of ``mux_sel`` register which allows to share access to PHY via crossbar.
 
     Parameters
     ----------
     phy : Module
         Module or object that contains PHY stream interfaces and a cs_n signal to connect the ``LiteSPICore`` to.
+
+    clk_freq : int
+        Frequency of a clock connected to LiteSPI.
+
+    clock_domain : str
+        Name of LiteSPI clock domain.
 
     with_mmap : bool
         Enables memory-mapped SPI flash controller.
@@ -38,22 +46,20 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
 
     Attributes
     ----------
-        bus : Interface(), out
-            Wishbone interface for memory-mapped flash access.
+    bus : Interface(), out
+        Wishbone interface for memory-mapped flash access.
     """
-    def __init__(self, phy, sys_clk_freq, with_mmap=True, with_master=True, mmap_endianness="big", default_divisor=9):
-        assert with_mmap or with_master
 
+    def __init__(self, phy, clk_freq, clock_domain="sys", with_mmap=True, with_master=True, mmap_endianness="big"):
         self._cfg = CSRStorage(fields=[
             CSRField("mux_sel", size=1, offset=0, description="SPI PHY multiplexer bit (0=SPIMMAP module attached to PHY, 1=SPI Master attached to PHY)")
         ])
+        self.sys_clk_freq = sys_clk_freq = CSRStatus(32)
 
-        self.clk_divisor  = clk_div    = CSRStorage(8, reset=default_divisor)
-        self.dummy_bits   = dummy_bits = CSRStorage(8, reset=phy.default_dummy_bits)
-        self.sys_clk_freq = clk_freq   = CSRStatus(32)
-        self.comb += clk_freq.status.eq(sys_clk_freq)
+        self.comb += sys_clk_freq.status.eq(clk_freq)
 
-        self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel)
+        self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel, clock_domain)
+        self.comb += phy.cs_n.eq(crossbar.cs_n)
 
         if with_mmap:
             self.submodules.mmap = mmap = LiteSPIMMAP(mmap_endianness)
@@ -71,10 +77,13 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
                 master.source.connect(port_master.sink),
             ]
 
-        self.comb += [
-            crossbar.master.source.connect(phy.sink),
-            phy.source.connect(crossbar.master.sink),
-            phy.cs_n.eq(crossbar.cs_n),
-            phy.clkgen.div.eq(self.clk_divisor.storage),
-            phy.dummy_bits.eq(dummy_bits.storage)
-        ]
+        if clock_domain is not "sys":
+            self.comb += [
+                crossbar.tx_cdc.source.connect(phy.sink),
+                phy.source.connect(crossbar.rx_cdc.sink),
+            ]
+        else:
+            self.comb += [
+                crossbar.master.source.connect(phy.sink),
+                phy.source.connect(crossbar.master.sink),
+            ]
