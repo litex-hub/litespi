@@ -104,6 +104,11 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
+            elif device[:5] == "LFE5U":
+                self.specials += Instance("USRMCLK",
+                    i_USRMCLKI  = clk,
+                    i_USRMCLKTS = 0
+                )
             else:
                 raise NotImplementedError
         else:
