@@ -68,7 +68,7 @@ ios = [
 
 class BaseSoC(SoCCore):
     def __init__(self,
-            sys_clk_freq   = int(125e6),
+            sys_clk_freq   = int(60e6),
             with_ethernet  = False,
             with_etherbone = False,
             with_spiflash  = False,
