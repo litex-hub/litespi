@@ -1,5 +1,11 @@
-import enum
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
 
+
+import enum
 
 class SpiNorFeatures(enum.Flag):
     FEATURE_ERASED_ZERO     = enum.auto()

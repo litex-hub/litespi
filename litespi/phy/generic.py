@@ -1,3 +1,9 @@
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 from migen import *
 from migen.genlib.fsm import FSM, NextState
 from migen.genlib.cdc import MultiReg

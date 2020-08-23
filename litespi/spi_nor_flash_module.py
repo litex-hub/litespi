@@ -1,3 +1,10 @@
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
+
 from litespi.spi_nor_features import SpiNorFeatures
 from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.spi_nor_flash_metasizes import MetaSizes

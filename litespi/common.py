@@ -1,3 +1,9 @@
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 """
 Stream layout for LiteSPICore->PHY connection:
 data - flash byte address when cmd=1, data to transmit when cmd=2, unused in cmd=0

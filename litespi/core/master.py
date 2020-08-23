@@ -1,3 +1,9 @@
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 from migen import *
 from migen.genlib.fsm import FSM, NextState
 
@@ -36,7 +42,7 @@ class LiteSPIMaster(Module, AutoCSR):
     """
     def get_fifo(self, depth, layout):
         return stream.SyncFIFO(layout, depth=depth, buffered=True)
-        
+
     def __init__(self, fifo_depth=8, cs_width=1):
         self.submodules.tx_fifo = tx_fifo = self.get_fifo(fifo_depth, spi_phy_ctl_layout)
         self.submodules.rx_fifo = rx_fifo = self.get_fifo(fifo_depth, spi_phy_data_layout)

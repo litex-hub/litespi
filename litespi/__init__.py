@@ -1,3 +1,9 @@
+#
+# This file is part of LiteSPI
+#
+# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 from migen import *
 
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
@@ -19,7 +25,7 @@ class LiteSPICore(Module):
 
 class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
     """SPI Controller wrapper.
-    
+
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
 
     Both options can be used at the same time with help of ``mux_sel`` register which allows to share access to PHY via crossbar.
