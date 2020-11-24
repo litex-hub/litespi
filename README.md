@@ -6,7 +6,7 @@
 
       Copyright (c) 2020, LiteSPI Developers
 ```
-[![](https://travis-ci.com/litex-hub/litespi.svg?branch=master)](https://travis-ci.com/litex-hub/litespi) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
+[![](https://github.com/litex-hub/litespi/workflows/ci/badge.svg)](https://github.com/litex-hub/litespi/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
 [> Intro
 --------
