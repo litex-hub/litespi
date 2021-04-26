@@ -46,7 +46,7 @@ class LiteSPIMaster(Module, AutoCSR):
     def __init__(self, fifo_depth=8, cs_width=1):
         self.submodules.tx_fifo = tx_fifo = self.get_fifo(fifo_depth, spi_phy_ctl_layout)
         self.submodules.rx_fifo = rx_fifo = self.get_fifo(fifo_depth, spi_phy_data_layout)
-        self.sink = rx_fifo.sink
+        self.sink   = rx_fifo.sink
         self.source = tx_fifo.source
 
         assert self.sink.data.nbits == self.source.data.nbits
@@ -55,9 +55,9 @@ class LiteSPIMaster(Module, AutoCSR):
 
         self._cs = CSRStorage(cs_width)
         self._phyconfig = CSRStorage(fields=[
-            CSRField("len", size=8, offset=0, description="SPI Xfer length (in bits)."),
-            CSRField("width", size=4, offset=8, description="SPI Xfer width (1/2/4/8)."),
-            CSRField("mask", size=8, offset=16, description="SPI DQ output enable mask (set bits to ``1`` to enable output drivers on DQ lines)."),
+            CSRField("len",   size=8, offset=0,  description="SPI Xfer length (in bits)."),
+            CSRField("width", size=4, offset=8,  description="SPI Xfer width (1/2/4/8)."),
+            CSRField("mask",  size=8, offset=16, description="SPI DQ output enable mask (set bits to ``1`` to enable output drivers on DQ lines)."),
         ], description="SPI PHY settings.")
         self._rxtx = CSR(self.source.data.nbits)
         self._status = CSRStatus(fields=[
@@ -65,10 +65,12 @@ class LiteSPIMaster(Module, AutoCSR):
             CSRField("rx_ready", size=1, offset=1, description="RX FIFO is not empty."),
         ])
 
-        # CS
+        # # #
+
+        # SPI CS.
         self.comb += self.cs_n.eq(~self._cs.storage)
 
-        # TX
+        # SPI TX (MOSI).
         self.comb += [
             tx_fifo.sink.valid.eq(self._rxtx.re),
             self._status.fields.tx_ready.eq(tx_fifo.sink.ready),
@@ -80,7 +82,7 @@ class LiteSPIMaster(Module, AutoCSR):
             tx_fifo.sink.last.eq(1),
         ]
 
-        # RX
+        # SPI RX (MISO).
         self.comb += [
             rx_fifo.source.ready.eq(self._rxtx.we),
             self._status.fields.rx_ready.eq(rx_fifo.source.valid),

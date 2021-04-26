@@ -18,93 +18,95 @@ class LiteSPIMMAP(Module):
 
     The ``LiteSPIMMAP`` class provides a Wishbone slave that must be connected to a LiteSPI PHY.
 
-    It supports sequential access so that command and address is only sent when necessary.
+    It supports sequential accesses so that command and address is only sent when necessary.
 
     Parameters
     ----------
     endianness : string
-        If endianness is set to ``small`` then byte order of each 32-bit word comming from flash will be reversed.
+        If endianness is set to ``little`` then byte order of each 32-bit word coming from flash will be reversed.
 
     Attributes
     ----------
     source : Endpoint(spi_phy_ctl_layout), out
-        PHY control interface
+        PHY control interface.
 
     sink : Endpoint(spi_phy_data_layout), in
-        PHY data interface
+        PHY data interface.
 
     bus : Interface(), out
-        Wishbone interface for memory-mapped flash access
+        Wishbone interface for memory-mapped flash access.
 
     cs_n : Signal(), out
-        CS signal for the flash chip, should be connected to cs_n signal of the PHY
+        CS signal for the flash chip, should be connected to cs_n signal of the PHY.
     """
     def __init__(self, endianness="big"):
         self.source = source = stream.Endpoint(spi_phy_ctl_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy_data_layout)
         self.bus    = bus    = wishbone.Interface()
         self.cs_n   = cs_n   = Signal()
-        curr_addr   = Signal(32)
-        bus_read    = Signal()
-        cs_cnt      = Signal(16)
-        cs_val      = Signal(16)
 
+        # # #
+
+        curr_addr = Signal(32)
+        bus_read  = Signal()
+        cs_count  = Signal(16)
+
+        # Decode Bus Read Commands.
+        self.comb += bus_read.eq(bus.cyc & bus.stb & ~bus.we)
+
+        # Map Bus Read Datas.
+        self.comb += bus.dat_r.eq({"big": sink.data, "little": reverse_bytes(sink.data)}[endianness])
+
+        # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
-
-        self.comb += [
-            bus_read.eq(bus.cyc & bus.stb & ~bus.we),
-            bus.dat_r.eq(sink.data if endianness == "big" else reverse_bytes(sink.data)),
-        ]
-
-        # TODO: make this configurable via CSR
-        self.comb += cs_val.eq(10000)
-
         fsm.act("IDLE",
             cs_n.eq(1),
             If(bus_read,
-                NextState("CS_DELAY"),
+                NextState("CS-DELAY"),
             )
         )
         fsm.act("CMD",
             source.valid.eq(1),
             source.cmd.eq(CMD),
-            source.data.eq(Cat(0, 0, bus.adr)), # convert wb address to bytes
-            If(source.ready & source.valid,
+            source.data.eq(Cat(Signal(2), bus.adr)), # Words to Bytes.
+            If(source.ready,
                 NextValue(curr_addr, bus.adr),
-                NextState("READ_REQ"),
+                NextState("READ-REQ"),
             )
         )
-        fsm.act("READ_REQ",
+        fsm.act("READ-REQ",
             source.valid.eq(1),
             source.cmd.eq(READ),
-            If(source.ready & source.valid,
+            If(source.ready,
                 source.last.eq(1),
-                NextState("READ_DAT"),
+                NextState("READ-DAT"),
             )
         )
-        fsm.act("READ_DAT",
+        fsm.act("READ-DAT",
             sink.ready.eq(bus.stb),
             bus.ack.eq(sink.valid),
-            If(sink.ready & sink.valid,
-                NextValue(curr_addr, curr_addr+1),
+            If(sink.valid & sink.ready,
+                NextValue(curr_addr, curr_addr + 1),
                 NextState("READY"),
             )
         )
         fsm.act("READY",
             If(bus_read,
-                If(curr_addr == bus.adr, # is the current flash address ok?
-                    NextState("READ_REQ"),
+                # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
+                If(bus.adr == curr_addr,
+                    NextState("READ-REQ"),
+                # Else we have to initiate another SPI Burst.
                 ).Else(
-                    NextState("CS_DELAY"),
+                    NextState("CS-DELAY"),
                 )
             )
         )
-        fsm.act("CS_DELAY",
+        fsm.act("CS-DELAY",
             cs_n.eq(1),
-            If(cs_cnt < cs_val,
-                NextValue(cs_cnt, cs_cnt+1),
+            If(cs_count < 10000, # FIXME: Make it configurable.
+                NextValue(cs_count, cs_count + 1),
             ).Else(
-                NextValue(cs_cnt, 0),
+                NextValue(cs_count, 0),
                 NextState("CMD"),
             )
         )
