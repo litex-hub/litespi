@@ -15,12 +15,12 @@ mask - dq output enable control (1 enables a output on a particular pin)
 """
 spi_phy_ctl_layout = [
     ("data", 32),
-    ("cmd", 2),
-    ("len", 6),
+    ("cmd",   2),
+    ("len",   6),
     ("width", 4),
-    ("mask", 8),
+    ("mask",  8),
 ]
-CMD = 0
+CMD  = 0
 READ = 1
 USER = 2
 """
@@ -31,5 +31,5 @@ spi_phy_data_layout = [
     ("data", 32),
 ]
 
-MMAP_PORT = 0
+MMAP_PORT   = 0
 MASTER_PORT = 1
