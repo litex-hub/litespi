@@ -110,7 +110,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # # #
 
-        if clock_domain is not "sys":
+        if clock_domain != "sys":
             self.specials += MultiReg(clk_divisor.storage, spi_clk_divisor, "litespi")
             self.specials += MultiReg(dummy_bits.storage,  spi_dummy_bits,  "litespi")
         else:
@@ -364,7 +364,7 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
 
         # # #
 
-        if clock_domain is not "sys":
+        if clock_domain != "sys":
             self.clock_domains.cd_litespi = ClockDomain()
             self.phy = ClockDomainsRenamer("litespi")(self.phy)
             self.comb += self.cd_litespi.clk.eq(ClockSignal(clock_domain))
