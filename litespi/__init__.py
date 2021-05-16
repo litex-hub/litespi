@@ -83,7 +83,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
                 master.source.connect(port_master.sink),
             ]
 
-        if clock_domain is not "sys":
+        if clock_domain != "sys":
             self.comb += [
                 crossbar.tx_cdc.source.connect(phy.sink),
                 phy.source.connect(crossbar.rx_cdc.sink),

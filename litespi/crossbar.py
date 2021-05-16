@@ -33,7 +33,7 @@ class LiteSPICrossbar(Module):
         self.rx_mux = rx_mux
         self.master = LiteSPIMasterPort()
 
-        if cd is not "sys":
+        if cd != "sys":
             rx_cdc = stream.AsyncFIFO(spi_phy_data_layout, 32, buffered=True)
             tx_cdc = stream.AsyncFIFO(spi_phy_ctl_layout, 32, buffered=True)
             self.submodules.rx_cdc = ClockDomainsRenamer({"write": "litespi", "read": "sys"})(rx_cdc)
