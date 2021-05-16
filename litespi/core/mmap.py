@@ -50,6 +50,7 @@ class LiteSPIMMAP(Module):
         curr_addr = Signal(32)
         bus_read  = Signal()
         cs_count  = Signal(16)
+        timeout   = Signal(max = MMAP_DEFAULT_TIMEOUT)
 
         # Decode Bus Read Commands.
         self.comb += bus_read.eq(bus.cyc & bus.stb & ~bus.we)
@@ -90,10 +91,16 @@ class LiteSPIMMAP(Module):
             If(sink.valid & sink.ready,
                 NextValue(curr_addr, curr_addr + 1),
                 NextState("READY"),
+                NextValue(timeout, MMAP_DEFAULT_TIMEOUT - 1),
             )
         )
         fsm.act("READY",
             cs.eq(1),
+            If(timeout == 0,
+                NextState("IDLE"),
+            ).Else(
+                NextValue(timeout, timeout - 1),
+            ),
             If(bus_read,
                 # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
                 If(bus.adr == curr_addr,
