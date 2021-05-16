@@ -57,19 +57,16 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
     """
 
     def __init__(self, phy, clk_freq, clock_domain="sys", with_mmap=True, with_master=True, mmap_endianness="big"):
-        self._cfg = CSRStorage(fields=[
-            CSRField("mux_sel", size=1, offset=0, description="SPI PHY multiplexer bit (0=SPIMMAP module attached to PHY, 1=SPI Master attached to PHY)")
-        ])
         self.sys_clk_freq = sys_clk_freq = CSRStatus(32)
 
         self.comb += sys_clk_freq.status.eq(clk_freq)
 
-        self.submodules.crossbar = crossbar = LiteSPICrossbar(self._cfg.fields.mux_sel, clock_domain)
+        self.submodules.crossbar = crossbar = LiteSPICrossbar(clock_domain)
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
             self.submodules.mmap = mmap = LiteSPIMMAP(mmap_endianness)
-            port_mmap = crossbar.get_port(MMAP_PORT, mmap.cs)
+            port_mmap = crossbar.get_port(mmap.cs)
             self.bus = mmap.bus
             self.comb += [
                 port_mmap.source.connect(mmap.sink),
@@ -77,7 +74,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
             ]
         if with_master:
             self.submodules.master = master = LiteSPIMaster()
-            port_master = crossbar.get_port(MASTER_PORT, master.cs)
+            port_master = crossbar.get_port(master.cs)
             self.comb += [
                 port_master.source.connect(master.sink),
                 master.source.connect(port_master.sink),
