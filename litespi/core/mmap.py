@@ -36,14 +36,14 @@ class LiteSPIMMAP(Module):
     bus : Interface(), out
         Wishbone interface for memory-mapped flash access.
 
-    cs_n : Signal(), out
-        CS signal for the flash chip, should be connected to cs_n signal of the PHY.
+    cs : Signal(), out
+        CS signal for the flash chip, should be connected to cs signal of the PHY.
     """
     def __init__(self, endianness="big"):
         self.source = source = stream.Endpoint(spi_phy_ctl_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy_data_layout)
         self.bus    = bus    = wishbone.Interface()
-        self.cs_n   = cs_n   = Signal()
+        self.cs     = cs     = Signal()
 
         # # #
 
@@ -60,12 +60,12 @@ class LiteSPIMMAP(Module):
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            cs_n.eq(1),
             If(bus_read,
                 NextState("CS-DELAY"),
             )
         )
         fsm.act("CMD",
+            cs.eq(1),
             source.valid.eq(1),
             source.cmd.eq(CMD),
             source.data.eq(Cat(Signal(2), bus.adr)), # Words to Bytes.
@@ -75,6 +75,7 @@ class LiteSPIMMAP(Module):
             )
         )
         fsm.act("READ-REQ",
+            cs.eq(1),
             source.valid.eq(1),
             source.cmd.eq(READ),
             If(source.ready,
@@ -83,6 +84,7 @@ class LiteSPIMMAP(Module):
             )
         )
         fsm.act("READ-DAT",
+            cs.eq(1),
             sink.ready.eq(bus.stb),
             bus.ack.eq(sink.valid),
             If(sink.valid & sink.ready,
@@ -91,6 +93,7 @@ class LiteSPIMMAP(Module):
             )
         )
         fsm.act("READY",
+            cs.eq(1),
             If(bus_read,
                 # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
                 If(bus.adr == curr_addr,
@@ -102,7 +105,6 @@ class LiteSPIMMAP(Module):
             )
         )
         fsm.act("CS-DELAY",
-            cs_n.eq(1),
             If(cs_count < 10000, # FIXME: Make it configurable.
                 NextValue(cs_count, cs_count + 1),
             ).Else(

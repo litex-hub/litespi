@@ -63,7 +63,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     sink : Endpoint(spi_phy_ctl_layout), in
         Control stream.
 
-    cs_n : Signal(), in
+    cs : Signal(), in
         Flash CS signal.
 
     clk_divisor : CSRStorage
@@ -99,7 +99,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     def __init__(self, pads, flash, device, clock_domain, default_divisor):
         self.source              = source = stream.Endpoint(spi_phy_data_layout)
         self.sink                = sink   = stream.Endpoint(spi_phy_ctl_layout)
-        self.cs_n                = Signal()
+        self.cs                  = Signal()
         self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
         self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
         self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
@@ -166,7 +166,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             clkgen.div.eq(spi_clk_divisor),
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
-            pads.cs_n.eq(self.cs_n),
+            pads.cs_n.eq(~self.cs),
         ]
 
         # I/Os.
@@ -351,7 +351,7 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
     sink : Endpoint(spi_phy_ctl_layout), in
         Control stream from ``LiteSPIPHYCore``.
 
-    cs_n : Signal(), in
+    cs : Signal(), in
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
@@ -360,7 +360,7 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
 
         self.source = self.phy.source
         self.sink   = self.phy.sink
-        self.cs_n   = self.phy.cs_n
+        self.cs   = self.phy.cs
 
         # # #
 

@@ -43,7 +43,7 @@ class LiteSPICrossbar(Module):
                 self.master.source.connect(self.tx_cdc.sink),
             ]
 
-        self.cs_n = Signal()
+        self.cs = Signal()
         self.user_cs = {}
 
     def get_port(self, port_id, cs):
@@ -59,7 +59,7 @@ class LiteSPICrossbar(Module):
         self.comb += rx_stream.connect(user_port.source)
 
         self.users[port_id] = internal_port
-        self.user_cs[port_id] = self.cs_n.eq(cs)
+        self.user_cs[port_id] = self.cs.eq(cs)
 
         return user_port
 
