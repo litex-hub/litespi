@@ -112,7 +112,7 @@ class LiteSPIMMAP(Module):
             )
         )
         fsm.act("CS-DELAY",
-            If(cs_count < 10000, # FIXME: Make it configurable.
+            If(cs_count < 10, # FIXME: Make it configurable.
                 NextValue(cs_count, cs_count + 1),
             ).Else(
                 NextValue(cs_count, 0),
