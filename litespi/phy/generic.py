@@ -278,10 +278,20 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             self.shift_out(
                 width      = data_width,
                 bits       = data_bits,
-                next_state = "SEND_DATA",
+                next_state = "DATA_END",
                 op         = [NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data))],
-                trigger    = clkgen.posedge if not ddr else clkgen.sample,
+                trigger    = clkgen.posedge_reg2 if not ddr else clkgen.sample,
                 ddr        = ddr
+            )
+        )
+        fsm.act("DATA_END",
+            If(spi_clk_divisor > 0,
+                # Last data cycle was already captured in the DATA state.
+                NextState("SEND_DATA"),
+            ).Elif(clkgen.posedge_reg2,
+                # Capture last data cycle.
+                NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data)),
+                NextState("SEND_DATA"),
             )
         )
         fsm.act("USER",
@@ -290,17 +300,27 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             self.shift_out(
                 width      = usr_width,
                 bits       = usr_len,
-                next_state ="SEND_USER_DATA",
+                next_state = "USER_END",
                 trigger    = [
-                    clkgen.posedge, # data sampling
-                    clkgen.negedge, # data update
+                    clkgen.posedge_reg2, # data sampling
+                    clkgen.negedge,      # data update
                 ],
                 op = [
                     [Case(usr_width, din_width_cases)],
                     [NextValue(usr_dout, usr_dout<<usr_width)],
                 ],
                 ddr = False)
-        ),
+        )
+        fsm.act("USER_END",
+            If(spi_clk_divisor > 0,
+                # Last data cycle was already captured in the USER state.
+                NextState("SEND_USER_DATA"),
+            ).Elif(clkgen.posedge_reg2,
+                # Capture last data cycle.
+                Case(usr_width, din_width_cases),
+                NextState("SEND_USER_DATA"),
+            )
+        )
         fsm.act("SEND_USER_DATA",
             source.valid.eq(1),
             source.last.eq(1),
