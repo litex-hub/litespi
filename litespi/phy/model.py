@@ -32,7 +32,7 @@ class LiteSPIPHYModel(Module):
     sink : Endpoint(spi_phy_ctl_layout), in
         Control stream.
 
-    cs_n : Signal()
+    cs : Signal()
         Dummy flash CS signal.
     """
     def __init__(self, size, init=None):
@@ -40,7 +40,7 @@ class LiteSPIPHYModel(Module):
         self.sink   = sink   = stream.Endpoint(spi_phy_ctl_layout)
         mem         = Memory(32, size//4, init=init)
         read_addr   = Signal(32)
-        self.cs_n   = Signal()
+        self.cs     = Signal()
 
         read_port   = mem.get_port(async_read=True)
         self.comb  += read_port.adr.eq(read_addr)

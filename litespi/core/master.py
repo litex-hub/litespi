@@ -36,7 +36,7 @@ class LiteSPIMaster(Module, AutoCSR):
     sink : Endpoint(spi_phy_ctl_layout), in
         Control stream.
 
-    cs_n : Signal(), out
+    cs : Signal(), out
         Slave CS signal.
 
     """
@@ -51,7 +51,7 @@ class LiteSPIMaster(Module, AutoCSR):
 
         assert self.sink.data.nbits == self.source.data.nbits
 
-        self.cs_n = Signal(cs_width)
+        self.cs = Signal(cs_width)
 
         self._cs = CSRStorage(cs_width)
         self._phyconfig = CSRStorage(fields=[
@@ -68,7 +68,7 @@ class LiteSPIMaster(Module, AutoCSR):
         # # #
 
         # SPI CS.
-        self.comb += self.cs_n.eq(~self._cs.storage)
+        self.comb += self.cs.eq(self._cs.storage)
 
         # SPI TX (MOSI).
         self.comb += [

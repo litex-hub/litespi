@@ -31,5 +31,4 @@ spi_phy_data_layout = [
     ("data", 32),
 ]
 
-MMAP_PORT   = 0
-MASTER_PORT = 1
+MMAP_DEFAULT_TIMEOUT = 256

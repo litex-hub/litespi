@@ -8,10 +8,10 @@
 from collections import OrderedDict
 
 from migen import *
+from migen.genlib.roundrobin import RoundRobin
 from litespi.common import *
 
 from litex.soc.interconnect import stream
-from litex.soc.interconnect.packet import Arbiter, Dispatcher
 
 
 class LiteSPIMasterPort:
@@ -27,13 +27,12 @@ class LiteSPISlavePort:
 
 
 class LiteSPICrossbar(Module):
-    def __init__(self, rx_mux, cd):
+    def __init__(self, cd):
         self.cd = cd
-        self.users = OrderedDict()
-        self.rx_mux = rx_mux
+        self.users = []
         self.master = LiteSPIMasterPort()
 
-        if cd is not "sys":
+        if cd != "sys":
             rx_cdc = stream.AsyncFIFO(spi_phy_data_layout, 32, buffered=True)
             tx_cdc = stream.AsyncFIFO(spi_phy_ctl_layout, 32, buffered=True)
             self.submodules.rx_cdc = ClockDomainsRenamer({"write": "litespi", "read": "sys"})(rx_cdc)
@@ -43,10 +42,11 @@ class LiteSPICrossbar(Module):
                 self.master.source.connect(self.tx_cdc.sink),
             ]
 
-        self.cs_n = Signal()
-        self.user_cs = {}
+        self.cs = Signal()
+        self.user_cs = []
+        self.user_request = []
 
-    def get_port(self, port_id, cs):
+    def get_port(self, cs, request = None):
         user_port = LiteSPISlavePort()
         internal_port = LiteSPISlavePort()
 
@@ -58,27 +58,39 @@ class LiteSPICrossbar(Module):
 
         self.comb += rx_stream.connect(user_port.source)
 
-        self.users[port_id] = internal_port
-        self.user_cs[port_id] = self.cs_n.eq(cs)
+        if request is None:
+            request = Signal()
+            self.comb += request.eq(cs)
+
+        self.users.append(internal_port)
+        self.user_cs.append(self.cs.eq(cs))
+        self.user_request.append(request)
 
         return user_port
 
     def do_finalize(self):
-        # TX
-        sinks = [port.sink for port in self.users.values()]
-        self.submodules.arbiter = Arbiter(sinks, self.master.source)
-        # RX
-        sources = [port.source for port in self.users.values()]
-        self.submodules.dispatcher = Dispatcher(self.master.sink,
-                                                sources,
-                                                one_hot=True)
+        self.submodules.rr = RoundRobin(len(self.users))
 
-        cases = {}
-        cases["default"] = self.dispatcher.sel.eq(0)
-        for i, (k, v) in enumerate(self.users.items()):
-            cases[k] = self.dispatcher.sel.eq(2**i)
+        # TX
+        self.submodules.tx_mux = tx_mux = stream.Multiplexer(spi_phy_ctl_layout, len(self.users))
+
+        # RX
+        self.submodules.rx_demux = rx_demux = stream.Demultiplexer(spi_phy_data_layout, len(self.users))
+
+        for i, user in enumerate(self.users):
+            self.comb += [
+                user.sink.connect(getattr(tx_mux, f"sink{i}")),
+                getattr(rx_demux, f"source{i}").connect(user.source),
+            ]
 
         self.comb += [
-            Case(self.rx_mux, cases),
-            Case(self.rx_mux, self.user_cs),
+            self.rr.request.eq(Cat(self.user_request)),
+
+            self.tx_mux.source.connect(self.master.source),
+            self.tx_mux.sel.eq(self.rr.grant),
+
+            self.master.sink.connect(self.rx_demux.sink),
+            self.rx_demux.sel.eq(self.rr.grant),
+
+            Case(self.rr.grant, dict(enumerate(self.user_cs))),
         ]
