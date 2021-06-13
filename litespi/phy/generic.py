@@ -96,7 +96,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         return res
 
-    def __init__(self, pads, flash, device, clock_domain, default_divisor):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay = 10):
         self.source              = source = stream.Endpoint(spi_phy_data_layout)
         self.sink                = sink   = stream.Endpoint(spi_phy_ctl_layout)
         self.cs                  = Signal()
@@ -166,8 +166,26 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             clkgen.div.eq(spi_clk_divisor),
             clkgen.sample_cnt.eq(1),
             clkgen.update_cnt.eq(1),
-            pads.cs_n.eq(~self.cs),
         ]
+
+        # CS control.
+        cs_count = Signal(max = cs_delay + 1)
+        cs_out = Signal()
+
+        self.sync += [
+            If(cs_count > 0,
+                cs_count.eq(cs_count - 1),
+            ),
+            If(self.cs & (cs_count == 0),
+                cs_out.eq(1),
+            ),
+            If(cs_out & ~self.cs,
+                cs_out.eq(0),
+                cs_count.eq(cs_delay),
+            ),
+        ]
+
+        self.comb += pads.cs_n.eq(~cs_out)
 
         # I/Os.
         data_bits = 32
@@ -226,8 +244,8 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            sink.ready.eq(1),
-            If(sink.valid,
+            sink.ready.eq(cs_out),
+            If(sink.valid & sink.ready,
                 Case(sink.cmd, commands),
             ),
         )
