@@ -71,12 +71,20 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         en_int          = Signal()
         clk             = Signal()
 
-        # Delay signals by 1 cycle due to usage of SDRTristate
-        self.sync += [
-            posedge.eq(~clk & (cnt == div)),
-            negedge.eq(clk & (cnt == div)),
+        self.comb += [
+            posedge.eq(en & ~clk & (cnt == div)),
+            negedge.eq(en & clk & (cnt == div)),
             sample.eq(cnt == sample_cnt),
             update.eq(cnt == update_cnt),
+        ]
+
+        # Delayed edge to account for IO register delays.
+        self.posedge_reg  = posedge_reg  = Signal()
+        self.posedge_reg2 = posedge_reg2 = Signal()
+
+        self.sync += [
+            posedge_reg.eq(posedge),
+            posedge_reg2.eq(posedge_reg),
         ]
 
         self.sync += [
@@ -94,6 +102,10 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         ]
 
         if not hasattr(pads, "clk"):
+            # Clock output needs to be registered like an SDROutput.
+            clk_reg = Signal()
+            self.sync += clk_reg.eq(clk)
+
             if device.startswith("xc7"):
                 cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
@@ -102,7 +114,7 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
                     i_GTS=0,
                     i_KEYCLEARB=0,
                     i_PACK=0,
-                    i_USRCCLKO=clk,
+                    i_USRCCLKO=clk_reg,
                     i_USRCCLKTS=0,
                     i_USRDONEO=1,
                     i_USRDONETS=1,
@@ -112,7 +124,7 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
-                    i_USRMCLKI  = clk,
+                    i_USRMCLKI  = clk_reg,
                     i_USRMCLKTS = 0
                 )
             else:
