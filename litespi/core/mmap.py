@@ -49,7 +49,6 @@ class LiteSPIMMAP(Module):
 
         curr_addr = Signal(32)
         bus_read  = Signal()
-        cs_count  = Signal(16)
         timeout   = Signal(max = MMAP_DEFAULT_TIMEOUT)
 
         # Decode Bus Read Commands.
@@ -62,7 +61,7 @@ class LiteSPIMMAP(Module):
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             If(bus_read,
-                NextState("CS-DELAY"),
+                NextState("CMD"),
             )
         )
         fsm.act("CMD",
@@ -107,15 +106,7 @@ class LiteSPIMMAP(Module):
                     NextState("READ-REQ"),
                 # Else we have to initiate another SPI Burst.
                 ).Else(
-                    NextState("CS-DELAY"),
+                    NextState("IDLE"),
                 )
-            )
-        )
-        fsm.act("CS-DELAY",
-            If(cs_count < 10000, # FIXME: Make it configurable.
-                NextValue(cs_count, cs_count + 1),
-            ).Else(
-                NextValue(cs_count, 0),
-                NextState("CMD"),
             )
         )
