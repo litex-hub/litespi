@@ -96,7 +96,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         return res
 
-    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay = 10):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
         self.source              = source = stream.Endpoint(spi_phy_data_layout)
         self.sink                = sink   = stream.Endpoint(spi_phy_ctl_layout)
         self.cs                  = Signal()
@@ -393,8 +393,8 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9):
-        self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, default_divisor)
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10):
+        self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
 
         self.source = self.phy.source
         self.sink   = self.phy.sink
