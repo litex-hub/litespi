@@ -19,7 +19,12 @@ from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 # Output enable masks for the tri-state buffers, data mode mask is not included as oe pins default to 0
 
-cmd_oe_mask  = 0b00000001
+cmd_oe_mask  = {
+    1: 0b00000001,
+    2: 0b00000011,
+    4: 0b00001111,
+    8: 0b11111111,
+}
 soft_oe_mask = 0b00000001
 addr_oe_mask = {
     1: 0b00000001,
@@ -102,7 +107,12 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.cs                  = Signal()
         self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
         self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
-        self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
+        if flash.cmd_width == 1:
+            self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
+        elif flash.cmd_width == 4:
+            self._default_dummy_bits = flash.dummy_bits * 3 if flash.fast_mode else 0
+        else:
+            raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
         self._default_divisor    = default_divisor
 
         self.clk_divisor         = clk_divisor     = CSRStorage(8, reset=self._default_divisor)
@@ -250,7 +260,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             ),
         )
         fsm.act("CMD",
-            dq_oe.eq(cmd_oe_mask),
+            dq_oe.eq(cmd_oe_mask[cmd_width]),
             dq_o.eq(cmd[-cmd_width:]),
             self.shift_out(
                 width      = cmd_width,
