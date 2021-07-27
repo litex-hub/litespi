@@ -170,7 +170,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # CS control.
         cs_count = Signal(max = cs_delay + 1)
-        cs_out = Signal()
+        cs_out   = Signal()
 
         self.sync += [
             If(cs_count > 0,
@@ -398,7 +398,7 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
 
         self.source = self.phy.source
         self.sink   = self.phy.sink
-        self.cs   = self.phy.cs
+        self.cs     = self.phy.cs
 
         # # #
 

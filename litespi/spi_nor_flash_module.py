@@ -124,9 +124,9 @@ class SpiNorFlashModule(metaclass=MetaSizes):
             self.addr_bits = 24
 
 
-        self.cmd_width = int(cfg.cmd_width)
+        self.cmd_width  = int(cfg.cmd_width)
         self.addr_width = int(cfg.addr_width)
-        self.bus_width = int(cfg.data_width)
+        self.bus_width  = int(cfg.data_width)
 
         self.fast_mode = "FAST" in cfg.name or self.bus_width > 1
 

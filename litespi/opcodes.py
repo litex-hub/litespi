@@ -149,17 +149,17 @@ class SpiNorFlashOpCodes:
     AAI_WP             = _Op(0xad, "Auto address increment word program")
 
     # Opcode aliases
-    READ = READ_1_1_1
-    READ_FAST = READ_1_1_1_FAST
-    FAST_READ = READ_FAST
-    READ_4B = READ_1_1_1_4B
+    READ         = READ_1_1_1
+    READ_FAST    = READ_1_1_1_FAST
+    FAST_READ    = READ_FAST
+    READ_4B      = READ_1_1_1_4B
     READ_FAST_4B = READ_1_1_1_FAST_4B
-    DQFR  = READ_1_1_2
-    DIOFR = READ_1_2_2
-    QOFR  = READ_1_1_4
-    QUIFR = READ_1_4_4
-    PP = PP_1_1_1
-    PP_4B = PP_1_1_1_4B
+    DQFR         = READ_1_1_2
+    DIOFR        = READ_1_2_2
+    QOFR         = READ_1_1_4
+    QUIFR        = READ_1_4_4
+    PP           = PP_1_1_1
+    PP_4B        = PP_1_1_1_4B
 
     # JEDEC Aliases for various op codes
     JEDEC_READ              = READ          # 0x03

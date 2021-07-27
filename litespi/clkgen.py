@@ -109,15 +109,15 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
             if device.startswith("xc7"):
                 cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
-                    i_CLK=0,
-                    i_GSR=0,
-                    i_GTS=0,
-                    i_KEYCLEARB=0,
-                    i_PACK=0,
-                    i_USRCCLKO=clk_reg,
-                    i_USRCCLKTS=0,
-                    i_USRDONEO=1,
-                    i_USRDONETS=1,
+                    i_CLK       = 0,
+                    i_GSR       = 0,
+                    i_GTS       = 0,
+                    i_KEYCLEARB = 0,
+                    i_PACK      = 0,
+                    i_USRCCLKO  = clk_reg,
+                    i_USRCCLKTS = 0,
+                    i_USRDONEO  = 1,
+                    i_USRDONETS = 1,
                 )
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)

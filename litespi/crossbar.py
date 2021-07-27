@@ -17,19 +17,19 @@ from litex.soc.interconnect import stream
 class LiteSPIMasterPort:
     def __init__(self):
         self.source = stream.Endpoint(spi_phy_ctl_layout)
-        self.sink = stream.Endpoint(spi_phy_data_layout)
+        self.sink   = stream.Endpoint(spi_phy_data_layout)
 
 
 class LiteSPISlavePort:
     def __init__(self):
         self.source = stream.Endpoint(spi_phy_data_layout)
-        self.sink = stream.Endpoint(spi_phy_ctl_layout)
+        self.sink   = stream.Endpoint(spi_phy_ctl_layout)
 
 
 class LiteSPICrossbar(Module):
     def __init__(self, cd):
-        self.cd = cd
-        self.users = []
+        self.cd     = cd
+        self.users  = []
         self.master = LiteSPIMasterPort()
 
         if cd != "sys":
@@ -42,12 +42,12 @@ class LiteSPICrossbar(Module):
                 self.master.source.connect(self.tx_cdc.sink),
             ]
 
-        self.cs = Signal()
-        self.user_cs = []
+        self.cs           = Signal()
+        self.user_cs      = []
         self.user_request = []
 
     def get_port(self, cs, request = None):
-        user_port = LiteSPISlavePort()
+        user_port     = LiteSPISlavePort()
         internal_port = LiteSPISlavePort()
 
         tx_stream = user_port.sink

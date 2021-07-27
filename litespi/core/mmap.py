@@ -49,7 +49,7 @@ class LiteSPIMMAP(Module):
 
         curr_addr = Signal(32)
         bus_read  = Signal()
-        timeout   = Signal(max = MMAP_DEFAULT_TIMEOUT)
+        timeout   = Signal(max=MMAP_DEFAULT_TIMEOUT)
 
         # Decode Bus Read Commands.
         self.comb += bus_read.eq(bus.cyc & bus.stb & ~bus.we)
