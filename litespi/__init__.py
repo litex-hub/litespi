@@ -56,7 +56,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
         Wishbone interface for memory-mapped flash access.
     """
 
-    def __init__(self, phy, clk_freq, clock_domain="sys", with_mmap=True, with_master=True, mmap_endianness="big"):
+    def __init__(self, phy, clk_freq, clock_domain="sys", with_mmap=True, with_master=True, mmap_endianness="big", master_fifo_depth=8):
         self.sys_clk_freq = sys_clk_freq = CSRStatus(32)
 
         self.comb += sys_clk_freq.status.eq(clk_freq)
@@ -65,7 +65,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
-            self.submodules.mmap = mmap = LiteSPIMMAP(mmap_endianness)
+            self.submodules.mmap = mmap = LiteSPIMMAP(endianness=mmap_endianness)
             port_mmap = crossbar.get_port(mmap.cs)
             self.bus = mmap.bus
             self.comb += [
@@ -73,7 +73,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
                 mmap.source.connect(port_mmap.sink),
             ]
         if with_master:
-            self.submodules.master = master = LiteSPIMaster()
+            self.submodules.master = master = LiteSPIMaster(fifo_depth=master_fifo_depth)
             port_master = crossbar.get_port(master.cs)
             self.comb += [
                 port_master.source.connect(master.sink),
