@@ -60,3 +60,25 @@ class W25Q512JV(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4_4B,
     ]
     dummy_bits = 8
+
+
+class W74M64FV(SpiNorFlashModule):
+    """W74M64FV
+
+    Datasheet: https://www.winbond.com/resource-files/w74m64fv%20revb.pdf
+    """
+
+    manufacturer_id = SpiNorFlashManufacturerIDs.WINBOND
+    device_id = 0x0000 # FIXME
+    name = "w74m64fv"
+
+    total_size  =    8388608   # bytes
+    page_size   =        256   # bytes
+    total_pages =      32768
+
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_1,
+    ]
+    dummy_bits = 8
