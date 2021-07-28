@@ -1074,6 +1074,7 @@ class AT25SF161(SpiNorFlashModule):
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
         SpiNorFlashOpCodes.PP_1_1_1,
     ]
     dummy_bits = 8
