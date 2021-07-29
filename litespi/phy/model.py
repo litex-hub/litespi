@@ -26,18 +26,18 @@ class LiteSPIPHYModel(Module):
 
     Attributes
     ----------
-    source : Endpoint(spi_phy_data_layout), out
+    source : Endpoint(spi_phy2core_layout), out
         Data stream.
 
-    sink : Endpoint(spi_phy_ctl_layout), in
+    sink : Endpoint(spi_core2phy_layout), in
         Control stream.
 
     cs : Signal()
         Dummy flash CS signal.
     """
     def __init__(self, size, init=None):
-        self.source = source = stream.Endpoint(spi_phy_data_layout)
-        self.sink   = sink   = stream.Endpoint(spi_phy_ctl_layout)
+        self.source = source = stream.Endpoint(spi_phy2core_layout)
+        self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         mem         = Memory(32, size//4, init=init)
         read_addr   = Signal(32)
         self.cs     = Signal()

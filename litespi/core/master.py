@@ -30,28 +30,21 @@ class LiteSPIMaster(Module, AutoCSR):
 
     Attributes
     ----------
-    source : Endpoint(spi_phy_data_layout), out
+    source : Endpoint(spi_phy2core_layout), out
         Data stream.
 
-    sink : Endpoint(spi_phy_ctl_layout), in
+    sink : Endpoint(spi_core2phy_layout), in
         Control stream.
 
     cs : Signal(), out
         Slave CS signal.
 
     """
-    def get_fifo(self, depth, layout):
-        return stream.SyncFIFO(layout, depth=depth, buffered=True)
-
-    def __init__(self, fifo_depth=8, cs_width=1):
-        self.submodules.tx_fifo = tx_fifo = self.get_fifo(fifo_depth, spi_phy_ctl_layout)
-        self.submodules.rx_fifo = rx_fifo = self.get_fifo(fifo_depth, spi_phy_data_layout)
-        self.sink   = rx_fifo.sink
-        self.source = tx_fifo.source
-
+    def __init__(self, cs_width=1, tx_fifo_depth=1, rx_fifo_depth=1):
+        self.sink   = stream.Endpoint(spi_phy2core_layout)
+        self.source = stream.Endpoint(spi_core2phy_layout)
+        self.cs     = Signal(cs_width)
         assert self.sink.data.nbits == self.source.data.nbits
-
-        self.cs = Signal(cs_width)
 
         self._cs = CSRStorage(cs_width)
         self._phyconfig = CSRStorage(fields=[
@@ -66,6 +59,13 @@ class LiteSPIMaster(Module, AutoCSR):
         ])
 
         # # #
+
+        # FIFOs.
+        tx_fifo = stream.SyncFIFO(spi_core2phy_layout, depth=tx_fifo_depth)
+        rx_fifo = stream.SyncFIFO(spi_phy2core_layout, depth=rx_fifo_depth)
+        self.submodules += tx_fifo, rx_fifo
+        self.comb += self.sink.connect(rx_fifo.sink)
+        self.comb += tx_fifo.source.connect(self.source)
 
         # SPI CS.
         self.comb += self.cs.eq(self._cs.storage)

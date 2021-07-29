@@ -27,10 +27,10 @@ class LiteSPIMMAP(Module):
 
     Attributes
     ----------
-    source : Endpoint(spi_phy_ctl_layout), out
+    source : Endpoint(spi_core2phy_layout), out
         PHY control interface.
 
-    sink : Endpoint(spi_phy_data_layout), in
+    sink : Endpoint(spi_phy2core_layout), in
         PHY data interface.
 
     bus : Interface(), out
@@ -40,8 +40,8 @@ class LiteSPIMMAP(Module):
         CS signal for the flash chip, should be connected to cs signal of the PHY.
     """
     def __init__(self, endianness="big"):
-        self.source = source = stream.Endpoint(spi_phy_ctl_layout)
-        self.sink   = sink   = stream.Endpoint(spi_phy_data_layout)
+        self.source = source = stream.Endpoint(spi_core2phy_layout)
+        self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
         self.bus    = bus    = wishbone.Interface()
         self.cs     = cs     = Signal()
 

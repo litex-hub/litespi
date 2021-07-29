@@ -18,8 +18,8 @@ from litespi.core.mmap import LiteSPIMMAP
 
 class LiteSPICore(Module):
     def __init__(self):
-        self.source = stream.Endpoint(spi_phy_ctl_layout)
-        self.sink   = stream.Endpoint(spi_phy_data_layout)
+        self.source = stream.Endpoint(spi_core2phy_layout)
+        self.sink   = stream.Endpoint(spi_phy2core_layout)
         self.cs     = Signal()
 
 
@@ -56,7 +56,9 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
         Wishbone interface for memory-mapped flash access.
     """
 
-    def __init__(self, phy, clk_freq, clock_domain="sys", with_mmap=True, with_master=True, mmap_endianness="big", master_fifo_depth=8):
+    def __init__(self, phy, clk_freq, clock_domain="sys",
+        with_mmap=True, mmap_endianness="big",
+        with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1):
         self.sys_clk_freq = sys_clk_freq = CSRStatus(32)
 
         self.comb += sys_clk_freq.status.eq(clk_freq)
@@ -73,7 +75,9 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
                 mmap.source.connect(port_mmap.sink),
             ]
         if with_master:
-            self.submodules.master = master = LiteSPIMaster(fifo_depth=master_fifo_depth)
+            self.submodules.master = master = LiteSPIMaster(
+                tx_fifo_depth = master_tx_fifo_depth,
+                rx_fifo_depth = master_rx_fifo_depth)
             port_master = crossbar.get_port(master.cs)
             self.comb += [
                 port_master.source.connect(master.sink),

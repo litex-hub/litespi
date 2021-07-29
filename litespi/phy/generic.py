@@ -58,10 +58,10 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
     Attributes
     ----------
-    source : Endpoint(spi_phy_data_layout), out
+    source : Endpoint(spi_phy2core_layout), out
         Data stream.
 
-    sink : Endpoint(spi_phy_ctl_layout), in
+    sink : Endpoint(spi_core2phy_layout), in
         Control stream.
 
     cs : Signal(), in
@@ -98,8 +98,8 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         return res
 
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
-        self.source              = source = stream.Endpoint(spi_phy_data_layout)
-        self.sink                = sink   = stream.Endpoint(spi_phy_ctl_layout)
+        self.source              = source = stream.Endpoint(spi_phy2core_layout)
+        self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs                  = Signal()
         self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
         self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
@@ -373,10 +373,10 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
 
     Attributes
     ----------
-    source : Endpoint(spi_phy_data_layout), out
+    source : Endpoint(spi_phy2core_layout), out
         Data stream from ``LiteSPIPHYCore``.
 
-    sink : Endpoint(spi_phy_ctl_layout), in
+    sink : Endpoint(spi_core2phy_layout), in
         Control stream from ``LiteSPIPHYCore``.
 
     cs : Signal(), in

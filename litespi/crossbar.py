@@ -16,14 +16,14 @@ from litex.soc.interconnect import stream
 
 class LiteSPIMasterPort:
     def __init__(self):
-        self.source = stream.Endpoint(spi_phy_ctl_layout)
-        self.sink   = stream.Endpoint(spi_phy_data_layout)
+        self.source = stream.Endpoint(spi_core2phy_layout)
+        self.sink   = stream.Endpoint(spi_phy2core_layout)
 
 
 class LiteSPISlavePort:
     def __init__(self):
-        self.source = stream.Endpoint(spi_phy_data_layout)
-        self.sink   = stream.Endpoint(spi_phy_ctl_layout)
+        self.source = stream.Endpoint(spi_phy2core_layout)
+        self.sink   = stream.Endpoint(spi_core2phy_layout)
 
 
 class LiteSPICrossbar(Module):
@@ -33,8 +33,8 @@ class LiteSPICrossbar(Module):
         self.master = LiteSPIMasterPort()
 
         if cd != "sys":
-            rx_cdc = stream.AsyncFIFO(spi_phy_data_layout, 32, buffered=True)
-            tx_cdc = stream.AsyncFIFO(spi_phy_ctl_layout, 32, buffered=True)
+            rx_cdc = stream.AsyncFIFO(spi_phy2core_layout, 32, buffered=True)
+            tx_cdc = stream.AsyncFIFO(spi_core2phy_layout, 32, buffered=True)
             self.submodules.rx_cdc = ClockDomainsRenamer({"write": "litespi", "read": "sys"})(rx_cdc)
             self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": "litespi"})(tx_cdc)
             self.comb += [
@@ -72,10 +72,10 @@ class LiteSPICrossbar(Module):
         self.submodules.rr = RoundRobin(len(self.users))
 
         # TX
-        self.submodules.tx_mux = tx_mux = stream.Multiplexer(spi_phy_ctl_layout, len(self.users))
+        self.submodules.tx_mux = tx_mux = stream.Multiplexer(spi_core2phy_layout, len(self.users))
 
         # RX
-        self.submodules.rx_demux = rx_demux = stream.Demultiplexer(spi_phy_data_layout, len(self.users))
+        self.submodules.rx_demux = rx_demux = stream.Demultiplexer(spi_phy2core_layout, len(self.users))
 
         for i, user in enumerate(self.users):
             self.comb += [
