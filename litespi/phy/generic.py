@@ -6,6 +6,7 @@
 
 from migen import *
 from migen.genlib.cdc import MultiReg
+from migen.genlib.misc import WaitTimer
 
 from litespi.common import *
 from litespi.clkgen import LiteSPIClkGen
@@ -169,22 +170,11 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         ]
 
         # CS control.
-        cs_count = Signal(max = cs_delay + 1)
+        cs_timer = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_out   = Signal()
-
-        self.sync += [
-            If(cs_count > 0,
-                cs_count.eq(cs_count - 1),
-            ),
-            If(self.cs & (cs_count == 0),
-                cs_out.eq(1),
-            ),
-            If(cs_out & ~self.cs,
-                cs_out.eq(0),
-                cs_count.eq(cs_delay),
-            ),
-        ]
-
+        self.submodules += cs_timer
+        self.comb += cs_timer.wait.eq(self.cs)
+        self.comb += cs_out.eq(cs_timer.done)
         self.comb += pads.cs_n.eq(~cs_out)
 
         # I/Os.
