@@ -4,7 +4,7 @@
             / /__/ / __/ -_)\ \/ ___// /
            /____/_/\__/\__/___/_/  /___/
 
-      Copyright (c) 2020, LiteSPI Developers
+    Copyright (c) 2020-2021, LiteSPI Developers
 ```
 [![](https://github.com/litex-hub/litespi/workflows/ci/badge.svg)](https://github.com/litex-hub/litespi/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
@@ -23,11 +23,20 @@ design flow by generating the verilog rtl that you will use as a standard core.
 
 [> Features
 -----------
-**TODO**
+PHY:
+  - Portable/Generic.
+  - Single/Dual/Quad/Octal SPI Bus support.
+  - Dynamic Clk frequency configuration and auto-calibration.
+
+Core:
+  - Dynamic Crossbar.
+  - MMAP read accesses.
+  - CSR-based read/write accesses.
 
 [> Getting started
 ------------------
-**TODO**
+
+Examples of integration can be found on various supported boards of [LiteX-Boards](https://github.com/litex-hub/litex-boards) repository.
 
 [> Tests
 --------
