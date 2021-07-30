@@ -78,30 +78,6 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     dummy_bits : CSRStorage
         Register which hold a number of dummy bits to send during transmission.
     """
-
-    def shift_out(self, width, bits, next_state, trigger=[], op=[], ddr=False):
-        if type(trigger) is not list:
-            trigger = [trigger]
-            op      = [op]
-
-        edge = self.clkgen.negedge if not ddr else trigger[0]
-        res  = [
-            self.clkgen.en.eq(1),
-            If(edge,
-                NextValue(self.fsm_cnt, self.fsm_cnt+width),
-                If(self.fsm_cnt == (bits-width),
-                    NextValue(self.fsm_cnt, 0),
-                    NextState(next_state),
-                ),
-            ),
-        ]
-
-        if len(trigger) == len(op):
-            for i in range(len(trigger)):
-                res += [If(trigger[i], *op[i])]
-
-        return res
-
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
         self.source              = source = stream.Endpoint(spi_phy2core_layout)
         self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
@@ -204,16 +180,16 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             )
 
         # FSM.
-        self.fsm_cnt = fsm_cnt = Signal(8)
-        addr         = Signal(addr_bits if not ddr else addr_bits + addr_width) # Dummy data for the first register shift
-        data         = Signal(data_bits)
-        cmd          = Signal(cmd_bits)
+        shift_cnt = Signal(8, reset_less=True)
+        addr      = Signal(addr_bits if not ddr else addr_bits + addr_width, reset_less=True)
+        data      = Signal(data_bits, reset_less=True)
+        cmd       = Signal(cmd_bits,  reset_less=True)
 
-        usr_dout  = Signal().like(sink.data)
-        usr_din   = Signal().like(sink.data)
-        usr_len   = Signal().like(sink.len)
-        usr_width = Signal().like(sink.width)
-        usr_mask  = Signal().like(sink.mask)
+        usr_dout  = Signal(len(sink.data),  reset_less=True)
+        usr_din   = Signal(len(sink.data),  reset_less=True)
+        usr_len   = Signal(len(sink.len),   reset_less=True)
+        usr_width = Signal(len(sink.width), reset_less=True)
+        usr_mask  = Signal(len(sink.mask),  reset_less=True)
 
         din_width_cases = {1: [NextValue(usr_din, Cat(dq_i[1], usr_din))]}
         for i in [2, 4, 8]:
@@ -223,36 +199,58 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         for i in [1, 2, 4, 8]:
             dout_width_cases[i] = [dq_o.eq(usr_dout[-i:])]
 
-        commands = {
-            CMD: [
-                NextValue(addr, sink.data),
-                NextValue(cmd, command),
-                NextState("CMD")
-            ],
-            READ: [
-                NextState("DATA")
-            ],
-            USER: [
-                NextValue(usr_dout, sink.data<<(32-sink.len)),
-                NextValue(usr_din, 0),
-                NextValue(usr_len, sink.len),
-                NextValue(usr_width, sink.width),
-                NextValue(usr_mask, sink.mask),
-                NextState("USER")
-            ],
-        }
-
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             sink.ready.eq(cs_out),
             If(sink.valid & sink.ready,
-                Case(sink.cmd, commands),
-            ),
+                Case(sink.cmd, {
+                    CMD: [
+                        NextValue(addr, sink.data),
+                        NextValue(cmd,  command),
+                        NextState("CMD")
+                    ],
+                    READ: [
+                        NextState("DATA")
+                    ],
+                    USER: [
+                        NextValue(usr_dout,  sink.data << (32-sink.len)),
+                        NextValue(usr_din,   0),
+                        NextValue(usr_len,   sink.len),
+                        NextValue(usr_width, sink.width),
+                        NextValue(usr_mask,  sink.mask),
+                        NextState("USER")
+                    ]
+                })
+            )
         )
+
+        def shift_out(width, bits, next_state, trigger=[], op=[], ddr=False):
+            if type(trigger) is not list:
+                trigger = [trigger]
+                op      = [op]
+
+            edge = self.clkgen.negedge if not ddr else trigger[0]
+            res  = [
+                self.clkgen.en.eq(1),
+                If(edge,
+                    NextValue(shift_cnt, shift_cnt+width),
+                    If(shift_cnt == (bits-width),
+                        NextValue(shift_cnt, 0),
+                        NextState(next_state),
+                    ),
+                ),
+            ]
+
+            if len(trigger) == len(op):
+                for i in range(len(trigger)):
+                    res += [If(trigger[i], *op[i])]
+
+            return res
+
         fsm.act("CMD",
             dq_oe.eq(cmd_oe_mask[cmd_width]),
             dq_o.eq(cmd[-cmd_width:]),
-            self.shift_out(
+            shift_out(
                 width      = cmd_width,
                 bits       = cmd_bits,
                 next_state = "ADDR",
@@ -264,8 +262,8 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("ADDR",
             dq_oe.eq(addr_oe_mask[addr_width]),
             dq_o.eq(addr[-addr_width:]),
-            If(spi_dummy_bits > 0,
-                self.shift_out(
+            If(spi_dummy_bits != 0,
+                shift_out(
                     width      = addr_width,
                     bits       = len(addr),
                     next_state = "DUMMY",
@@ -274,7 +272,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                     ddr        = ddr
                 )
             ).Else(
-                self.shift_out(
+                shift_out(
                     width      = addr_width,
                     bits       = len(addr),
                     next_state = "IDLE",
@@ -285,15 +283,15 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             )
         )
         fsm.act("DUMMY",
-            If(fsm_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
-            self.shift_out(
+            If(shift_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
+            shift_out(
                 width      = addr_width,
                 bits       = spi_dummy_bits,
                 next_state = "IDLE"
             ),
         )
         fsm.act("DATA",
-            self.shift_out(
+            shift_out(
                 width      = data_width,
                 bits       = data_bits,
                 next_state = "DATA_END",
@@ -315,7 +313,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("USER",
             dq_oe.eq(usr_mask),
             Case(usr_width, dout_width_cases),
-            self.shift_out(
+            shift_out(
                 width      = usr_width,
                 bits       = usr_len,
                 next_state = "USER_END",
