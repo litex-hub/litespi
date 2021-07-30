@@ -47,12 +47,12 @@ class LiteSPIMMAP(Module):
 
         # # #
 
-        curr_addr = Signal(32)
-        bus_read  = Signal()
-        timeout   = Signal(max=MMAP_DEFAULT_TIMEOUT)
+        addr    = Signal(32, reset_less=True)
+        read    = Signal()
+        timeout = Signal(max=MMAP_DEFAULT_TIMEOUT)
 
         # Decode Bus Read Commands.
-        self.comb += bus_read.eq(bus.cyc & bus.stb & ~bus.we)
+        self.comb += read.eq(bus.cyc & bus.stb & ~bus.we)
 
         # Map Bus Read Datas.
         self.comb += bus.dat_r.eq({"big": sink.data, "little": reverse_bytes(sink.data)}[endianness])
@@ -60,7 +60,7 @@ class LiteSPIMMAP(Module):
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            If(bus_read,
+            If(read,
                 NextState("CMD"),
             )
         )
@@ -70,7 +70,7 @@ class LiteSPIMMAP(Module):
             source.cmd.eq(CMD),
             source.data.eq(Cat(Signal(2), bus.adr)), # Words to Bytes.
             If(source.ready,
-                NextValue(curr_addr, bus.adr),
+                NextValue(addr, bus.adr),
                 NextState("READ-REQ"),
             )
         )
@@ -88,7 +88,7 @@ class LiteSPIMMAP(Module):
             sink.ready.eq(bus.stb),
             bus.ack.eq(sink.valid),
             If(sink.valid & sink.ready,
-                NextValue(curr_addr, curr_addr + 1),
+                NextValue(addr, addr + 1),
                 NextState("READY"),
                 NextValue(timeout, MMAP_DEFAULT_TIMEOUT - 1),
             )
@@ -100,9 +100,9 @@ class LiteSPIMMAP(Module):
             ).Else(
                 NextValue(timeout, timeout - 1),
             ),
-            If(bus_read,
+            If(read,
                 # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
-                If(bus.adr == curr_addr,
+                If(bus.adr == addr,
                     NextState("READ-REQ"),
                 # Else we have to initiate another SPI Burst.
                 ).Else(
