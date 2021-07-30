@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.fsm import FSM, NextState
+from migen.genlib.misc import WaitTimer
 
 from litex.soc.interconnect import wishbone, stream
 from litex.gen.common import reverse_bytes
@@ -47,9 +47,8 @@ class LiteSPIMMAP(Module):
 
         # # #
 
-        addr    = Signal(32, reset_less=True)
-        read    = Signal()
-        timeout = Signal(max=MMAP_DEFAULT_TIMEOUT)
+        addr = Signal(32, reset_less=True)
+        read = Signal()
 
         # Decode Bus Read Commands.
         self.comb += read.eq(bus.cyc & bus.stb & ~bus.we)
@@ -57,8 +56,14 @@ class LiteSPIMMAP(Module):
         # Map Bus Read Datas.
         self.comb += bus.dat_r.eq({"big": sink.data, "little": reverse_bytes(sink.data)}[endianness])
 
+        # Timeout.
+        self.submodules.timeout = timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
+
         # FSM.
-        self.submodules.fsm = fsm = FSM(reset_state="IDLE")
+        fsm = FSM(reset_state="IDLE")
+        fsm = ResetInserter()(fsm)
+        self.comb += fsm.reset.eq(timeout.done)
+        self.submodules.fsm = fsm
         fsm.act("IDLE",
             If(read,
                 NextState("CMD"),
@@ -90,16 +95,11 @@ class LiteSPIMMAP(Module):
             If(sink.valid & sink.ready,
                 NextValue(addr, addr + 1),
                 NextState("READY"),
-                NextValue(timeout, MMAP_DEFAULT_TIMEOUT - 1),
             )
         )
         fsm.act("READY",
             cs.eq(1),
-            If(timeout == 0,
-                NextState("IDLE"),
-            ).Else(
-                NextValue(timeout, timeout - 1),
-            ),
+            timeout.wait.eq(1),
             If(read,
                 # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
                 If(bus.adr == addr,
