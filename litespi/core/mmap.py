@@ -47,66 +47,60 @@ class LiteSPIMMAP(Module):
 
         # # #
 
-        addr = Signal(32, reset_less=True)
-        read = Signal()
 
-        # Decode Bus Read Commands.
-        self.comb += read.eq(bus.cyc & bus.stb & ~bus.we)
-
-        # Map Bus Read Datas.
-        self.comb += bus.dat_r.eq({"big": sink.data, "little": reverse_bytes(sink.data)}[endianness])
-
-        # Timeout.
-        self.submodules.timeout = timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
+        # Burst Control.
+        burst_cs      = Signal()
+        burst_adr     = Signal(len(bus.adr), reset_less=True)
+        burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
+        self.submodules += burst_timeout
 
         # FSM.
-        fsm = FSM(reset_state="IDLE")
-        fsm = ResetInserter()(fsm)
-        self.comb += fsm.reset.eq(timeout.done)
-        self.submodules.fsm = fsm
+        self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            If(read,
-                NextState("CMD"),
+            # Keep CS active after Burst for Timeout.
+            burst_timeout.wait.eq(1),
+            NextValue(burst_cs, burst_cs & ~burst_timeout.done),
+            cs.eq(burst_cs),
+            # On Bus Read access...
+            If(bus.cyc & bus.stb & ~bus.we,
+                # If CS is still active and Bus address matches previous Burst address:
+                # Just continue the current Burst.
+                If(burst_cs & (bus.adr == burst_adr),
+                    NextState("BURST-REQ")
+                # Otherwise initialize a new Burst.
+                ).Else(
+                    cs.eq(0),
+                    NextState("BURST-CMD")
+                )
             )
         )
-        fsm.act("CMD",
+        fsm.act("BURST-CMD",
             cs.eq(1),
             source.valid.eq(1),
             source.cmd.eq(CMD),
             source.data.eq(Cat(Signal(2), bus.adr)), # Words to Bytes.
+            NextValue(burst_cs, 1),
+            NextValue(burst_adr, bus.adr),
             If(source.ready,
-                NextValue(addr, bus.adr),
-                NextState("READ-REQ"),
+                NextState("BURST-REQ"),
             )
         )
-        fsm.act("READ-REQ",
+        fsm.act("BURST-REQ",
             cs.eq(1),
             source.valid.eq(1),
             source.cmd.eq(READ),
+            source.last.eq(1),
             If(source.ready,
-                source.last.eq(1),
-                NextState("READ-DAT"),
+                NextState("BURST-DAT"),
             )
         )
-        fsm.act("READ-DAT",
+        fsm.act("BURST-DAT",
             cs.eq(1),
-            sink.ready.eq(bus.stb),
-            bus.ack.eq(sink.valid),
-            If(sink.valid & sink.ready,
-                NextValue(addr, addr + 1),
-                NextState("READY"),
-            )
-        )
-        fsm.act("READY",
-            cs.eq(1),
-            timeout.wait.eq(1),
-            If(read,
-                # If Bus Address matches Current Address: We can do the access directly in current SPI Burst.
-                If(bus.adr == addr,
-                    NextState("READ-REQ"),
-                # Else we have to initiate another SPI Burst.
-                ).Else(
-                    NextState("IDLE"),
-                )
+            sink.ready.eq(1),
+            bus.dat_r.eq({"big": sink.data, "little": reverse_bytes(sink.data)}[endianness]),
+            If(sink.valid,
+                bus.ack.eq(1),
+                NextValue(burst_adr, burst_adr + 1),
+                NextState("IDLE"),
             )
         )
