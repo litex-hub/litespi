@@ -20,20 +20,6 @@ from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 # Output enable masks for the tri-state buffers, data mode mask is not included as oe pins default to 0
 
-cmd_oe_mask  = {
-    1: 0b00000001,
-    2: 0b00000011,
-    4: 0b00001111,
-    8: 0b11111111,
-}
-soft_oe_mask = 0b00000001
-addr_oe_mask = {
-    1: 0b00000001,
-    2: 0b00000011,
-    4: 0b00001111,
-    8: 0b11111111,
-}
-
 # LiteSPI PHY Core ---------------------------------------------------------------------------------
 
 class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
@@ -58,9 +44,6 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     device : str
         Device type for use by the ``LiteSPIClkGen``.
 
-    default_divisor : int
-        Default frequency divisor for clkgen.
-
     Attributes
     ----------
     source : Endpoint(spi_phy2core_layout), out
@@ -71,38 +54,12 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
     cs : Signal(), in
         Flash CS signal.
-
-    clk_divisor : CSRStorage
-        Register which holds a clock divisor value applied to clkgen.
-
-    dummy_bits : CSRStorage
-        Register which hold a number of dummy bits to send during transmission.
     """
-    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
+    def __init__(self, pads, flash, device, clock_domain, cs_delay):
         self.source              = source = stream.Endpoint(spi_phy2core_layout)
         self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs                  = Signal()
-        self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
-        self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
-        if flash.cmd_width == 1:
-            self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
-        elif flash.cmd_width == 4:
-            self._default_dummy_bits = flash.dummy_bits * 3 if flash.fast_mode else 0
-        else:
-            raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
-        self._default_divisor    = default_divisor
 
-        self.clk_divisor         = clk_divisor     = CSRStorage(8, reset=self._default_divisor)
-        self.dummy_bits          = dummy_bits      = CSRStorage(8, reset=self._default_dummy_bits)
-
-        # # #
-
-        if clock_domain != "sys":
-            self.specials += MultiReg(clk_divisor.storage, spi_clk_divisor, "litespi")
-            self.specials += MultiReg(dummy_bits.storage,  spi_dummy_bits,  "litespi")
-        else:
-            self.comb += spi_clk_divisor.eq(clk_divisor.storage)
-            self.comb += spi_dummy_bits.eq(dummy_bits.storage)
         if hasattr(pads, "miso"):
             bus_width = 1
             pads.dq   = [pads.mosi, pads.miso]
@@ -204,14 +161,6 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             sink.ready.eq(cs_out),
             If(sink.valid & sink.ready,
                 Case(sink.cmd, {
-                    CMD: [
-                        NextValue(addr, sink.data),
-                        NextValue(cmd,  command),
-                        NextState("CMD")
-                    ],
-                    READ: [
-                        NextState("DATA")
-                    ],
                     USER: [
                         NextValue(usr_dout,  sink.data << (32-sink.len)),
                         NextValue(usr_din,   0),
@@ -345,14 +294,6 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 NextState("IDLE"),
             )
         )
-        fsm.act("SEND_DATA",
-            source.valid.eq(1),
-            source.last.eq(1),
-            source.data.eq(data),
-            If(source.ready,
-                NextState("IDLE"),
-            )
-        )
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
@@ -376,9 +317,6 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
     clock_domain : str
         Name of LiteSPI clock domain.
 
-    default_divisor : int
-        Default frequency divisor for clkgen.
-
     Attributes
     ----------
     source : Endpoint(spi_phy2core_layout), out
@@ -391,8 +329,9 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10):
-        self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", cs_delay=10):
+        self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, cs_delay)
+        self.flash = flash
 
         self.source = self.phy.source
         self.sink   = self.phy.sink

@@ -67,7 +67,8 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
-            self.submodules.mmap = mmap = LiteSPIMMAP(endianness=mmap_endianness)
+            self.submodules.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
+                                                      endianness=mmap_endianness)
             port_mmap = crossbar.get_port(mmap.cs)
             self.bus = mmap.bus
             self.comb += [
