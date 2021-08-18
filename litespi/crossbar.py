@@ -43,10 +43,16 @@ class LiteSPICrossbar(Module):
             ]
 
         self.cs           = Signal()
+        self.all_cs       = [self.cs]
         self.user_cs      = []
         self.user_request = []
 
-    def get_port(self, cs, request = None):
+    def add_output_cs(self):
+        output_cs = Signal()
+        self.all_cs.append(output_cs)
+        return output_cs
+
+    def get_port(self, cs, output_cs = None, request = None):
         user_port     = LiteSPISlavePort()
         internal_port = LiteSPISlavePort()
 
@@ -59,11 +65,18 @@ class LiteSPICrossbar(Module):
         self.comb += rx_stream.connect(user_port.source)
 
         if request is None:
+            # This port is requesting if any of its CS lines are raised
             request = Signal()
-            self.comb += request.eq(cs)
+            self.comb += request.eq(cs != 0)
+
+        if output_cs is None:
+            # legacy/simple behavior: cs is a single wire, intended for our default cs
+            output_cs = self.cs
+
+        assert len(output_cs) == len(cs)
 
         self.users.append(internal_port)
-        self.user_cs.append(self.cs.eq(cs))
+        self.user_cs.append(output_cs.eq(cs))
         self.user_request.append(request)
 
         return user_port
