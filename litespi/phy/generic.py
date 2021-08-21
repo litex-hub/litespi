@@ -81,7 +81,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
         self.source              = source = stream.Endpoint(spi_phy2core_layout)
         self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs                  = Signal()
+        self.cs                  = Signal.like(pads.cs_n)
         self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
         self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
         if flash.cmd_width == 1:
@@ -157,11 +157,17 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # CS control.
         cs_timer = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
-        cs_out   = Signal()
+        cs_out   = Signal.like(self.cs)
         self.submodules += cs_timer
-        self.comb += cs_timer.wait.eq(self.cs)
-        self.comb += cs_out.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_out)
+        self.comb += [
+            cs_timer.wait.eq(self.cs != 0),
+            If(cs_timer.done,
+                cs_out.eq(self.cs)
+            ).Else(
+                cs_out.eq(0)
+            ),
+            pads.cs_n.eq(~cs_out)
+        ]
 
         # I/Os.
         data_bits = 32
@@ -201,7 +207,7 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            sink.ready.eq(cs_out),
+            sink.ready.eq(cs_timer.done),
             If(sink.valid & sink.ready,
                 Case(sink.cmd, {
                     CMD: [
