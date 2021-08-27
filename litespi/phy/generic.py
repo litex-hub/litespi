@@ -14,7 +14,7 @@ from litespi.clkgen import LiteSPIClkGen
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
 
-from litex.build.io import SDRTristate
+from litex.build.io import DDRTristate
 
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
@@ -71,46 +71,13 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         # Check if number of pads matches configured mode.
         assert flash.check_bus_width(bus_width)
 
-        addr_bits  = flash.addr_bits
-        cmd_width  = flash.cmd_width
-        addr_width = flash.addr_width
-        data_width = flash.bus_width
-        command    = flash.read_opcode.code
-        ddr        = flash.ddr
+        self.addr_bits  = addr_bits  = flash.addr_bits
+        self.ddr        = ddr        = flash.ddr
 
-        # For Output modes there is a constant 8 dummy cycles, for I/O and DTR modes there are
-        # different number of dummy cycles and in some cases they can be configurable.
-        # We control a number of dummy cycles by substracting addr_width value from spi_dummy_bits,
-        # so to achieve a proper number of dummy cycles when using shift_out function we need to
-        # calculate total dummy bits which depends on addr_width value.
-        # NOTE: these values are just default ones, in case chip has different default dummy cycles
-        # for these modes or dummy cycles can be configured, please adjust the dummy bits value via
-        # CSR in liblitespi accordingly.
-        if (addr_width > 1):
-            # DTR mode.
-            if (ddr):
-                if (addr_width == 2):
-                    self.default_dummy_bits = 6 * addr_width
-                elif (addr_width == 4):
-                    self.default_dummy_bits = 8 * addr_width
-                else:
-                    self.default_dummy_bits = 16 * addr_width
-            # I/O mode.
-            else:
-                if (addr_width == 2):
-                    self.default_dummy_bits = 4 * addr_width
-                elif (addr_width == 4):
-                    self.default_dummy_bits = 6 * addr_width
-                else:
-                    self.default_dummy_bits = 16 * addr_width
+        assert not ddr
 
         # Clock Generator.
         self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device, with_ddr=ddr)
-        self.comb += [
-            clkgen.div.eq(spi_clk_divisor),
-            clkgen.sample_cnt.eq(1),
-            clkgen.update_cnt.eq(1),
-        ]
 
         # CS control.
         cs_timer = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
@@ -122,25 +89,29 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # I/Os.
         data_bits = 32
-        cmd_bits  = 8
 
-        dq_o  = Signal(len(pads.dq))
-        dq_i  = Signal(len(pads.dq))
-        dq_oe = Signal(len(pads.dq))
+        dq_o1  = Signal(len(pads.dq))
+        dq_o2  = Signal(len(pads.dq))
+        dq_i1  = Signal(len(pads.dq))
+        dq_i2  = Signal(len(pads.dq))
+        dq_oe1 = Signal(len(pads.dq))
+        dq_oe2 = Signal(len(pads.dq))
 
         for i in range(len(pads.dq)):
-            self.specials += SDRTristate(
-                io = pads.dq[i],
-                o  = dq_o[i],
-                oe = dq_oe[i],
-                i  = dq_i[i],
+            self.specials += DDRTristate(
+                io  = pads.dq[i],
+                o1  = dq_o1[i],
+                o2  = dq_o2[i],
+                oe1 = dq_oe1[i],
+                oe2 = dq_oe2[i],
+                i1  = dq_i1[i],
+                i2  = dq_i2[i]
             )
 
         # FSM.
         shift_cnt = Signal(8, reset_less=True)
         addr      = Signal(addr_bits if not ddr else addr_bits + addr_width, reset_less=True)
         data      = Signal(data_bits, reset_less=True)
-        cmd       = Signal(cmd_bits,  reset_less=True)
 
         usr_dout  = Signal(len(sink.data),  reset_less=True)
         usr_din   = Signal(len(sink.data),  reset_less=True)
@@ -148,17 +119,30 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         usr_width = Signal(len(sink.width), reset_less=True)
         usr_mask  = Signal(len(sink.mask),  reset_less=True)
 
-        din_width_cases = {1: [NextValue(usr_din, Cat(dq_i[1], usr_din))]}
+        clk_en = Signal()
+
+        self.comb += self.clkgen.en.eq(clk_en)
+
+        din_width_cases = {1: [
+                 NextValue(usr_din, Cat(dq_o1[1], usr_din)),
+            ]
+        }
         for i in [2, 4, 8]:
-            din_width_cases[i] = [NextValue(usr_din, Cat(dq_i[0:i], usr_din))]
+            din_width_cases[i] = [
+                NextValue(usr_din, Cat(dq_o1[0:i], usr_din))
+            ]
 
         dout_width_cases = {}
         for i in [1, 2, 4, 8]:
-            dout_width_cases[i] = [dq_o.eq(usr_dout[-i:])]
+            dout_width_cases[i] = [
+                dq_i2.eq(usr_dout[-i:]),
+                NextValue(dq_i1, dq_i2)
+            ]
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             sink.ready.eq(cs_out),
+            NextValue(clk_en, 0),
             If(sink.valid & sink.ready,
                 Case(sink.cmd, {
                     USER: [
@@ -167,124 +151,37 @@ class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                         NextValue(usr_len,   sink.len),
                         NextValue(usr_width, sink.width),
                         NextValue(usr_mask,  sink.mask),
+                        Case(sink.width, dout_width_cases),
                         NextState("USER")
                     ]
                 })
             )
         )
 
-        def shift_out(width, bits, next_state, trigger=[], op=[], ddr=False):
-            if type(trigger) is not list:
-                trigger = [trigger]
-                op      = [op]
-
-            edge = self.clkgen.negedge if not ddr else trigger[0]
-            res  = [
-                self.clkgen.en.eq(1),
-                If(edge,
-                    NextValue(shift_cnt, shift_cnt+width),
-                    If(shift_cnt == (bits-width),
-                        NextValue(shift_cnt, 0),
-                        NextState(next_state),
-                    ),
-                ),
-            ]
-
-            if len(trigger) == len(op):
-                for i in range(len(trigger)):
-                    res += [If(trigger[i], *op[i])]
-
-            return res
-
-        fsm.act("CMD",
-            dq_oe.eq(cmd_oe_mask[cmd_width]),
-            dq_o.eq(cmd[-cmd_width:]),
-            shift_out(
-                width      = cmd_width,
-                bits       = cmd_bits,
-                next_state = "ADDR",
-                op         = [NextValue(cmd, cmd<<cmd_width)],
-                trigger    = clkgen.negedge,
-                ddr        = False,
-            ),
-        )
-        fsm.act("ADDR",
-            dq_oe.eq(addr_oe_mask[addr_width]),
-            dq_o.eq(addr[-addr_width:]),
-            If(spi_dummy_bits != 0,
-                shift_out(
-                    width      = addr_width,
-                    bits       = len(addr),
-                    next_state = "DUMMY",
-                    op         = [NextValue(addr, addr<<addr_width)],
-                    trigger    = clkgen.negedge if not ddr else clkgen.update,
-                    ddr        = ddr
-                )
-            ).Else(
-                shift_out(
-                    width      = addr_width,
-                    bits       = len(addr),
-                    next_state = "IDLE",
-                    op         = [NextValue(addr, addr<<addr_width)],
-                    trigger    = clkgen.negedge if not ddr else clkgen.update,
-                    ddr        = ddr
-                )
-            )
-        )
-        fsm.act("DUMMY",
-            If(shift_cnt < 8, dq_oe.eq(addr_oe_mask[addr_width])), # output 0's for the first dummy byte
-            shift_out(
-                width      = addr_width,
-                bits       = spi_dummy_bits,
-                next_state = "IDLE"
-            ),
-        )
-        fsm.act("DATA",
-            shift_out(
-                width      = data_width,
-                bits       = data_bits,
-                next_state = "DATA_END",
-                op         = [NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data))],
-                trigger    = clkgen.posedge_reg2 if not ddr else clkgen.sample,
-                ddr        = ddr
-            )
-        )
-        fsm.act("DATA_END",
-            If(spi_clk_divisor > 0,
-                # Last data cycle was already captured in the DATA state.
-                NextState("SEND_DATA"),
-            ).Elif(clkgen.posedge_reg2,
-                # Capture last data cycle.
-                NextValue(data, Cat(dq_i[1] if data_width == 1 else dq_i[0:data_width], data)),
-                NextState("SEND_DATA"),
-            )
-        )
         fsm.act("USER",
-            dq_oe.eq(usr_mask),
+            NextValue(clk_en, 1),
+            dq_oe2.eq(usr_mask),
+            NextValue(dq_oe1, dq_oe2),
+
             Case(usr_width, dout_width_cases),
-            shift_out(
-                width      = usr_width,
-                bits       = usr_len,
-                next_state = "USER_END",
-                trigger    = [
-                    clkgen.posedge_reg2, # data sampling
-                    clkgen.negedge,      # data update
-                ],
-                op = [
-                    [Case(usr_width, din_width_cases)],
-                    [NextValue(usr_dout, usr_dout<<usr_width)],
-                ],
-                ddr = False)
+            Case(usr_width, din_width_cases),
+            NextValue(usr_dout, usr_dout<<usr_width),
+
+            NextValue(shift_cnt, shift_cnt+usr_width),
+            If(shift_cnt == (usr_len-usr_width),
+                NextValue(shift_cnt, 0),
+                NextState("USER_END"),
+            ),
         )
         fsm.act("USER_END",
-            If(spi_clk_divisor > 0,
-                # Last data cycle was already captured in the USER state.
+            NextValue(clk_en, 0),
+            Case(usr_width, din_width_cases),
+            NextValue(dq_i1, 0),
+            NextValue(shift_cnt, shift_cnt+usr_width),
+            If(shift_cnt == (2*usr_width),
+                NextValue(shift_cnt, 0),
                 NextState("SEND_USER_DATA"),
-            ).Elif(clkgen.posedge_reg2,
-                # Capture last data cycle.
-                Case(usr_width, din_width_cases),
-                NextState("SEND_USER_DATA"),
-            )
+            ),
         )
         fsm.act("SEND_USER_DATA",
             source.valid.eq(1),
@@ -340,10 +237,7 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
         # # #
 
         if clock_domain != "sys":
-            self.clock_domains.cd_litespi = ClockDomain()
-            self.phy = ClockDomainsRenamer("litespi")(self.phy)
-            self.comb += self.cd_litespi.clk.eq(ClockSignal(clock_domain))
-            self.comb += self.cd_litespi.rst.eq(ResetSignal(clock_domain))
+            self.phy = ClockDomainsRenamer(clock_domain)(self.phy)
 
         self.submodules.spiflash_phy = self.phy
 

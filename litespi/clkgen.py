@@ -8,7 +8,7 @@ from migen import *
 
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
-from litex.build.io import SDROutput
+from litex.build.io import DDROutput
 
 
 class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
@@ -59,47 +59,11 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
         Controls generation of the ``update`` signal.
     """
     def __init__(self, pads, device, cnt_width=8, with_ddr=False):
-        self.div        = div        = Signal(cnt_width)
-        self.sample_cnt = sample_cnt = Signal(cnt_width)
-        self.update_cnt = update_cnt = Signal(cnt_width)
-        self.posedge    = posedge    = Signal()
-        self.negedge    = negedge    = Signal()
-        self.sample     = sample     = Signal()
-        self.update     = update     = Signal()
         self.en         = en         = Signal()
-        cnt             = Signal(cnt_width)
+        self.active     = active     = Signal()
         en_int          = Signal()
-        clk             = Signal()
 
-        self.comb += [
-            posedge.eq(en & ~clk & (cnt == div)),
-            negedge.eq(en & clk & (cnt == div)),
-            sample.eq(cnt == sample_cnt),
-            update.eq(cnt == update_cnt),
-        ]
-
-        # Delayed edge to account for IO register delays.
-        self.posedge_reg  = posedge_reg  = Signal()
-        self.posedge_reg2 = posedge_reg2 = Signal()
-
-        self.sync += [
-            posedge_reg.eq(posedge),
-            posedge_reg2.eq(posedge_reg),
-        ]
-
-        self.sync += [
-            If(en | en_int,
-                If(cnt < div,
-                    cnt.eq(cnt+1),
-                ).Else(
-                    cnt.eq(0),
-                    clk.eq(~clk),
-                )
-            ).Else(
-                clk.eq(0),
-                cnt.eq(0),
-            )
-        ]
+        self.comb += self.active.eq(en | en_int)
 
         if not hasattr(pads, "clk"):
             # Clock output needs to be registered like an SDROutput.
@@ -130,5 +94,5 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
             else:
                 raise NotImplementedError
         else:
-            self.specials += SDROutput(i=clk, o=pads.clk)
+            self.specials += DDROutput(i1=active, i2=0, o=pads.clk)
 
