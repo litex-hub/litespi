@@ -72,6 +72,8 @@ class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
                 port_mmap.source.connect(mmap.sink),
                 mmap.source.connect(port_mmap.sink),
             ]
+            if hasattr(phy, "dummy_bits"):
+                self.comb += phy.dummy_bits.eq(mmap._spi_dummy_bits)
         if with_master:
             self.submodules.master = master = LiteSPIMaster(
                 tx_fifo_depth = master_tx_fifo_depth,
