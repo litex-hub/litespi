@@ -88,6 +88,8 @@ class LiteSPIMMAP(Module, AutoCSR):
 
         dummy = Signal(data_bits, reset=0xdead)
 
+        self.comb += source.cmd.eq(USER)
+
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
@@ -100,7 +102,16 @@ class LiteSPIMMAP(Module, AutoCSR):
                 # If CS is still active and Bus address matches previous Burst address:
                 # Just continue the current Burst.
                 If(burst_cs & (bus.adr == burst_adr),
-                    NextState("BURST-REQ")
+                    source.valid.eq(1),
+                    source.last.eq(1),
+                    source.width.eq(flash.bus_width),
+                    source.len.eq(data_bits),
+                    source.mask.eq(0),
+                    If(source.ready,
+                        NextState("BURST-DAT"),
+                    ).Else(
+                        NextState("BURST-REQ")
+                    )
                 # Otherwise initialize a new Burst.
                 ).Else(
                     cs.eq(0),
@@ -112,7 +123,6 @@ class LiteSPIMMAP(Module, AutoCSR):
         fsm.act("BURST-CMD",
             cs.eq(1),
             source.valid.eq(1),
-            source.cmd.eq(USER),
             source.data.eq(flash.read_opcode.code), # send command.
             source.len.eq(cmd_bits),
             source.width.eq(flash.cmd_width),
@@ -134,7 +144,6 @@ class LiteSPIMMAP(Module, AutoCSR):
         fsm.act("BURST-ADDR",
             cs.eq(1),
             source.valid.eq(1),
-            source.cmd.eq(USER),
             source.width.eq(flash.addr_width),
             source.mask.eq(addr_oe_mask[flash.addr_width]),
             source.data.eq(Cat(Signal(2), bus.adr)), # send address.
@@ -161,7 +170,6 @@ class LiteSPIMMAP(Module, AutoCSR):
         fsm.act("DUMMY",
             cs.eq(1),
             source.valid.eq(1),
-            source.cmd.eq(USER),
             source.width.eq(flash.addr_width),
             source.mask.eq(addr_oe_mask[flash.addr_width]),
             source.data.eq(dummy),
@@ -184,9 +192,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         fsm.act("BURST-REQ",
             cs.eq(1),
             source.valid.eq(1),
-            sink.ready.eq(1),
             source.last.eq(1),
-            source.cmd.eq(USER),
             source.width.eq(flash.bus_width),
             source.len.eq(data_bits),
             source.mask.eq(0),
