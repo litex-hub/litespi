@@ -12,8 +12,10 @@ from litespi.common import *
 
 from litex.soc.interconnect.csr import *
 
-
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
+
+from litespi.phy.generic_sdr import LiteSPISDRPHYCore
+from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
@@ -37,8 +39,11 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
     clock_domain : str
         Name of LiteSPI clock domain.
 
-    default_divisor : int (only legacy mode)
+    default_divisor : int (1:1 rate)
         Default frequency divisor for clkgen.
+
+    rate : str
+        Rate: 1:1 SDR, 1:2 DDR.
 
     Attributes
     ----------
@@ -52,13 +57,11 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, legacy=True):
-        if legacy:
-            from litespi.phy.legacy_generic import LiteSPIPHYCore
-            self.phy = LiteSPIPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
-        else:
-            from litespi.phy.ddr_generic import DDRLiteSPIPHYCore
-            self.phy = DDRLiteSPIPHYCore(pads, flash, cs_delay)
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1"):
+        self.phy = {
+            "1:1": LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay),
+            "1:2": LiteSPIDDRPHYCore(pads, flash, cs_delay)
+        }[rate]
 
         self.flash = flash
 

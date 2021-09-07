@@ -20,7 +20,7 @@ from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 # LiteSPI PHY Core ---------------------------------------------------------------------------------
 
-class LiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
+class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     """LiteSPI PHY instantiator
 
     The ``LiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.

@@ -19,9 +19,9 @@ from litex.build.io import DDRTristate
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 
-# LiteSPI PHY DDR Core ---------------------------------------------------------------------------------
+# LiteSPI DDR PHY Core -----------------------------------------------------------------------------
 
-class DDRLiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
+class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     """LiteSPI PHY DDR instantiator
 
     The ``DDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
@@ -54,9 +54,9 @@ class DDRLiteSPIPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         Flash CS signal.
     """
     def __init__(self, pads, flash, cs_delay):
-        self.source              = source = stream.Endpoint(spi_phy2core_layout)
-        self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs                  = Signal()
+        self.source = source = stream.Endpoint(spi_phy2core_layout)
+        self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
+        self.cs     = Signal()
 
         if hasattr(pads, "miso"):
             bus_width = 1
