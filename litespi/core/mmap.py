@@ -9,11 +9,25 @@ from migen.genlib.misc import WaitTimer
 
 from litex.soc.interconnect import wishbone, stream
 from litex.gen.common import reverse_bytes
+from litex.soc.interconnect.csr import *
 
 from litespi.common import *
+from migen.genlib.cdc import MultiReg
 
+cmd_oe_mask  = {
+    1: 0b00000001,
+    2: 0b00000011,
+    4: 0b00001111,
+    8: 0b11111111,
+}
+addr_oe_mask = {
+    1: 0b00000001,
+    2: 0b00000011,
+    4: 0b00001111,
+    8: 0b11111111,
+}
 
-class LiteSPIMMAP(Module):
+class LiteSPIMMAP(Module, AutoCSR):
     """Memory-mapped SPI Flash controller.
 
     The ``LiteSPIMMAP`` class provides a Wishbone slave that must be connected to a LiteSPI PHY.
@@ -38,21 +52,43 @@ class LiteSPIMMAP(Module):
 
     cs : Signal(), out
         CS signal for the flash chip, should be connected to cs signal of the PHY.
+
+    dummy_bits : CSRStorage
+        Register which hold a number of dummy bits to send during transmission.
     """
-    def __init__(self, endianness="big"):
+    def __init__(self, flash, clock_domain="sys", endianness="big"):
         self.source = source = stream.Endpoint(spi_core2phy_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
         self.bus    = bus    = wishbone.Interface()
         self.cs     = cs     = Signal()
-
-        # # #
-
 
         # Burst Control.
         burst_cs      = Signal()
         burst_adr     = Signal(len(bus.adr), reset_less=True)
         burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
         self.submodules += burst_timeout
+
+        cmd_bits = 8
+        data_bits = 32
+
+        if flash.cmd_width == 1:
+            self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
+        elif flash.cmd_width == 4:
+            self._default_dummy_bits = flash.dummy_bits * 3 if flash.fast_mode else 0
+        else:
+            raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
+
+        self.dummy_bits          = dummy_bits      = CSRStorage(8, reset=self._default_dummy_bits)
+
+        self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
+        if clock_domain != "sys":
+            self.specials += MultiReg(dummy_bits.storage,  spi_dummy_bits,  "litespi")
+        else:
+            self.comb += spi_dummy_bits.eq(dummy_bits.storage)
+
+        dummy = Signal(data_bits, reset=0xdead)
+
+        self.comb += source.cmd.eq(USER)
 
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
@@ -66,7 +102,16 @@ class LiteSPIMMAP(Module):
                 # If CS is still active and Bus address matches previous Burst address:
                 # Just continue the current Burst.
                 If(burst_cs & (bus.adr == burst_adr),
-                    NextState("BURST-REQ")
+                    source.valid.eq(1),
+                    source.last.eq(1),
+                    source.width.eq(flash.bus_width),
+                    source.len.eq(data_bits),
+                    source.mask.eq(0),
+                    If(source.ready,
+                        NextState("BURST-DAT"),
+                    ).Else(
+                        NextState("BURST-REQ")
+                    )
                 # Otherwise initialize a new Burst.
                 ).Else(
                     cs.eq(0),
@@ -74,26 +119,88 @@ class LiteSPIMMAP(Module):
                 )
             )
         )
+
         fsm.act("BURST-CMD",
             cs.eq(1),
             source.valid.eq(1),
-            source.cmd.eq(CMD),
-            source.data.eq(Cat(Signal(2), bus.adr)), # Words to Bytes.
+            source.data.eq(flash.read_opcode.code), # send command.
+            source.len.eq(cmd_bits),
+            source.width.eq(flash.cmd_width),
+            source.mask.eq(cmd_oe_mask[flash.cmd_width]),
+            NextValue(burst_adr, bus.adr),
+            If(source.ready,
+                NextState("CMD-RET"),
+            )
+        )
+
+        fsm.act("CMD-RET",
+            cs.eq(1),
+            sink.ready.eq(1),
+            If(sink.valid,
+                NextState("BURST-ADDR"),
+            )
+        )
+
+        fsm.act("BURST-ADDR",
+            cs.eq(1),
+            source.valid.eq(1),
+            source.width.eq(flash.addr_width),
+            source.mask.eq(addr_oe_mask[flash.addr_width]),
+            source.data.eq(Cat(Signal(2), bus.adr)), # send address.
+            source.len.eq(flash.addr_bits),
             NextValue(burst_cs, 1),
             NextValue(burst_adr, bus.adr),
             If(source.ready,
+                NextState("ADDR-RET"),
+            )
+        )
+
+        fsm.act("ADDR-RET",
+            cs.eq(1),
+            sink.ready.eq(1),
+            If(sink.valid,
+                If(spi_dummy_bits == 0,
+                    NextState("BURST-REQ"),
+                ).Else(
+                    NextState("DUMMY"),
+                )
+            )
+        )
+
+        fsm.act("DUMMY",
+            cs.eq(1),
+            source.valid.eq(1),
+            source.width.eq(flash.addr_width),
+            source.mask.eq(addr_oe_mask[flash.addr_width]),
+            source.data.eq(dummy),
+            source.len.eq(spi_dummy_bits),
+            NextValue(burst_cs, 1),
+            NextValue(burst_adr, bus.adr),
+            If(source.ready,
+                NextState("DUMMY-RET"),
+            )
+        )
+
+        fsm.act("DUMMY-RET",
+            cs.eq(1),
+            sink.ready.eq(1),
+            If(sink.valid,
                 NextState("BURST-REQ"),
             )
         )
+
         fsm.act("BURST-REQ",
             cs.eq(1),
             source.valid.eq(1),
-            source.cmd.eq(READ),
             source.last.eq(1),
+            source.width.eq(flash.bus_width),
+            source.len.eq(data_bits),
+            source.mask.eq(0),
             If(source.ready,
                 NextState("BURST-DAT"),
             )
         )
+
         fsm.act("BURST-DAT",
             cs.eq(1),
             sink.ready.eq(1),

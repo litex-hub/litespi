@@ -31,12 +31,11 @@ class LiteSPICrossbar(Module):
         self.cd     = cd
         self.users  = []
         self.master = LiteSPIMasterPort()
-
         if cd != "sys":
             rx_cdc = stream.AsyncFIFO(spi_phy2core_layout, 32, buffered=True)
             tx_cdc = stream.AsyncFIFO(spi_core2phy_layout, 32, buffered=True)
-            self.submodules.rx_cdc = ClockDomainsRenamer({"write": "litespi", "read": "sys"})(rx_cdc)
-            self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": "litespi"})(tx_cdc)
+            self.submodules.rx_cdc = ClockDomainsRenamer({"write": cd, "read": "sys"})(rx_cdc)
+            self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": cd})(tx_cdc)
             self.comb += [
                 self.rx_cdc.source.connect(self.master.sink),
                 self.master.source.connect(self.tx_cdc.sink),

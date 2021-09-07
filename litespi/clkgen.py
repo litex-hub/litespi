@@ -8,7 +8,29 @@ from migen import *
 
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
-from litex.build.io import SDROutput
+from litex.build.io import SDROutput, DDROutput
+
+class DDRLiteSPIClkGen(Module, AutoDoc, ModuleDoc):
+    """SPI Clock generator
+
+    The ``DDRLiteSPIClkGen`` class provides a generic SPI clock generator.
+
+    The class can be combined with DDR PHY Core.
+
+    Parameters
+    ----------
+    pads : Object
+        SPI pads description.
+
+    Attributes
+    ----------
+    en : Signal(), in
+        Clock enable input, output clock will be generated if set to 1, 0 resets the core.
+    """
+    def __init__(self, pads):
+        self.en         = en         = Signal()
+
+        self.specials += DDROutput(i1=en, i2=0, o=pads.clk)
 
 
 class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
@@ -131,4 +153,3 @@ class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):
                 raise NotImplementedError
         else:
             self.specials += SDROutput(i=clk, o=pads.clk)
-
