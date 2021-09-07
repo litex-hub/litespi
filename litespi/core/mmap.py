@@ -68,7 +68,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
         self.submodules += burst_timeout
 
-        cmd_bits = 8
+        cmd_bits  = 8
         data_bits = 32
 
         if flash.cmd_width == 1:
@@ -78,11 +78,11 @@ class LiteSPIMMAP(Module, AutoCSR):
         else:
             raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
 
-        self.dummy_bits          = dummy_bits      = CSRStorage(8, reset=self._default_dummy_bits)
+        self.dummy_bits = dummy_bits = CSRStorage(8, reset=self._default_dummy_bits)
 
-        self._spi_dummy_bits     = spi_dummy_bits  = Signal(8)
+        self._spi_dummy_bits = spi_dummy_bits = Signal(8)
         if clock_domain != "sys":
-            self.specials += MultiReg(dummy_bits.storage,  spi_dummy_bits,  "litespi")
+            self.specials += MultiReg(dummy_bits.storage, spi_dummy_bits, clock_domain)
         else:
             self.comb += spi_dummy_bits.eq(dummy_bits.storage)
 

@@ -60,19 +60,19 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         Register which holds a clock divisor value applied to clkgen.
     """
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
-        self.source              = source = stream.Endpoint(spi_phy2core_layout)
-        self.sink                = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs                  = Signal()
-        self._spi_clk_divisor    = spi_clk_divisor = Signal(8)
+        self.source           = source = stream.Endpoint(spi_phy2core_layout)
+        self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
+        self.cs               = Signal()
+        self._spi_clk_divisor = spi_clk_divisor = Signal(8)
 
-        self._default_divisor    = default_divisor
+        self._default_divisor = default_divisor
 
-        self.clk_divisor         = clk_divisor     = CSRStorage(8, reset=self._default_divisor)
+        self.clk_divisor      = clk_divisor = CSRStorage(8, reset=self._default_divisor)
 
         # # #
 
         if clock_domain != "sys":
-            self.specials += MultiReg(clk_divisor.storage, spi_clk_divisor, "litespi")
+            self.specials += MultiReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
         else:
             self.comb += spi_clk_divisor.eq(clk_divisor.storage)
         if hasattr(pads, "miso"):
