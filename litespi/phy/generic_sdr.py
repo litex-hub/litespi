@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.cdc import MultiReg
 from migen.genlib.misc import WaitTimer
 
 from litespi.common import *
@@ -71,16 +70,15 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # # #
 
-        if clock_domain != "sys":
-            self.specials += MultiReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
-        else:
-            self.comb += spi_clk_divisor.eq(clk_divisor.storage)
+        # Resynchronize CSR Clk Divisor to LiteSPI Clk Domain.
+        self.submodules += ResyncReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
+
+        # Determine SPI Bus width and DQs.
         if hasattr(pads, "miso"):
             bus_width = 1
             pads.dq   = [pads.mosi, pads.miso]
         else:
             bus_width = len(pads.dq)
-
         assert bus_width in [1, 2, 4, 8]
 
         # Check if number of pads matches configured mode.

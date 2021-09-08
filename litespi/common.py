@@ -4,6 +4,10 @@
 # Copyright (c) 2020 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+from migen import *
+from migen.genlib.cdc import MultiReg
+
+# Core <-> PHY Layouts -----------------------------------------------------------------------------
 
 """
 Stream layout for LiteSPICore->PHY connection:
@@ -27,3 +31,13 @@ spi_phy2core_layout = [
 ]
 
 MMAP_DEFAULT_TIMEOUT = 256
+
+
+# Helpers ------------------------------------------------------------------------------------------
+
+class ResyncReg(Module):
+    def __init__(self, src, dst, clock_domain):
+        if clock_domain == "sys":
+            self.comb += dst.eq(src)
+        else:
+            self.specials += MultiReg(src, dst, clock_domain)
