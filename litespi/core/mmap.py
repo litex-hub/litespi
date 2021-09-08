@@ -88,8 +88,6 @@ class LiteSPIMMAP(Module, AutoCSR):
 
         dummy = Signal(data_bits, reset=0xdead)
 
-        self.comb += source.cmd.eq(USER)
-
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",

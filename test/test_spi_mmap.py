@@ -66,9 +66,6 @@ class TestSPIMMAP(unittest.TestCase):
 
 
             # READ CMD
-            if (yield dut.source.cmd) == USER:
-                dut.cmd_ok += 1
-
             if (yield dut.source.data) == opcode.code: # cmd ok
                 dut.opcode_ok = 1
 
@@ -82,9 +79,6 @@ class TestSPIMMAP(unittest.TestCase):
             if (yield dut.source.data) == (addr<<2): # address cmd
                 dut.addr_ok = 1
 
-            if (yield dut.source.cmd) == USER:
-                dut.cmd_ok += 1
-
             yield
             yield dut.sink.valid.eq(1)
             while (yield dut.source.valid) == 0:
@@ -96,10 +90,6 @@ class TestSPIMMAP(unittest.TestCase):
                 dut.no_dummy = 1
 
             # SEND DATA
-
-            if (yield dut.source.cmd) == USER: # read cmd
-                dut.cmd_ok += 1
-
             yield dut.source.ready.eq(0)
             yield
             yield dut.sink.data.eq(data)
@@ -119,4 +109,3 @@ class TestSPIMMAP(unittest.TestCase):
         self.assertEqual(dut.addr_ok, 1)
         self.assertEqual(dut.opcode_ok, 1)
         self.assertEqual(dut.no_dummy, 1)
-        self.assertEqual(dut.cmd_ok, 3)

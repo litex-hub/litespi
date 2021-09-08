@@ -158,18 +158,14 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             sink.ready.eq(cs_out),
             NextValue(clk_en, 0),
             If(sink.valid & sink.ready,
-                Case(sink.cmd, {
-                    USER: [
-                        shift_out(sink.mask, sink.data << (32-sink.len), usr_dout, sink.width),
-                        NextValue(usr_din,   0),
-                        NextValue(usr_len,   sink.len-sink.width),
-                        NextValue(usr_width, sink.width),
-                        NextValue(usr_mask,  sink.mask),
+                shift_out(sink.mask, sink.data << (32-sink.len), usr_dout, sink.width),
+                NextValue(usr_din,   0),
+                NextValue(usr_len,   sink.len-sink.width),
+                NextValue(usr_width, sink.width),
+                NextValue(usr_mask,  sink.mask),
 
-                        NextValue(clk_en, 1),
-                        NextState("USER")
-                    ]
-                })
+                NextValue(clk_en, 1),
+                NextState("USER")
             )
         )
 

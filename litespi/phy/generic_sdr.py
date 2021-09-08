@@ -150,16 +150,12 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("IDLE",
             sink.ready.eq(cs_out),
             If(sink.valid & sink.ready,
-                Case(sink.cmd, {
-                    USER: [
-                        NextValue(usr_dout,  sink.data << (32-sink.len)),
-                        NextValue(usr_din,   0),
-                        NextValue(usr_len,   sink.len),
-                        NextValue(usr_width, sink.width),
-                        NextValue(usr_mask,  sink.mask),
-                        NextState("USER")
-                    ]
-                })
+                NextValue(usr_dout,  sink.data << (32-sink.len)),
+                NextValue(usr_din,   0),
+                NextValue(usr_len,   sink.len),
+                NextValue(usr_width, sink.width),
+                NextValue(usr_mask,  sink.mask),
+                NextState("USER")
             )
         )
 

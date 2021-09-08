@@ -75,7 +75,6 @@ class LiteSPIMaster(Module, AutoCSR):
             tx_fifo.sink.valid.eq(self._rxtx.re),
             self._status.fields.tx_ready.eq(tx_fifo.sink.ready),
             tx_fifo.sink.data.eq(self._rxtx.r),
-            tx_fifo.sink.cmd.eq(USER),
             tx_fifo.sink.len.eq(self._phyconfig.fields.len),
             tx_fifo.sink.width.eq(self._phyconfig.fields.width),
             tx_fifo.sink.mask.eq(self._phyconfig.fields.mask),
