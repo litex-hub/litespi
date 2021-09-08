@@ -1,7 +1,8 @@
 #
 # This file is part of LiteSPI
 #
-# Copyright (c) 2020 Antmicro <www.antmicro.com>
+# Copyright (c) 2020-2021 Antmicro <www.antmicro.com>
+# Copyright (c) 2021 Florent Kermarrec <florent@enjoy-digital.fr>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
