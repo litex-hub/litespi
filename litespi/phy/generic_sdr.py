@@ -129,9 +129,6 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         usr_dout  = Signal(len(sink.data),  reset_less=True)
         usr_din   = Signal(len(sink.data),  reset_less=True)
-        usr_len   = Signal(len(sink.len),   reset_less=True)
-        usr_width = Signal(len(sink.width), reset_less=True)
-        usr_mask  = Signal(len(sink.mask),  reset_less=True)
 
         din_width_cases = {1: [NextValue(usr_din, Cat(dq_i[1], usr_din))]}
         for i in [2, 4, 8]:
@@ -143,13 +140,9 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
-            sink.ready.eq(cs_out),
-            If(sink.valid & sink.ready,
+            If(sink.valid & cs_out,
                 NextValue(usr_dout,  sink.data << (32-sink.len)),
                 NextValue(usr_din,   0),
-                NextValue(usr_len,   sink.len),
-                NextValue(usr_width, sink.width),
-                NextValue(usr_mask,  sink.mask),
                 NextState("USER")
             )
         )
@@ -178,29 +171,31 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             return res
 
         fsm.act("USER",
-            dq_oe.eq(usr_mask),
-            Case(usr_width, dout_width_cases),
+            dq_oe.eq(sink.mask),
+            Case(sink.width, dout_width_cases),
             shift_out(
-                width      = usr_width,
-                bits       = usr_len,
+                width      = sink.width,
+                bits       = sink.len,
                 next_state = "USER_END",
                 trigger    = [
                     clkgen.posedge_reg2, # data sampling
                     clkgen.negedge,      # data update
                 ],
                 op = [
-                    [Case(usr_width, din_width_cases)],
-                    [NextValue(usr_dout, usr_dout<<usr_width)],
+                    [Case(sink.width, din_width_cases)],
+                    [NextValue(usr_dout, usr_dout<<sink.width)],
                 ],
                 ddr = False)
         )
         fsm.act("USER_END",
             If(spi_clk_divisor > 0,
                 # Last data cycle was already captured in the USER state.
+                sink.ready.eq(1),
                 NextState("SEND_USER_DATA"),
             ).Elif(clkgen.posedge_reg2,
                 # Capture last data cycle.
-                Case(usr_width, din_width_cases),
+                sink.ready.eq(1),
+                Case(sink.width, din_width_cases),
                 NextState("SEND_USER_DATA"),
             )
         )
