@@ -101,12 +101,12 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         ]
 
         # CS control.
-        cs_timer = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
-        cs_out   = Signal()
+        cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
+        cs_enable = Signal()
         self.submodules += cs_timer
         self.comb += cs_timer.wait.eq(self.cs)
-        self.comb += cs_out.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_out)
+        self.comb += cs_enable.eq(cs_timer.done)
+        self.comb += pads.cs_n.eq(~cs_enable)
 
         # I/Os.
         data_bits = 32
@@ -132,8 +132,9 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         sr_in_shift  = Signal()
         sr_in        = Signal(len(sink.data), reset_less=True)
 
-        # Data Out Selection/Load/Shift.
+        # Data Out Generation/Load/Shift.
         self.comb += [
+            dq_oe.eq(sink.mask),
             Case(sink.width, {
                 1 : dq_o.eq(sr_out[-1:]),
                 2 : dq_o.eq(sr_out[-2:]),
@@ -164,47 +165,54 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         )
 
         # FSM.
-        self.submodules.fsm = fsm = FSM(reset_state="IDLE")
-        fsm.act("IDLE",
-            If(sink.valid & cs_out,
+        self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
+        fsm.act("WAIT-CMD-DATA",
+            # Wait for CS and a CMD from the Core.
+            If(cs_enable & sink.valid,
+                # Load Shift Register Count/Data Out.
+                NextValue(sr_cnt, sink.len - sink.width),
                 sr_out_load.eq(1),
-                NextState("USER")
-            )
+                # Start XFER.
+                NextState("XFER"),
+            ),
         )
-        fsm.act("USER",
-            dq_oe.eq(sink.mask),
+        fsm.act("XFER",
+            # Generate Clk.
             self.clkgen.en.eq(1),
+
+            # Data In Shift.
+            If(clkgen.posedge_reg2, sr_in_shift.eq(1)),
+
+            # Data Out Shift.
+            If(clkgen.negedge, sr_out_shift.eq(1)),
+
+            # Shift Register Count Update/Check.
             If(self.clkgen.negedge,
-                NextValue(sr_cnt, sr_cnt + sink.width),
-                If(sr_cnt == (sink.len - sink.width),
-                    NextValue(sr_cnt, 0),
-                    NextState("USER_END"),
+                NextValue(sr_cnt, sr_cnt - sink.width),
+                # End XFer.
+                If(sr_cnt == 0,
+                    NextState("XFER-END"),
                 ),
             ),
-            If(clkgen.posedge_reg2,
-                sr_in_shift.eq(1)
-            ),
-            If(clkgen.negedge,
-                sr_out_shift.eq(1)
+
+        )
+        fsm.act("XFER-END",
+            # Last data already captured in XFER when divisor > 0 so only capture for divisor == 0.
+            If((spi_clk_divisor > 0) | clkgen.posedge_reg2,
+                # Accept CMD.
+                sink.ready.eq(1),
+                # Capture last data (only for spi_clk_divisor == 0).
+                sr_in_shift.eq(spi_clk_divisor == 0),
+                # Send Status/Data to Core.
+                NextState("SEND-STATUS-DATA"),
             )
         )
-        fsm.act("USER_END",
-            If(spi_clk_divisor > 0,
-                # Last data cycle was already captured in the USER state.
-                sink.ready.eq(1),
-                NextState("SEND_USER_DATA"),
-            ).Elif(clkgen.posedge_reg2,
-                # Capture last data cycle.
-                sink.ready.eq(1),
-                sr_in_shift.eq(1),
-                NextState("SEND_USER_DATA"),
-            )
-        )
-        fsm.act("SEND_USER_DATA",
+        self.comb += source.data.eq(sr_in),
+        fsm.act("SEND-STATUS-DATA",
+            # Send Data In to Core and return to WATI when accepted.
             source.valid.eq(1),
             source.last.eq(1),
-            source.data.eq(sr_in),
             If(source.ready,
-                NextState("IDLE"),
+                NextState("WAIT-CMD-DATA"),
             )
         )
