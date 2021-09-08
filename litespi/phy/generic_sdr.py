@@ -124,31 +124,55 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 i  = dq_i[i],
             )
 
-        # Data Shift Regsiters.
-        sr_cnt = Signal(8, reset_less=True)
-        sr_out = Signal(len(sink.data), reset_less=True)
-        sr_din = Signal(len(sink.data), reset_less=True)
+        # Data Shift Registers.
+        sr_cnt       = Signal(8, reset_less=True)
+        sr_out_load  = Signal()
+        sr_out_shift = Signal()
+        sr_out       = Signal(len(sink.data), reset_less=True)
+        sr_in_shift  = Signal()
+        sr_in        = Signal(len(sink.data), reset_less=True)
+
+        # Data Out Selection/Load/Shift.
+        self.comb += [
+            Case(sink.width, {
+                1 : dq_o.eq(sr_out[-1:]),
+                2 : dq_o.eq(sr_out[-2:]),
+                4 : dq_o.eq(sr_out[-4:]),
+                8 : dq_o.eq(sr_out[-8:]),
+            })
+        ]
+        self.sync += If(sr_out_load,
+            sr_out.eq(sink.data << (len(sink.data) - sink.len))
+        )
+        self.sync += If(sr_out_shift,
+            Case(sink.width, {
+                1 : sr_out.eq(Cat(Signal(1), sr_out)),
+                2 : sr_out.eq(Cat(Signal(2), sr_out)),
+                4 : sr_out.eq(Cat(Signal(4), sr_out)),
+                8 : sr_out.eq(Cat(Signal(8), sr_out)),
+            })
+        )
+
+        # Data In Shift.
+        self.sync += If(sr_in_shift,
+            Case(sink.width, {
+                1 : sr_in.eq(Cat(dq_i[1],  sr_in)), # 1: pads.miso
+                2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
+                4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
+                8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
+            })
+        )
 
         # FSM.
-        din_width_cases = {1: [NextValue(sr_din, Cat(dq_i[1], sr_din))]}
-        for i in [2, 4, 8]:
-            din_width_cases[i] = [NextValue(sr_din, Cat(dq_i[0:i], sr_din))]
-
-        dout_width_cases = {}
-        for i in [1, 2, 4, 8]:
-            dout_width_cases[i] = [dq_o.eq(sr_out[-i:])]
-
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             If(sink.valid & cs_out,
-                NextValue(sr_out,  sink.data << (32-sink.len)),
-                NextValue(sr_din,   0),
+                sr_out_load.eq(1),
                 NextState("USER")
             )
         )
         fsm.act("USER",
             dq_oe.eq(sink.mask),
-            Case(sink.width, dout_width_cases),
             self.clkgen.en.eq(1),
             If(self.clkgen.negedge,
                 NextValue(sr_cnt, sr_cnt + sink.width),
@@ -157,8 +181,12 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                     NextState("USER_END"),
                 ),
             ),
-            If(clkgen.posedge_reg2, [Case(sink.width, din_width_cases)]),
-            If(clkgen.negedge, NextValue(sr_out, sr_out<<sink.width)),
+            If(clkgen.posedge_reg2,
+                sr_in_shift.eq(1)
+            ),
+            If(clkgen.negedge,
+                sr_out_shift.eq(1)
+            )
         )
         fsm.act("USER_END",
             If(spi_clk_divisor > 0,
@@ -168,14 +196,14 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             ).Elif(clkgen.posedge_reg2,
                 # Capture last data cycle.
                 sink.ready.eq(1),
-                Case(sink.width, din_width_cases),
+                sr_in_shift.eq(1),
                 NextState("SEND_USER_DATA"),
             )
         )
         fsm.act("SEND_USER_DATA",
             source.valid.eq(1),
             source.last.eq(1),
-            source.data.eq(sr_din),
+            source.data.eq(sr_in),
             If(source.ready,
                 NextState("IDLE"),
             )
