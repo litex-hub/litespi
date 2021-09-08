@@ -124,25 +124,25 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 i  = dq_i[i],
             )
 
+        # Data Shift Regsiters.
+        sr_cnt = Signal(8, reset_less=True)
+        sr_out = Signal(len(sink.data), reset_less=True)
+        sr_din = Signal(len(sink.data), reset_less=True)
+
         # FSM.
-        shift_cnt = Signal(8, reset_less=True)
-
-        usr_dout  = Signal(len(sink.data),  reset_less=True)
-        usr_din   = Signal(len(sink.data),  reset_less=True)
-
-        din_width_cases = {1: [NextValue(usr_din, Cat(dq_i[1], usr_din))]}
+        din_width_cases = {1: [NextValue(sr_din, Cat(dq_i[1], sr_din))]}
         for i in [2, 4, 8]:
-            din_width_cases[i] = [NextValue(usr_din, Cat(dq_i[0:i], usr_din))]
+            din_width_cases[i] = [NextValue(sr_din, Cat(dq_i[0:i], sr_din))]
 
         dout_width_cases = {}
         for i in [1, 2, 4, 8]:
-            dout_width_cases[i] = [dq_o.eq(usr_dout[-i:])]
+            dout_width_cases[i] = [dq_o.eq(sr_out[-i:])]
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             If(sink.valid & cs_out,
-                NextValue(usr_dout,  sink.data << (32-sink.len)),
-                NextValue(usr_din,   0),
+                NextValue(sr_out,  sink.data << (32-sink.len)),
+                NextValue(sr_din,   0),
                 NextState("USER")
             )
         )
@@ -156,9 +156,9 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             res  = [
                 self.clkgen.en.eq(1),
                 If(edge,
-                    NextValue(shift_cnt, shift_cnt+width),
-                    If(shift_cnt == (bits-width),
-                        NextValue(shift_cnt, 0),
+                    NextValue(sr_cnt, sr_cnt+width),
+                    If(sr_cnt == (bits-width),
+                        NextValue(sr_cnt, 0),
                         NextState(next_state),
                     ),
                 ),
@@ -183,7 +183,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 ],
                 op = [
                     [Case(sink.width, din_width_cases)],
-                    [NextValue(usr_dout, usr_dout<<sink.width)],
+                    [NextValue(sr_out, sr_out<<sink.width)],
                 ],
                 ddr = False)
         )
@@ -202,7 +202,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("SEND_USER_DATA",
             source.valid.eq(1),
             source.last.eq(1),
-            source.data.eq(usr_din),
+            source.data.eq(sr_din),
             If(source.ready,
                 NextState("IDLE"),
             )
