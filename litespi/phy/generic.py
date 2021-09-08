@@ -58,10 +58,11 @@ class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
     """
 
     def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1"):
-        self.phy = {
-            "1:1": LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay),
-            "1:2": LiteSPIDDRPHYCore(pads, flash, cs_delay)
-        }[rate]
+        assert rate in ["1:1", "1:2"]
+        if rate == "1:1":
+            self.phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
+        if rate == "1:2":
+            self.phy = LiteSPIDDRPHYCore(pads, flash, cs_delay)
 
         self.flash = flash
 
