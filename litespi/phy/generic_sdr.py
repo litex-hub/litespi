@@ -146,43 +146,19 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 NextState("USER")
             )
         )
-
-        def shift_out(width, bits, next_state, trigger=[], op=[]):
-            if type(trigger) is not list:
-                trigger = [trigger]
-                op      = [op]
-            res  = [
-                self.clkgen.en.eq(1),
-                If(self.clkgen.negedge,
-                    NextValue(sr_cnt, sr_cnt+width),
-                    If(sr_cnt == (bits-width),
-                        NextValue(sr_cnt, 0),
-                        NextState(next_state),
-                    ),
-                ),
-            ]
-
-            if len(trigger) == len(op):
-                for i in range(len(trigger)):
-                    res += [If(trigger[i], *op[i])]
-
-            return res
-
         fsm.act("USER",
             dq_oe.eq(sink.mask),
             Case(sink.width, dout_width_cases),
-            shift_out(
-                width      = sink.width,
-                bits       = sink.len,
-                next_state = "USER_END",
-                trigger    = [
-                    clkgen.posedge_reg2, # data sampling
-                    clkgen.negedge,      # data update
-                ],
-                op = [
-                    [Case(sink.width, din_width_cases)],
-                    [NextValue(sr_out, sr_out<<sink.width)],
-                ])
+            self.clkgen.en.eq(1),
+            If(self.clkgen.negedge,
+                NextValue(sr_cnt, sr_cnt + sink.width),
+                If(sr_cnt == (sink.len - sink.width),
+                    NextValue(sr_cnt, 0),
+                    NextState("USER_END"),
+                ),
+            ),
+            If(clkgen.posedge_reg2, [Case(sink.width, din_width_cases)]),
+            If(clkgen.negedge, NextValue(sr_out, sr_out<<sink.width)),
         )
         fsm.act("USER_END",
             If(spi_clk_divisor > 0,
