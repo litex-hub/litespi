@@ -108,8 +108,6 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # FSM.
         shift_cnt = Signal(8, reset_less=True)
-        addr      = Signal(addr_bits if not ddr else addr_bits + addr_width, reset_less=True)
-        data      = Signal(data_bits, reset_less=True)
 
         usr_dout  = Signal(len(sink.data),  reset_less=True)
         usr_din   = Signal(len(sink.data),  reset_less=True)
