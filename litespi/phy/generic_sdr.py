@@ -147,15 +147,13 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             )
         )
 
-        def shift_out(width, bits, next_state, trigger=[], op=[], ddr=False):
+        def shift_out(width, bits, next_state, trigger=[], op=[]):
             if type(trigger) is not list:
                 trigger = [trigger]
                 op      = [op]
-
-            edge = self.clkgen.negedge if not ddr else trigger[0]
             res  = [
                 self.clkgen.en.eq(1),
-                If(edge,
+                If(self.clkgen.negedge,
                     NextValue(sr_cnt, sr_cnt+width),
                     If(sr_cnt == (bits-width),
                         NextValue(sr_cnt, 0),
@@ -184,8 +182,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 op = [
                     [Case(sink.width, din_width_cases)],
                     [NextValue(sr_out, sr_out<<sink.width)],
-                ],
-                ddr = False)
+                ])
         )
         fsm.act("USER_END",
             If(spi_clk_divisor > 0,
