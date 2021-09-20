@@ -101,34 +101,43 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             )
 
         # Data Shift Registers.
-        sr_cnt = Signal(8, reset_less=True)
-        sr_out = Signal(len(sink.data),  reset_less=True)
-        sr_in  = Signal(len(sink.data),  reset_less=True)
+        sr_cnt       = Signal(8, reset_less=True)
+        sr_out_load  = Signal()
+        sr_out_shift = Signal()
+        sr_out       = Signal(len(sink.data), reset_less=True)
+        sr_in_shift  = Signal()
+        sr_in        = Signal(len(sink.data), reset_less=True)
+
+        # Data Out Shift.
+        self.comb += [
+            Case(sink.width, {
+                1:  dq_i[1].eq(sr_out[-1:]),
+                2:  dq_i[1].eq(sr_out[-2:]),
+                4:  dq_i[1].eq(sr_out[-4:]),
+                8:  dq_i[1].eq(sr_out[-8:]),
+            })
+        ]
+        self.sync += If(sr_out_load,
+            sr_out.eq(sink.data << (len(sink.data) - sink.len))
+        )
+        self.sync += If(sr_out_shift, dq_i[0].eq(dq_i[1]))
+
+        # Data In Shift.
+        self.sync += If(sr_in_shift,
+            Case(sink.width, {
+                1 : sr_in.eq(Cat(dq_o[0][1],  sr_in)), # 1: pads.miso
+                2 : sr_in.eq(Cat(dq_o[0][:2], sr_in)),
+                4 : sr_in.eq(Cat(dq_o[0][:4], sr_in)),
+                8 : sr_in.eq(Cat(dq_o[0][:8], sr_in)),
+            })
+        )
 
         # FSM.
-        din_width_cases = {1: [
-                 NextValue(sr_in, Cat(dq_o[0][1], sr_in)),
-            ]
-        }
-        for i in [2, 4, 8]:
-            din_width_cases[i] = [
-                NextValue(sr_in, Cat(dq_o[0][0:i], sr_in))
-            ]
-
-        dout_width_cases = {}
-        for i in [1, 2, 4, 8]:
-            dout_width_cases[i] = [
-                dq_i[1].eq(sr_out[-i:]),
-                NextValue(dq_i[0], dq_i[1])
-            ]
-
         self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
             NextValue(clkgen.en, 0),
             If(cs_enable & sink.valid,
-                NextValue(sr_out,  sink.data << (32-sink.len)),
-                NextValue(sr_in,   0),
-                Case(sink.width, dout_width_cases),
+                sr_out_load.eq(1),
                 NextState("XFER")
             )
         )
@@ -137,11 +146,9 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             NextValue(clkgen.en, 1),
             dq_oe[1].eq(sink.mask),
             NextValue(dq_oe[0], dq_oe[1]),
-
-            Case(sink.width, dout_width_cases),
-            Case(sink.width, din_width_cases),
+            sr_in_shift.eq(1),
+            sr_out_shift.eq(1),
             NextValue(sr_out, sr_out<<sink.width),
-
             NextValue(sr_cnt, sr_cnt+sink.width),
             If(sr_cnt == (sink.len-sink.width),
                 NextValue(sr_cnt, 0),
@@ -150,7 +157,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         )
         fsm.act("XFER-END",
             NextValue(clkgen.en, 0),
-            Case(sink.width, din_width_cases),
+            sr_in_shift.eq(1),
             NextValue(dq_i[0], 0),
             NextValue(sr_cnt, sr_cnt+sink.width),
             If(sr_cnt == ((2+2*extra_latency)*sink.width),
