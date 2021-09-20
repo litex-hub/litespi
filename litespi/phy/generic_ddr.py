@@ -88,22 +88,16 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         # I/Os.
         data_bits = 32
 
-        dq_o1  = Signal(len(pads.dq))
-        dq_o2  = Signal(len(pads.dq))
-        dq_i1  = Signal(len(pads.dq))
-        dq_i2  = Signal(len(pads.dq))
-        dq_oe1 = Signal(len(pads.dq))
-        dq_oe2 = Signal(len(pads.dq))
+        dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
+        dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
+        dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
 
         for i in range(len(pads.dq)):
             self.specials += DDRTristate(
                 io  = pads.dq[i],
-                o1  = dq_o1[i],
-                o2  = dq_o2[i],
-                oe1 = dq_oe1[i],
-                oe2 = dq_oe2[i],
-                i1  = dq_i1[i],
-                i2  = dq_i2[i]
+                o1  = dq_o[0][i],   o2 = dq_o[1][i],
+                oe1 = dq_oe[0][i], oe2 = dq_oe[1][i],
+                i1  = dq_i[0][i],  i2  = dq_i[1][i]
             )
 
         # Data Shift Registers.
@@ -113,19 +107,19 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # FSM.
         din_width_cases = {1: [
-                 NextValue(sr_in, Cat(dq_o1[1], sr_in)),
+                 NextValue(sr_in, Cat(dq_o[0][1], sr_in)),
             ]
         }
         for i in [2, 4, 8]:
             din_width_cases[i] = [
-                NextValue(sr_in, Cat(dq_o1[0:i], sr_in))
+                NextValue(sr_in, Cat(dq_o[0][0:i], sr_in))
             ]
 
         dout_width_cases = {}
         for i in [1, 2, 4, 8]:
             dout_width_cases[i] = [
-                dq_i2.eq(sr_out[-i:]),
-                NextValue(dq_i1, dq_i2)
+                dq_i[1].eq(sr_out[-i:]),
+                NextValue(dq_i[0], dq_i[1])
             ]
 
         self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
@@ -141,8 +135,8 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         fsm.act("XFER",
             NextValue(clkgen.en, 1),
-            dq_oe2.eq(sink.mask),
-            NextValue(dq_oe1, dq_oe2),
+            dq_oe[1].eq(sink.mask),
+            NextValue(dq_oe[0], dq_oe[1]),
 
             Case(sink.width, dout_width_cases),
             Case(sink.width, din_width_cases),
@@ -157,7 +151,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("XFER-END",
             NextValue(clkgen.en, 0),
             Case(sink.width, din_width_cases),
-            NextValue(dq_i1, 0),
+            NextValue(dq_i[0], 0),
             NextValue(sr_cnt, sr_cnt+sink.width),
             If(sr_cnt == ((2+2*extra_latency)*sink.width),
                 sink.ready.eq(1),
