@@ -100,16 +100,7 @@ class LiteSPIMMAP(Module, AutoCSR):
                 # If CS is still active and Bus address matches previous Burst address:
                 # Just continue the current Burst.
                 If(burst_cs & (bus.adr == burst_adr),
-                    source.valid.eq(1),
-                    source.last.eq(1),
-                    source.width.eq(flash.bus_width),
-                    source.len.eq(data_bits),
-                    source.mask.eq(0),
-                    If(source.ready,
-                        NextState("BURST-DAT"),
-                    ).Else(
-                        NextState("BURST-REQ")
-                    )
+                    NextState("BURST-REQ")
                 # Otherwise initialize a new Burst.
                 ).Else(
                     cs.eq(0),
