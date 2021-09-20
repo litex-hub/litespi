@@ -78,12 +78,12 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.submodules.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        cs_timer = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
-        cs_out   = Signal()
+        cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
+        cs_enable = Signal()
         self.submodules += cs_timer
         self.comb += cs_timer.wait.eq(self.cs)
-        self.comb += cs_out.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_out)
+        self.comb += cs_enable.eq(cs_timer.done)
+        self.comb += pads.cs_n.eq(~cs_enable)
 
         # I/Os.
         data_bits = 32
@@ -111,9 +111,6 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         usr_dout  = Signal(len(sink.data),  reset_less=True)
         usr_din   = Signal(len(sink.data),  reset_less=True)
-        usr_len   = Signal(len(sink.len),   reset_less=True)
-        usr_width = Signal(len(sink.width), reset_less=True)
-        usr_mask  = Signal(len(sink.mask),  reset_less=True)
 
         clk_en = Signal()
 
@@ -135,51 +132,48 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 NextValue(dq_i1, dq_i2)
             ]
 
-        self.submodules.fsm = fsm = FSM(reset_state="IDLE")
-        fsm.act("IDLE",
-            sink.ready.eq(cs_out),
+        self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
+        fsm.act("WAIT-CMD-DATA",
             NextValue(clk_en, 0),
-            If(sink.valid & sink.ready,
+            If(cs_enable & sink.valid,
                 NextValue(usr_dout,  sink.data << (32-sink.len)),
                 NextValue(usr_din,   0),
-                NextValue(usr_len,   sink.len),
-                NextValue(usr_width, sink.width),
-                NextValue(usr_mask,  sink.mask),
                 Case(sink.width, dout_width_cases),
-                NextState("USER")
+                NextState("XFER")
             )
         )
 
-        fsm.act("USER",
+        fsm.act("XFER",
             NextValue(clk_en, 1),
-            dq_oe2.eq(usr_mask),
+            dq_oe2.eq(sink.mask),
             NextValue(dq_oe1, dq_oe2),
 
-            Case(usr_width, dout_width_cases),
-            Case(usr_width, din_width_cases),
-            NextValue(usr_dout, usr_dout<<usr_width),
+            Case(sink.width, dout_width_cases),
+            Case(sink.width, din_width_cases),
+            NextValue(usr_dout, usr_dout<<sink.width),
 
-            NextValue(shift_cnt, shift_cnt+usr_width),
-            If(shift_cnt == (usr_len-usr_width),
+            NextValue(shift_cnt, shift_cnt+sink.width),
+            If(shift_cnt == (sink.len-sink.width),
                 NextValue(shift_cnt, 0),
-                NextState("USER_END"),
+                NextState("XFER-END"),
             ),
         )
-        fsm.act("USER_END",
+        fsm.act("XFER-END",
             NextValue(clk_en, 0),
-            Case(usr_width, din_width_cases),
+            Case(sink.width, din_width_cases),
             NextValue(dq_i1, 0),
-            NextValue(shift_cnt, shift_cnt+usr_width),
-            If(shift_cnt == ((2+2*extra_latency)*usr_width),
+            NextValue(shift_cnt, shift_cnt+sink.width),
+            If(shift_cnt == ((2+2*extra_latency)*sink.width),
+                sink.ready.eq(1),
                 NextValue(shift_cnt, 0),
-                NextState("SEND_USER_DATA"),
+                NextState("SEND-STATUS-DATA"),
             ),
         )
-        fsm.act("SEND_USER_DATA",
+        fsm.act("SEND-STATUS-DATA",
             source.valid.eq(1),
             source.last.eq(1),
             source.data.eq(usr_din),
             If(source.ready,
-                NextState("IDLE"),
+                NextState("WAIT-CMD-DATA"),
             )
         )
