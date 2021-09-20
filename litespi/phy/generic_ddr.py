@@ -106,73 +106,69 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 i2  = dq_i2[i]
             )
 
+        # Data Shift Registers.
+        sr_cnt = Signal(8, reset_less=True)
+        sr_out = Signal(len(sink.data),  reset_less=True)
+        sr_in  = Signal(len(sink.data),  reset_less=True)
+
         # FSM.
-        shift_cnt = Signal(8, reset_less=True)
-
-        usr_dout  = Signal(len(sink.data),  reset_less=True)
-        usr_din   = Signal(len(sink.data),  reset_less=True)
-
-        clk_en = Signal()
-
-        self.comb += self.clkgen.en.eq(clk_en)
-
         din_width_cases = {1: [
-                 NextValue(usr_din, Cat(dq_o1[1], usr_din)),
+                 NextValue(sr_in, Cat(dq_o1[1], sr_in)),
             ]
         }
         for i in [2, 4, 8]:
             din_width_cases[i] = [
-                NextValue(usr_din, Cat(dq_o1[0:i], usr_din))
+                NextValue(sr_in, Cat(dq_o1[0:i], sr_in))
             ]
 
         dout_width_cases = {}
         for i in [1, 2, 4, 8]:
             dout_width_cases[i] = [
-                dq_i2.eq(usr_dout[-i:]),
+                dq_i2.eq(sr_out[-i:]),
                 NextValue(dq_i1, dq_i2)
             ]
 
         self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
-            NextValue(clk_en, 0),
+            NextValue(clkgen.en, 0),
             If(cs_enable & sink.valid,
-                NextValue(usr_dout,  sink.data << (32-sink.len)),
-                NextValue(usr_din,   0),
+                NextValue(sr_out,  sink.data << (32-sink.len)),
+                NextValue(sr_in,   0),
                 Case(sink.width, dout_width_cases),
                 NextState("XFER")
             )
         )
 
         fsm.act("XFER",
-            NextValue(clk_en, 1),
+            NextValue(clkgen.en, 1),
             dq_oe2.eq(sink.mask),
             NextValue(dq_oe1, dq_oe2),
 
             Case(sink.width, dout_width_cases),
             Case(sink.width, din_width_cases),
-            NextValue(usr_dout, usr_dout<<sink.width),
+            NextValue(sr_out, sr_out<<sink.width),
 
-            NextValue(shift_cnt, shift_cnt+sink.width),
-            If(shift_cnt == (sink.len-sink.width),
-                NextValue(shift_cnt, 0),
+            NextValue(sr_cnt, sr_cnt+sink.width),
+            If(sr_cnt == (sink.len-sink.width),
+                NextValue(sr_cnt, 0),
                 NextState("XFER-END"),
             ),
         )
         fsm.act("XFER-END",
-            NextValue(clk_en, 0),
+            NextValue(clkgen.en, 0),
             Case(sink.width, din_width_cases),
             NextValue(dq_i1, 0),
-            NextValue(shift_cnt, shift_cnt+sink.width),
-            If(shift_cnt == ((2+2*extra_latency)*sink.width),
+            NextValue(sr_cnt, sr_cnt+sink.width),
+            If(sr_cnt == ((2+2*extra_latency)*sink.width),
                 sink.ready.eq(1),
-                NextValue(shift_cnt, 0),
+                NextValue(sr_cnt, 0),
                 NextState("SEND-STATUS-DATA"),
             ),
         )
         fsm.act("SEND-STATUS-DATA",
             source.valid.eq(1),
             source.last.eq(1),
-            source.data.eq(usr_din),
+            source.data.eq(sr_in),
             If(source.ready,
                 NextState("WAIT-CMD-DATA"),
             )
