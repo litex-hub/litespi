@@ -115,40 +115,24 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         usr_width = Signal(len(sink.width), reset_less=True)
         usr_mask  = Signal(len(sink.mask),  reset_less=True)
 
-        new_din   = Signal(len(sink.data),  reset_less=True)
-        new_dout  = Signal(len(sink.data),  reset_less=True)
-
         clk_en = Signal()
 
         self.comb += self.clkgen.en.eq(clk_en)
 
-        new_din_cases = {1: [
-                new_din.eq(Cat(dq_o1[1], usr_din)),
+        din_width_cases = {1: [
+                 NextValue(usr_din, Cat(dq_o1[1], usr_din)),
             ]
         }
-
         for i in [2, 4, 8]:
-            new_din_cases[i] = [
-                new_din.eq(Cat(dq_o1[0:i], usr_din))
+            din_width_cases[i] = [
+                NextValue(usr_din, Cat(dq_o1[0:i], usr_din))
             ]
 
-        new_dout_cases = {}
+        dout_width_cases = {}
         for i in [1, 2, 4, 8]:
-            new_dout_cases[i] = [
-                dq_i2.eq(new_dout[-i:]),
-            ]
-
-        self.sync += [
-            dq_i1.eq(dq_i2),
-            dq_oe1.eq(dq_oe2),
-        ]
-
-        def shift_out(mask, data, data_new, width):
-            return [
-                dq_oe2.eq(mask),
-                new_dout.eq(data),
-                Case(width, new_dout_cases),
-                NextValue(data_new, data<<width),
+            dout_width_cases[i] = [
+                dq_i2.eq(usr_dout[-i:]),
+                NextValue(dq_i1, dq_i2)
             ]
 
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
@@ -156,21 +140,24 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             sink.ready.eq(cs_out),
             NextValue(clk_en, 0),
             If(sink.valid & sink.ready,
-                shift_out(sink.mask, sink.data << (32-sink.len), usr_dout, sink.width),
+                NextValue(usr_dout,  sink.data << (32-sink.len)),
                 NextValue(usr_din,   0),
-                NextValue(usr_len,   sink.len-sink.width),
+                NextValue(usr_len,   sink.len),
                 NextValue(usr_width, sink.width),
                 NextValue(usr_mask,  sink.mask),
-
-                NextValue(clk_en, 1),
+                Case(sink.width, dout_width_cases),
                 NextState("USER")
             )
         )
 
         fsm.act("USER",
-            shift_out(usr_mask, usr_dout, usr_dout, usr_width),
-            Case(usr_width, new_din_cases),
-            NextValue(usr_din, new_din),
+            NextValue(clk_en, 1),
+            dq_oe2.eq(usr_mask),
+            NextValue(dq_oe1, dq_oe2),
+
+            Case(usr_width, dout_width_cases),
+            Case(usr_width, din_width_cases),
+            NextValue(usr_dout, usr_dout<<usr_width),
 
             NextValue(shift_cnt, shift_cnt+usr_width),
             If(shift_cnt == (usr_len-usr_width),
@@ -178,32 +165,20 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 NextState("USER_END"),
             ),
         )
-
-        return_data = [
-                source.valid.eq(1),
-                source.last.eq(1),
-                source.data.eq(new_din),
-        ]
-
         fsm.act("USER_END",
             NextValue(clk_en, 0),
-            Case(usr_width, new_din_cases),
-
-            NextValue(usr_din, new_din),
+            Case(usr_width, din_width_cases),
+            NextValue(dq_i1, 0),
             NextValue(shift_cnt, shift_cnt+usr_width),
-
             If(shift_cnt == (2*usr_width),
-                return_data,
-                If(source.ready,
-                    NextState("IDLE"),
-                ).Else(
-                    NextState("SEND_USER_DATA"),
-                ),
                 NextValue(shift_cnt, 0),
+                NextState("SEND_USER_DATA"),
             ),
         )
         fsm.act("SEND_USER_DATA",
-            return_data,
+            source.valid.eq(1),
+            source.last.eq(1),
+            source.data.eq(usr_din),
             If(source.ready,
                 NextState("IDLE"),
             )
