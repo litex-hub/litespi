@@ -181,7 +181,6 @@ class LiteSPIMMAP(Module, AutoCSR):
         fsm.act("BURST-REQ",
             cs.eq(1),
             source.valid.eq(1),
-            sink.ready.eq(1),
             source.last.eq(1),
             source.width.eq(flash.bus_width),
             source.len.eq(data_bits),
