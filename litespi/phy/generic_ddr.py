@@ -53,7 +53,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
     cs : Signal(), in
         Flash CS signal.
     """
-    def __init__(self, pads, flash, cs_delay):
+    def __init__(self, pads, flash, cs_delay, extra_latency=0):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs     = Signal()
@@ -170,7 +170,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             Case(usr_width, din_width_cases),
             NextValue(dq_i1, 0),
             NextValue(shift_cnt, shift_cnt+usr_width),
-            If(shift_cnt == (2*usr_width),
+            If(shift_cnt == ((2+2*extra_latency)*usr_width),
                 NextValue(shift_cnt, 0),
                 NextState("SEND_USER_DATA"),
             ),
