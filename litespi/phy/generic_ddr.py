@@ -191,7 +191,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         )
         self.comb += source.data.eq(sr_in)
         fsm.act("SEND-STATUS-DATA",
-            # Send Data In to Core and return to WATI when accepted.
+            # Send Data In to Core and return to WAIT when accepted.
             source.valid.eq(1),
             source.last.eq(1),
             If(source.ready,
