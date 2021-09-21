@@ -30,7 +30,7 @@ class DDRLiteSPIClkGen(Module, AutoDoc, ModuleDoc):
     def __init__(self, pads):
         self.en         = en         = Signal()
 
-        self.specials += DDROutput(i1=en, i2=0, o=pads.clk)
+        self.specials += DDROutput(i1=0, i2=en, o=pads.clk)
 
 
 class LiteSPIClkGen(Module, AutoDoc, ModuleDoc):

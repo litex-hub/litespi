@@ -110,9 +110,6 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.comb += pads.cs_n.eq(~cs_enable)
 
         # I/Os.
-        data_bits = 32
-        cmd_bits  = 8
-
         dq_o  = Signal(len(pads.dq))
         dq_i  = Signal(len(pads.dq))
         dq_oe = Signal(len(pads.dq))
