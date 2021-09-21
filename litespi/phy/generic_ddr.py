@@ -110,6 +110,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
 
         # Data Out Shift.
         self.comb += [
+            dq_oe[1].eq(sink.mask),
             Case(sink.width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
@@ -120,7 +121,16 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         self.sync += If(sr_out_load,
             sr_out.eq(sink.data << (len(sink.data) - sink.len))
         )
-        self.sync += If(sr_out_shift, dq_o[0].eq(dq_o[1]))
+        self.sync += If(sr_out_shift,
+            dq_oe[0].eq(dq_oe[1]),
+            dq_o[0].eq(dq_o[1]),
+            Case(sink.width, {
+                1 : sr_out.eq(Cat(Signal(1), sr_out)),
+                2 : sr_out.eq(Cat(Signal(2), sr_out)),
+                4 : sr_out.eq(Cat(Signal(4), sr_out)),
+                8 : sr_out.eq(Cat(Signal(8), sr_out)),
+            })
+        )
 
         # Data In Shift.
         self.sync += If(sr_in_shift,
@@ -155,10 +165,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
             sr_in_shift.eq(1),
 
             # Data Out Shift.
-            dq_oe[1].eq(sink.mask),
-            NextValue(dq_oe[0], dq_oe[1]),
             sr_out_shift.eq(1),
-            NextValue(sr_out, sr_out<<sink.width),
 
             # Shift Register Count Update/Check.
             NextValue(sr_cnt, sr_cnt - sink.width),
