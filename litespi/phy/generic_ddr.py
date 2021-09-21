@@ -95,9 +95,9 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         for i in range(len(pads.dq)):
             self.specials += DDRTristate(
                 io  = pads.dq[i],
-                o1  = dq_o[0][i],   o2 = dq_o[1][i],
+                o1  =  dq_o[0][i],  o2 =  dq_o[1][i],
                 oe1 = dq_oe[0][i], oe2 = dq_oe[1][i],
-                i1  = dq_i[0][i],  i2  = dq_i[1][i]
+                i1  =  dq_i[0][i],  i2 =  dq_i[1][i]
             )
 
         # Data Shift Registers.
@@ -111,24 +111,24 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         # Data Out Shift.
         self.comb += [
             Case(sink.width, {
-                1:  dq_i[1].eq(sr_out[-1:]),
-                2:  dq_i[1].eq(sr_out[-2:]),
-                4:  dq_i[1].eq(sr_out[-4:]),
-                8:  dq_i[1].eq(sr_out[-8:]),
+                1:  dq_o[1].eq(sr_out[-1:]),
+                2:  dq_o[1].eq(sr_out[-2:]),
+                4:  dq_o[1].eq(sr_out[-4:]),
+                8:  dq_o[1].eq(sr_out[-8:]),
             })
         ]
         self.sync += If(sr_out_load,
             sr_out.eq(sink.data << (len(sink.data) - sink.len))
         )
-        self.sync += If(sr_out_shift, dq_i[0].eq(dq_i[1]))
+        self.sync += If(sr_out_shift, dq_o[0].eq(dq_o[1]))
 
         # Data In Shift.
         self.sync += If(sr_in_shift,
             Case(sink.width, {
-                1 : sr_in.eq(Cat(dq_o[0][1],  sr_in)), # 1: pads.miso
-                2 : sr_in.eq(Cat(dq_o[0][:2], sr_in)),
-                4 : sr_in.eq(Cat(dq_o[0][:4], sr_in)),
-                8 : sr_in.eq(Cat(dq_o[0][:8], sr_in)),
+                1 : sr_in.eq(Cat(dq_i[0][1],  sr_in)), # 1: pads.miso
+                2 : sr_in.eq(Cat(dq_i[0][:2], sr_in)),
+                4 : sr_in.eq(Cat(dq_i[0][:4], sr_in)),
+                8 : sr_in.eq(Cat(dq_i[0][:8], sr_in)),
             })
         )
 
@@ -158,7 +158,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         fsm.act("XFER-END",
             NextValue(clkgen.en, 0),
             sr_in_shift.eq(1),
-            NextValue(dq_i[0], 0),
+            NextValue(dq_o[0], 0),
             NextValue(sr_cnt, sr_cnt+sink.width),
             If(sr_cnt == ((2+2*extra_latency)*sink.width),
                 sink.ready.eq(1),
