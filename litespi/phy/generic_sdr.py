@@ -208,7 +208,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
                 NextState("SEND-STATUS-DATA"),
             )
         )
-        self.comb += source.data.eq(sr_in),
+        self.comb += source.data.eq(sr_in)
         fsm.act("SEND-STATUS-DATA",
             # Send Data In to Core and return to WATI when accepted.
             source.valid.eq(1),

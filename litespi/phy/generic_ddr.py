@@ -135,41 +135,58 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
+            # Stop Clk.
             NextValue(clkgen.en, 0),
+            # Wait for CS and a CMD from the Core.
             If(cs_enable & sink.valid,
+                # Load Shift Register Count/Data Out.
+                NextValue(sr_cnt, sink.len - sink.width),
                 sr_out_load.eq(1),
+                # Start XFER.
                 NextState("XFER")
             )
         )
 
         fsm.act("XFER",
+            # Generate Clk.
             NextValue(clkgen.en, 1),
+
+            # Data In Shift.
+            sr_in_shift.eq(1),
+
+            # Data Out Shift.
             dq_oe[1].eq(sink.mask),
             NextValue(dq_oe[0], dq_oe[1]),
-            sr_in_shift.eq(1),
             sr_out_shift.eq(1),
             NextValue(sr_out, sr_out<<sink.width),
-            NextValue(sr_cnt, sr_cnt+sink.width),
-            If(sr_cnt == (sink.len-sink.width),
-                NextValue(sr_cnt, 0),
+
+            # Shift Register Count Update/Check.
+            NextValue(sr_cnt, sr_cnt - sink.width),
+            # End XFer.
+            If(sr_cnt == 0,
+                NextValue(sr_cnt, (2 + 2*extra_latency)*sink.width), # FIXME: Explain magic numbers.
                 NextState("XFER-END"),
             ),
         )
         fsm.act("XFER-END",
+            # Stop Clk.
             NextValue(clkgen.en, 0),
+
+            # Data In Shift.
             sr_in_shift.eq(1),
-            NextValue(dq_o[0], 0),
-            NextValue(sr_cnt, sr_cnt+sink.width),
-            If(sr_cnt == ((2+2*extra_latency)*sink.width),
+
+            # Shift Register Count Update/Check.
+            NextValue(sr_cnt, sr_cnt - sink.width),
+            If(sr_cnt == 0,
                 sink.ready.eq(1),
-                NextValue(sr_cnt, 0),
                 NextState("SEND-STATUS-DATA"),
             ),
         )
+        self.comb += source.data.eq(sr_in)
         fsm.act("SEND-STATUS-DATA",
+            # Send Data In to Core and return to WATI when accepted.
             source.valid.eq(1),
             source.last.eq(1),
-            source.data.eq(sr_in),
             If(source.ready,
                 NextState("WAIT-CMD-DATA"),
             )
