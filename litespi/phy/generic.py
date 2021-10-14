@@ -12,14 +12,14 @@ from litespi.common import *
 
 from litex.soc.interconnect.csr import *
 
-from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.soc.integration.doc import AutoDoc
 
 from litespi.phy.generic_sdr import LiteSPISDRPHYCore
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
-class LiteSPIPHY(Module,AutoDoc, AutoCSR,  ModuleDoc):
+class LiteSPIPHY(Module, AutoCSR, AutoDoc):
     """LiteSPI PHY instantiator
 
     The ``LiteSPIPHY`` class instantiate generic PHY - ``LiteSPIPHYCore`` that can be connected to the ``LiteSPICore``,

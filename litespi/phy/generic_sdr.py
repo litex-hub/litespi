@@ -16,11 +16,11 @@ from litex.soc.interconnect.csr import *
 
 from litex.build.io import SDRTristate
 
-from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.soc.integration.doc import AutoDoc
 
 # LiteSPI PHY Core ---------------------------------------------------------------------------------
 
-class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
+class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
     """LiteSPI PHY instantiator
 
     The ``LiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.

@@ -16,12 +16,12 @@ from litex.soc.interconnect.csr import *
 
 from litex.build.io import DDRTristate
 
-from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.soc.integration.doc import AutoDoc
 
 
 # LiteSPI DDR PHY Core -----------------------------------------------------------------------------
 
-class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc, ModuleDoc):
+class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc):
     """LiteSPI PHY DDR instantiator
 
     The ``DDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.

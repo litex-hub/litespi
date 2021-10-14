@@ -6,7 +6,7 @@
 
 from migen import *
 
-from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.soc.integration.doc import AutoDoc
 from litex.soc.interconnect import wishbone, stream
 from litex.soc.interconnect.csr import *
 
@@ -23,7 +23,7 @@ class LiteSPICore(Module):
         self.cs     = Signal()
 
 
-class LiteSPI(Module, AutoCSR, AutoDoc, ModuleDoc):
+class LiteSPI(Module, AutoCSR, AutoDoc):
     """SPI Controller wrapper.
 
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
