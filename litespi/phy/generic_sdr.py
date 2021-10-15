@@ -14,7 +14,7 @@ from litespi.clkgen import LiteSPIClkGen
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
 
-from litex.build.io import SDRTristate
+from litex.build.io import SDROutput, SDRInput, SDRTristate
 
 from litex.soc.integration.doc import AutoDoc
 
@@ -75,9 +75,8 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         self.submodules += ResyncReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
 
         # Determine SPI Bus width and DQs.
-        if hasattr(pads, "miso"):
+        if hasattr(pads, "mosi"):
             bus_width = 1
-            pads.dq   = [pads.mosi, pads.miso]
         else:
             bus_width = len(pads.dq)
         assert bus_width in [1, 2, 4, 8]
@@ -113,17 +112,29 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         data_bits = 32
         cmd_bits  = 8
 
-        dq_o  = Signal(len(pads.dq))
-        dq_i  = Signal(len(pads.dq))
-        dq_oe = Signal(len(pads.dq))
-
-        for i in range(len(pads.dq)):
-            self.specials += SDRTristate(
-                io = pads.dq[i],
-                o  = dq_o[i],
-                oe = dq_oe[i],
-                i  = dq_i[i],
+        if hasattr(pads, "mosi"):
+            dq_o  = Signal()
+            dq_i  = Signal()
+            dq_oe = Signal() # Unused.
+            self.specials += SDROutput(
+                i = dq_o,
+                o = pads.mosi
             )
+            self.specials += SDRInput(
+                i = pads.miso,
+                o = dq_i
+            )
+        else:
+            dq_o  = Signal(len(pads.dq))
+            dq_i  = Signal(len(pads.dq))
+            dq_oe = Signal(len(pads.dq))
+            for i in range(len(pads.dq)):
+                self.specials += SDRTristate(
+                    io = pads.dq[i],
+                    o  = dq_o[i],
+                    oe = dq_oe[i],
+                    i  = dq_i[i],
+                )
 
         # Data Shift Registers.
         sr_cnt       = Signal(8, reset_less=True)
@@ -158,7 +169,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         # Data In Shift.
         self.sync += If(sr_in_shift,
             Case(sink.width, {
-                1 : sr_in.eq(Cat(dq_i[1],  sr_in)), # 1: pads.miso
+                1 : sr_in.eq(Cat(dq_i[:1], sr_in)),
                 2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
                 4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
                 8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
