@@ -114,7 +114,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
-            dq_i  = Signal()
+            dq_i  = Signal(2)
             dq_oe = Signal() # Unused.
             self.specials += SDROutput(
                 i = dq_o,
@@ -122,7 +122,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
             )
             self.specials += SDRInput(
                 i = pads.miso,
-                o = dq_i
+                o = dq_i[1]
             )
         else:
             dq_o  = Signal(len(pads.dq))
@@ -169,7 +169,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         # Data In Shift.
         self.sync += If(sr_in_shift,
             Case(sink.width, {
-                1 : sr_in.eq(Cat(dq_i[:1], sr_in)),
+                1 : sr_in.eq(Cat(dq_i[1], sr_in)),
                 2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
                 4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
                 8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
