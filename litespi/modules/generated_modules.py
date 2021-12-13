@@ -8545,6 +8545,27 @@ class W25Q64JV(SpiNorFlashModule):
     dummy_bits = 8
 
 
+class W25Q64JW(SpiNorFlashModule):
+
+    manufacturer_id = SpiNorFlashManufacturerIDs.WINBOND
+    device_id = 0x6017
+    name = "w25q64jw"
+
+    total_size  =    8388608   # bytes
+    page_size   =        256   # bytes
+    total_pages =      32768
+
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
+    dummy_bits = 8
+
+
 class W25Q80(SpiNorFlashModule):
 
     manufacturer_id = SpiNorFlashManufacturerIDs.WINBOND
