@@ -58,14 +58,16 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
 
     def __init__(self, phy, clock_domain="sys",
         with_mmap=True, mmap_endianness="big",
-        with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1):
+        with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1,
+        with_csr=True):
 
         self.submodules.crossbar = crossbar = LiteSPICrossbar(clock_domain)
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
             self.submodules.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
-                                                      endianness=mmap_endianness)
+                                                      endianness=mmap_endianness,
+                                                      with_csr=with_csr)
             port_mmap = crossbar.get_port(mmap.cs)
             self.bus = mmap.bus
             self.comb += [

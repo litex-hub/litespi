@@ -56,7 +56,7 @@ class LiteSPIMMAP(Module, AutoCSR):
     dummy_bits : CSRStorage
         Register which hold a number of dummy bits to send during transmission.
     """
-    def __init__(self, flash, clock_domain="sys", endianness="big"):
+    def __init__(self, flash, clock_domain="sys", endianness="big", with_csr=True):
         self.source = source = stream.Endpoint(spi_core2phy_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
         self.bus    = bus    = wishbone.Interface()
@@ -78,13 +78,16 @@ class LiteSPIMMAP(Module, AutoCSR):
         else:
             raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
 
-        self.dummy_bits = dummy_bits = CSRStorage(8, reset=self._default_dummy_bits)
-
         self._spi_dummy_bits = spi_dummy_bits = Signal(8)
-        if clock_domain != "sys":
-            self.specials += MultiReg(dummy_bits.storage, spi_dummy_bits, clock_domain)
+
+        if with_csr:
+            self.dummy_bits = dummy_bits = CSRStorage(8, reset=self._default_dummy_bits)
+            if clock_domain != "sys":
+                self.specials += MultiReg(dummy_bits.storage, spi_dummy_bits, clock_domain)
+            else:
+                self.comb += spi_dummy_bits.eq(dummy_bits.storage)
         else:
-            self.comb += spi_dummy_bits.eq(dummy_bits.storage)
+            self.comb += spi_dummy_bits.eq(self._default_dummy_bits)
 
         dummy = Signal(data_bits, reset=0xdead)
 
