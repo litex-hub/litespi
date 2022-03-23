@@ -166,8 +166,6 @@ class LiteSPIMMAP(Module, AutoCSR):
             source.mask.eq(addr_oe_mask[flash.addr_width]),
             source.data.eq(dummy),
             source.len.eq(spi_dummy_bits),
-            NextValue(burst_cs, 1),
-            NextValue(burst_adr, bus.adr),
             If(source.ready,
                 NextState("DUMMY-RET"),
             )
