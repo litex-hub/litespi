@@ -6947,6 +6947,7 @@ class S25FL128S(SpiNorFlashModule):
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_4,
     ]
     dummy_bits = 8
 
