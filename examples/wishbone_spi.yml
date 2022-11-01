@@ -1,0 +1,13 @@
+#
+# This file is part of LiteSPI.
+#
+# Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
+device:         S25FL128L
+mode:           4x
+bus_standard:   wishbone
+
+soc:
+    mem_map:
+        spiflash: 0x68000000
