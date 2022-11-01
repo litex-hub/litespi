@@ -94,7 +94,7 @@ class SPICore(SoCMini):
 
         device = core_config["device"]
         mode = core_config["mode"]
-        assert mode[-1] == "x" #tipycally 1x, 4x
+        assert mode[-1] == "x" #expected parameter should end in "x" (typically 1x or 4x)
         if not device in modules_dict:
             raise ValueError("Unsupported SPI device")
         
@@ -103,12 +103,12 @@ class SPICore(SoCMini):
         # PHY --------------------------------------------------------------------------------------
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         module_class = modules_dict[device]
-        opcode = module_class.supported_opcodes[0] #use any opcode to get the intance
+        opcode = module_class.supported_opcodes[0] #use any opcode to get the instance
         spiflash_module = module_class(opcode)
         if not spiflash_module.check_bus_width(width=requested_bus_width):
             raise ValueError(f"SPI device doesn't support {requested_bus_width}-bit bus with")
 
-        if not requested_bus_width in [1, 4]:
+        if not requested_bus_width in [1, 4]: #checks bus width after support in chip is evaluated (and reported if in error)
             raise ValueError("SPI modes different than 1x or 4x are not supported")
 
         #SIM:
