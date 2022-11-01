@@ -39,6 +39,13 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.integration.soc import SoCRegion
 
+import inspect
+import litespi.modules
+from litespi.spi_nor_flash_module import SpiNorFlashModule
+
+# module database
+modules_dict = {name: cls for name, cls in inspect.getmembers(litespi.modules) if inspect.isclass(cls) and issubclass(cls, SpiNorFlashModule)}
+
 
 # IOs ----------------------------------------------------------------------------------------------
 
@@ -87,21 +94,27 @@ class SPICore(SoCMini):
 
         device = core_config["device"]
         mode = core_config["mode"]
-        assert device in ["S25FL128L"] #FIXME: support more modules
-        assert mode in ["1x", "4x"]
+        assert mode[-1] == "x" #tipycally 1x, 4x
+        if not device in modules_dict:
+            raise ValueError("Unsupported SPI device")
+        
+        requested_bus_width = int(mode[:-1])
         
         # PHY --------------------------------------------------------------------------------------
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        if device == "S25FL128L":
-            from litespi.modules import S25FL128L
-            spiflash_module = S25FL128L(Codes.READ_1_1_4)
-        else:
-            raise ValueError("Unsupported SPI device")
+        module_class = modules_dict[device]
+        opcode = module_class.supported_opcodes[0] #use any opcode to get the intance
+        spiflash_module = module_class(opcode)
+        if not spiflash_module.check_bus_width(width=requested_bus_width):
+            raise ValueError(f"SPI device doesn't support {requested_bus_width}-bit bus with")
+
+        if not requested_bus_width in [1, 4]:
+            raise ValueError("SPI modes different than 1x or 4x are not supported")
 
         #SIM:
         #from litespi.phy.model import LiteSPIPHYModel
         #self.submodules.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=None)  #no init
-        pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
+        pads = self.platform.request("spiflash" if mode == "1x" else "spiflash"+mode)
         from litespi.phy.generic import LiteSPIPHY
         print(spiflash_module.bus_width, mode, pads)
         spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=1, rate="1:1")
