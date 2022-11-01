@@ -5,8 +5,6 @@
 #
 # Copyright (c) 2015-2022 Florent Kermarrec <florent@enjoy-digital.fr>
 # Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
-# Copyright (c) 2020 Xiretza <xiretza@xiretza.xyz>
-# Copyright (c) 2020 Stefan Schrijvers <ximin@ximinity.net>
 # SPDX-License-Identifier: BSD-2-Clause
 
 """
@@ -44,7 +42,8 @@ import litespi.modules
 from litespi.spi_nor_flash_module import SpiNorFlashModule
 
 # module database
-modules_dict = {name: cls for name, cls in inspect.getmembers(litespi.modules) if inspect.isclass(cls) and issubclass(cls, SpiNorFlashModule)}
+module_classes = inspect.getmembers(litespi.modules, inspect.isclass)
+devices_dict = {name: cls for name, cls in module_classes if issubclass(cls, SpiNorFlashModule)}
 
 
 # IOs ----------------------------------------------------------------------------------------------
@@ -94,15 +93,18 @@ class SPICore(SoCMini):
 
         device = core_config["device"]
         mode = core_config["mode"]
-        assert mode[-1] == "x" #expected parameter should end in "x" (typically 1x or 4x)
-        if not device in modules_dict:
-            raise ValueError("Unsupported SPI device")
+        if not device in devices_dict:
+            raise ValueError(f"Unsupported SPI device: {device}")
         
-        requested_bus_width = int(mode[:-1])
+        assert mode in ["x1", "x4"]
+        requested_bus_width = {
+          "x1" : 1,
+          "x4" : 4,
+          }[mode]
         
         # PHY --------------------------------------------------------------------------------------
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
-        module_class = modules_dict[device]
+        module_class = devices_dict[device]
         opcode = module_class.supported_opcodes[0] #use any opcode to get the instance
         spiflash_module = module_class(opcode)
         if not spiflash_module.check_bus_width(width=requested_bus_width):
@@ -114,7 +116,7 @@ class SPICore(SoCMini):
         #SIM:
         #from litespi.phy.model import LiteSPIPHYModel
         #self.submodules.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=None)  #no init
-        pads = self.platform.request("spiflash" if mode == "1x" else "spiflash"+mode)
+        pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
         from litespi.phy.generic import LiteSPIPHY
         print(spiflash_module.bus_width, mode, pads)
         spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=1, rate="1:1")
