@@ -122,7 +122,7 @@ class SPICore(SoCMini):
         spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=1, rate="1:1")
 
         from litespi import LiteSPI
-        spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness)
+        spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness, with_master=True)
 
         bus_standard = core_config["bus_standard"]
         assert bus_standard in ["wishbone", "axi-lite"]
