@@ -5,8 +5,9 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 device:         S25FL128L
-mode:           x1
+mode:           x4
 bus_standard:   wishbone
+rate:           "1:2"
 
 soc:
     mem_map:

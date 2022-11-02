@@ -102,6 +102,9 @@ class SPICore(SoCMini):
           "x4" : 4,
           }[mode]
         
+        rate = core_config["rate"] if "rate" in core_config else "1:1"
+        divisor = int(core_config["divisor"]) if "divisor" in core_config else 1
+        
         # PHY --------------------------------------------------------------------------------------
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         module_class = devices_dict[device]
@@ -118,8 +121,8 @@ class SPICore(SoCMini):
         #self.submodules.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=None)  #no init
         pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
         from litespi.phy.generic import LiteSPIPHY
-        print(spiflash_module.bus_width, mode, pads)
-        spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=1, rate="1:1")
+        spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=divisor, rate=rate)
+        self.submodules += spiflash_phy
 
         from litespi import LiteSPI
         spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness, with_master=True)
@@ -130,7 +133,7 @@ class SPICore(SoCMini):
         # Wishbone.
         if bus_standard == "wishbone":
             platform.add_extension(spiflash_core.bus.get_ios("bus"))
-            self.comb += spiflash_core.bus.connect_to_pads(self.platform.request("bus"), mode="master")
+            self.comb += spiflash_core.bus.connect_to_pads(self.platform.request("bus"), mode="slave")
 
         # AXI-Lite.
         if bus_standard == "axi-lite":
@@ -138,7 +141,7 @@ class SPICore(SoCMini):
             axil_bus = axi.AXILiteInterface(address_width=32, data_width=32)
             platform.add_extension(axil_bus.get_ios("bus"))
             self.submodules += axi.Wishbone2AXILite(spiflash_core.bus, axil_bus)
-            self.comb += axil_bus.connect_to_pads(self.platform.request("bus"), mode="master")
+            self.comb += axil_bus.connect_to_pads(self.platform.request("bus"), mode="slave")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -147,6 +150,7 @@ def main():
     builder_args(parser)
     parser.set_defaults(output_dir="build")
     parser.add_argument("--vendor",       default="xilinx",  help="FPGA Vendor.")
+    parser.add_argument("--device",       default="",  help="FPGA device (required for 1:2 rate)")
     parser.add_argument("config", help="YAML config file")
     args = parser.parse_args()
     core_config = yaml.load(open(args.config).read(), Loader=yaml.Loader)
@@ -163,7 +167,7 @@ def main():
     platform_cls = {
         "xilinx"  : XilinxPlatform,
     }[args.vendor]
-    platform = platform_cls(device="", io=_io)
+    platform = platform_cls(device=args.device, io=_io)
     platform.add_extension(_io)
 
     if core_config["bus_standard"] in ["wishbone", "axi-lite"]:
