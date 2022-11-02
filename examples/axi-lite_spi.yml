@@ -8,6 +8,3 @@ device:         S25FL128L
 mode:           x4
 bus_standard:   axi-lite
 
-soc:
-    mem_map:
-        spiflash: 0x68000000

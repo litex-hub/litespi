@@ -94,7 +94,7 @@ class SPICore(SoCMini):
         device = core_config["device"]
         mode = core_config["mode"]
         if not device in devices_dict:
-            raise ValueError(f"Unsupported SPI device: {device}")
+            raise ValueError(f"Unsupported SPI device:", device)
         
         assert mode in ["x1", "x4"]
         requested_bus_width = {
@@ -113,27 +113,28 @@ class SPICore(SoCMini):
         if not spiflash_module.check_bus_width(width=requested_bus_width):
             raise ValueError(f"SPI device doesn't support {requested_bus_width}-bit bus with")
 
-        if not requested_bus_width in [1, 4]: #checks bus width after support in chip is evaluated (and reported if in error)
-            raise ValueError("SPI modes different than 1x or 4x are not supported")
-
         #SIM:
         #from litespi.phy.model import LiteSPIPHYModel
         #self.submodules.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=None)  #no init
         pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
         from litespi.phy.generic import LiteSPIPHY
-        spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device, default_divisor=divisor, rate=rate)
+        spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device,
+          default_divisor=divisor, rate=rate)
         self.submodules += spiflash_phy
 
         from litespi import LiteSPI
-        spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness, with_master=True)
-
+        spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness,
+          with_master=True, with_mmap=True, with_csr=True) #FIXME: parametrize endianness
+        self.submodules += spiflash_core
+        
         bus_standard = core_config["bus_standard"]
         assert bus_standard in ["wishbone", "axi-lite"]
 
         # Wishbone.
         if bus_standard == "wishbone":
             platform.add_extension(spiflash_core.bus.get_ios("bus"))
-            self.comb += spiflash_core.bus.connect_to_pads(self.platform.request("bus"), mode="slave")
+            platform_bus = self.platform.request("bus")
+            self.comb += spiflash_core.bus.connect_to_pads(platform_bus, mode="slave")
 
         # AXI-Lite.
         if bus_standard == "axi-lite":
