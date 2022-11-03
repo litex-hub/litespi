@@ -92,10 +92,14 @@ class SPICore(SoCMini):
         self.submodules.crg = CRG(platform.request("sys_clock"), platform.request("sys_reset"))
 
         device = core_config["device"]
+
+        bus_standard = core_config["bus_standard"]
+        assert bus_standard in ["wishbone", "axi-lite", "sim"]
+
         mode = core_config["mode"]
         if not device in devices_dict:
             raise ValueError(f"Unsupported SPI device:", device)
-        
+
         assert mode in ["x1", "x4"]
         requested_bus_width = {
           "x1" : 1,
@@ -113,13 +117,18 @@ class SPICore(SoCMini):
         if not spiflash_module.check_bus_width(width=requested_bus_width):
             raise ValueError(f"SPI device doesn't support {requested_bus_width}-bit bus with")
 
-        #SIM:
-        #from litespi.phy.model import LiteSPIPHYModel
-        #self.submodules.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=None)  #no init
         pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
-        from litespi.phy.generic import LiteSPIPHY
-        spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device,
-          default_divisor=divisor, rate=rate)
+
+        if bus_standard == "sim":
+            from litespi.phy.model import LiteSPIPHYModel
+            from litex.soc.integration.common import get_mem_data
+            mem_init = get_mem_data("spiflash.bin") #generates "litespi_core_mem.init" file
+            spiflash_phy = LiteSPIPHYModel(spiflash_module, init=mem_init)
+        else:            
+            from litespi.phy.generic import LiteSPIPHY
+            spiflash_phy = LiteSPIPHY(pads, spiflash_module, device=self.platform.device,
+                default_divisor=divisor, rate=rate)
+
         self.submodules += spiflash_phy
 
         from litespi import LiteSPI
@@ -127,8 +136,6 @@ class SPICore(SoCMini):
           with_master=True, with_mmap=True, with_csr=True) #FIXME: parametrize endianness
         self.submodules += spiflash_core
         
-        bus_standard = core_config["bus_standard"]
-        assert bus_standard in ["wishbone", "axi-lite"]
 
         # Wishbone.
         if bus_standard == "wishbone":
@@ -143,6 +150,12 @@ class SPICore(SoCMini):
             platform.add_extension(axil_bus.get_ios("bus"))
             self.submodules += axi.Wishbone2AXILite(spiflash_core.bus, axil_bus)
             self.comb += axil_bus.connect_to_pads(self.platform.request("bus"), mode="slave")
+
+        # Simulation
+        if bus_standard == "sim": #no bus adaptation
+            platform.add_extension(spiflash_core.bus.get_ios("bus"))
+            platform_bus = self.platform.request("bus")
+            self.comb += spiflash_core.bus.connect_to_pads(platform_bus, mode="slave")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -171,7 +184,7 @@ def main():
     platform = platform_cls(device=args.device, io=_io)
     platform.add_extension(_io)
 
-    if core_config["bus_standard"] in ["wishbone", "axi-lite"]:
+    if core_config["bus_standard"] in ["wishbone", "axi-lite", "sim"]:
         soc = SPICore(platform, core_config)
     else:
         raise ValueError("Unknown bus standard: {}".format(core_config["bus_standard"]))
