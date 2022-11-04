@@ -6,5 +6,6 @@
 
 device:         S25FL128L
 mode:           x4
-bus_standard:   sim
+bus_standard:   axi-lite
+phy:            sim
 

@@ -109,7 +109,6 @@ class SPICore(SoCMini):
         rate = core_config["rate"] if "rate" in core_config else "1:1"
         divisor = int(core_config["divisor"]) if "divisor" in core_config else 1
         
-        # PHY --------------------------------------------------------------------------------------
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         module_class = devices_dict[device]
         opcode = module_class.supported_opcodes[0] #use any opcode to get the instance
@@ -117,9 +116,11 @@ class SPICore(SoCMini):
         if not spiflash_module.check_bus_width(width=requested_bus_width):
             raise ValueError(f"SPI device doesn't support {requested_bus_width}-bit bus with")
 
-        pads = self.platform.request("spiflash" if mode == "1x" else "spiflash4x")
+        pads = self.platform.request("spiflash" if mode == "x1" else "spiflash4x")
 
-        if bus_standard == "sim":
+        # PHY --------------------------------------------------------------------------------------
+        if "phy" in core_config:
+            assert core_config["phy"] == "sim"
             from litespi.phy.model import LiteSPIPHYModel
             from litex.soc.integration.common import get_mem_data
             mem_init = get_mem_data("spiflash.bin") #generates "litespi_core_mem.init" file
@@ -148,14 +149,10 @@ class SPICore(SoCMini):
             # LiteSPI is in Wishbone, converter to AXI-Lite and expose the AXI-Lite Bus.
             axil_bus = axi.AXILiteInterface(address_width=32, data_width=32)
             platform.add_extension(axil_bus.get_ios("bus"))
-            self.submodules += axi.Wishbone2AXILite(spiflash_core.bus, axil_bus)
-            self.comb += axil_bus.connect_to_pads(self.platform.request("bus"), mode="slave")
 
-        # Simulation
-        if bus_standard == "sim": #no bus adaptation
-            platform.add_extension(spiflash_core.bus.get_ios("bus"))
-            platform_bus = self.platform.request("bus")
-            self.comb += spiflash_core.bus.connect_to_pads(platform_bus, mode="slave")
+            #adapter should be Wishbone2AXILite the opposite for masters
+            self.submodules += axi.AXILite2Wishbone(axil_bus, spiflash_core.bus)
+            self.comb += axil_bus.connect_to_pads(self.platform.request("bus"), mode="slave")
 
 # Build --------------------------------------------------------------------------------------------
 
