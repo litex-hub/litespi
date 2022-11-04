@@ -134,7 +134,7 @@ class SPICore(SoCMini):
 
         from litespi import LiteSPI
         spiflash_core = LiteSPI(spiflash_phy, mmap_endianness=self.cpu.endianness,
-          with_master=True, with_mmap=True, with_csr=True) #FIXME: parametrize endianness
+          with_master=False, with_mmap=True, with_csr=False) #FIXME: parametrize endianness
         self.submodules += spiflash_core
         
 
