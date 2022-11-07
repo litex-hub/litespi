@@ -1,0 +1,11 @@
+#
+# This file is part of LiteSPI.
+#
+# Copyright (c) 2022 Victor Suarez Rovere <suarezvictor@gmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
+device:         S25FL128L
+mode:           x4
+bus_standard:   wishbone
+rate:           "1:2"
+
