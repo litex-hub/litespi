@@ -6923,6 +6923,7 @@ class S25FL128L(SpiNorFlashModule):
         SpiNorFlashOpCodes.READ_1_1_2,
         SpiNorFlashOpCodes.PP_1_1_2,
         SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.READ_1_4_4,
         SpiNorFlashOpCodes.PP_1_1_4,
         SpiNorFlashOpCodes.READ_1_1_1_4B,
         SpiNorFlashOpCodes.PP_1_1_1_4B,
