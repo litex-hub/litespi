@@ -76,7 +76,12 @@ _io = [
 # LiteSPI Core -------------------------------------------------------------------------------------
 
 class LiteSPICore(SoCMini):
-    def __init__(self, platform, module, mode="x4", rate="1:1", divisor="1", bus_standard="wishbone", bus_endianness="big", sim=False):
+    def __init__(self, platform, module, mode="x4", rate="1:1", divisor="1",
+        bus_standard   = "wishbone",
+        bus_endianness = "big",
+        with_master    = False,
+        sim            = False
+    ):
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = CRG(platform.request("clk"), platform.request("rst"))
 
@@ -139,7 +144,7 @@ class LiteSPICore(SoCMini):
         spiflash_core = LiteSPI(
             phy             = spiflash_phy,
             mmap_endianness = bus_endianness,
-            with_master     = False,
+            with_master     = with_master,
             with_mmap       = True,
             with_csr        = False
         )
@@ -151,6 +156,13 @@ class LiteSPICore(SoCMini):
             platform.add_extension(spiflash_core.bus.get_ios("bus"))
             self.comb += spiflash_core.bus.connect_to_pads(platform.request("bus"), mode="slave")
 
+            # Expose Ctrl Bus.
+            if with_master:
+                master_bus = wishbone.Interface(address_width=32, data_width=32)
+                platform.add_extension(master_bus.get_ios("master"))
+                self.comb += master_bus.connect_to_pads(self.platform.request("master"), mode="slave")
+                self.bus.add_master(master=master_bus)
+
         # AXI-Lite.
         if bus_standard == "axi-lite":
             # LiteSPI is in Wishbone, converter to AXI-Lite and expose the AXI-Lite Bus.
@@ -158,6 +170,13 @@ class LiteSPICore(SoCMini):
             platform.add_extension(axil_bus.get_ios("bus"))
             self.submodules += axi.AXILite2Wishbone(axil_bus, spiflash_core.bus)
             self.comb += axil_bus.connect_to_pads(platform.request("bus"), mode="slave")
+
+            # Expose Ctrl Bus.
+            if with_master:
+                master_bus = axi.AXILiteInterface(address_width=32, data_width=32)
+                platform.add_extension(master_bus.get_ios("master"))
+                self.comb += master_bus.connect_to_pads(self.platform.request("master"), mode="slave")
+                self.bus.add_master(master=master_bus)
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -171,7 +190,8 @@ def main():
     parser.add_argument("--divisor",        default="1",          help="SPI PHY Clk Divisor.")
     parser.add_argument("--bus-standard",   default="wishbone",   help="Bus Standard (wishbone, axi-lite).")
     parser.add_argument("--bus-endianness", default="big",        help="Bus Endianness (big, little).")
-    parser.add_argument("--sim",             action='store_true', help="Integrate LiteSPIPHYModel in core for simulation.")
+    parser.add_argument("--with-master",    action='store_true',  help="Enable Master (For Control & Writes).")
+    parser.add_argument("--sim",            action='store_true',  help="Integrate LiteSPIPHYModel in core for simulation.")
     args = parser.parse_args()
 
     # Generate core --------------------------------------------------------------------------------
@@ -189,6 +209,7 @@ def main():
         divisor        = args.divisor,
         bus_standard   = args.bus_standard,
         bus_endianness = args.bus_endianness,
+        with_master    = args.with_master,
         sim            = args.sim,
     )
     builder  = Builder(core, output_dir="build")
