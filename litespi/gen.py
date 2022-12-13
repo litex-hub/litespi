@@ -117,7 +117,7 @@ class LiteSPICore(SoCMini):
           "x4" : 4,
         }[mode]
         spiflash_module_cls = modules[module]
-        spiflash_module     = spiflash_module_cls(getattr(Codes, f"READ_1_{module_width}_{module_width}"))
+        spiflash_module     = spiflash_module_cls(getattr(Codes, f"READ_1_1_{module_width}"))
 
         # SPI Flash PHY ----------------------------------------------------------------------------
 
