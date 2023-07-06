@@ -6,7 +6,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.misc import WaitTimer
+
+from litex.gen.genlib.misc import WaitTimer
 
 from litespi.common import *
 from litespi.clkgen import LiteSPIClkGen
