@@ -82,16 +82,20 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
             bus_width = len(pads.dq)
         assert bus_width in [1, 2, 4, 8]
 
-        # Check if number of pads matches configured mode.
-        assert flash.check_bus_width(bus_width)
+        if flash:
+            # Check if number of pads matches configured mode.
+            assert flash.check_bus_width(bus_width)
 
-        self.addr_bits  = addr_bits  = flash.addr_bits
-        self.cmd_width  = cmd_width  = flash.cmd_width
-        self.addr_width = addr_width = flash.addr_width
-        self.data_width = data_width = flash.bus_width
-        self.ddr        = ddr        = flash.ddr
+            self.addr_bits  = addr_bits  = flash.addr_bits
+            self.cmd_width  = cmd_width  = flash.cmd_width
+            self.addr_width = addr_width = flash.addr_width
+            self.data_width = data_width = flash.bus_width
+            self.ddr        = ddr        = flash.ddr
 
-        self.command = command = flash.read_opcode.code
+            self.command = command = flash.read_opcode.code
+        else:
+            # master only
+            self.ddr        = ddr        = False
 
         # Clock Generator.
         self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device, with_ddr=ddr)
