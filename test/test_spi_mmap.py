@@ -34,6 +34,80 @@ class TestSPIMMAP(unittest.TestCase):
 
     def test_spi_mmap_core_syntax(self):
         spi_mmap = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, []))
+        spi_write_mmap = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=Codes.PP_1_1_1), with_write=True)
+
+    def test_spi_mmap_write_test(self):
+        opcode = Codes.PP_1_1_1
+        dut = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode), with_write=True)
+
+        def wb_gen(dut, addr, data, offset):
+            dut.done = 0
+
+            yield dut.offset.eq(offset)
+            yield dut.bus.adr.eq(addr + offset)
+            print((yield dut.bus.adr))
+            yield dut.bus.we.eq(1)
+            yield dut.bus.cyc.eq(1)
+            yield dut.bus.stb.eq(1)
+            yield dut.bus.dat_w.eq(data)
+
+            while (yield dut.bus.ack) == 0:
+                yield
+
+            dut.done = 1
+
+        def phy_gen(dut, addr, data):
+            dut.addr_ok = 0
+            dut.opcode_ok = 0
+            dut.cmd_ok = 0
+            dut.data_ok = 0
+            yield dut.sink.valid.eq(0)
+            yield dut.source.ready.eq(1)
+
+            while (yield dut.source.valid) == 0:
+                yield
+
+
+            # WRITE CMD
+            if (yield dut.source.data) == opcode.code: # cmd ok
+                dut.opcode_ok = 1
+
+            yield
+            yield dut.sink.valid.eq(1)
+            while (yield dut.source.valid) == 0:
+                yield
+            yield dut.sink.valid.eq(0)
+
+            # WRITE ADDR
+            print((yield dut.source.data))
+            if (yield dut.source.data) == (addr<<2): # address cmd
+                dut.addr_ok = 1
+
+            yield
+            yield dut.sink.valid.eq(1)
+            while (yield dut.source.valid) == 0:
+                yield
+            yield dut.sink.valid.eq(0)
+
+            # WRITE DATA
+            if (yield dut.source.data) == (data): # data ok
+                dut.data_ok = 1
+
+            yield
+            yield dut.sink.valid.eq(1)
+            while (yield dut.source.valid) == 0:
+                yield
+            yield dut.sink.valid.eq(0)
+            yield
+        addr = 0xcafe
+        data = 0xdeadbeef
+        offset = 0x10000
+
+        run_simulation(dut, [wb_gen(dut, addr, data, offset), phy_gen(dut, addr, data)])
+        self.assertEqual(dut.done, 1)
+        self.assertEqual(dut.addr_ok, 1)
+        self.assertEqual(dut.opcode_ok, 1)
+        self.assertEqual(dut.data_ok, 1)
 
     def test_spi_mmap_read_test(self):
         opcode = Codes.READ_1_1_1
