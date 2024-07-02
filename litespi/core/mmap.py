@@ -88,6 +88,7 @@ class LiteSPIMMAP(Module, AutoCSR):
 
         write = Signal()
         write_enabled = Signal()
+        write_mask = Signal(len(bus.sel))
 
         cmd_bits  = 8
         data_bits = 32
@@ -123,6 +124,9 @@ class LiteSPIMMAP(Module, AutoCSR):
         else:
             self.comb += write_enabled.eq(Constant(with_write == True))
 
+        self.byte_count = byte_count = Signal(2, reset_less=True)
+        self.data_write = Signal(32)
+
         # FSM.
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
@@ -131,6 +135,7 @@ class LiteSPIMMAP(Module, AutoCSR):
             NextValue(burst_cs, burst_cs & ~burst_timeout.done),
             cs.eq(burst_cs),
             If(bus.cyc & bus.stb,
+                NextValue(byte_count, 0),
                 # On Bus Read access...
                 If(~bus.we,
                     # If CS is still active, Bus address matches previous Burst address and previous access was reading:
@@ -147,15 +152,33 @@ class LiteSPIMMAP(Module, AutoCSR):
                 ).Elif(write_enabled,
                     # If CS is still active, Bus address matches previous Burst address and previous access was writing:
                     # Just continue the current Burst.
-                    If(burst_cs & (bus.adr == burst_adr) & write,
+                    NextValue(write_mask, bus.sel),
+                    NextValue(self.data_write, bus.dat_w),
+                    If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write,
                         NextState("WRITE")
                     # Otherwise initialize a new Burst.
                     ).Else(
                         cs.eq(0),
-                        NextState("BURST-CMD")
+                        NextState("PRE-BURST-CMD-WRITE"),
                     ),
                     NextValue(write, 1)
                 )
+            )
+        )
+
+        fsm.act("PRE-BURST-CMD-WRITE",
+            cs.eq(0),
+            If(write_mask[0],
+               NextState("BURST-CMD"),
+               NextValue(write, 1)
+            ).Elif(byte_count == 3,
+                bus.ack.eq(1),
+                NextValue(burst_adr, burst_adr + 1),
+                NextState("IDLE"),
+                NextValue(write, 0)
+            ).Else(
+                NextValue(byte_count, byte_count + 1),
+                NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
             )
         )
 
@@ -189,7 +212,7 @@ class LiteSPIMMAP(Module, AutoCSR):
             source.valid.eq(1),
             source.width.eq(flash.addr_width),
             source.mask.eq(addr_oe_mask[flash.addr_width]),
-            source.data.eq(Cat(Signal(2), bus.adr - offset)), # send address.
+            source.data.eq(Cat(byte_count, bus.adr - offset)), # send address.
             source.len.eq(flash.addr_bits),
             NextValue(burst_cs, 1),
             NextValue(burst_adr, bus.adr),
@@ -260,8 +283,8 @@ class LiteSPIMMAP(Module, AutoCSR):
             source.valid.eq(1),
             source.width.eq(flash.addr_width),
             source.mask.eq(addr_oe_mask[flash.bus_width]),
-            source.data.eq({"big": bus.dat_w, "little": reverse_bytes(bus.dat_w)}[endianness]),
-            source.len.eq(data_bits),
+            source.data.eq(self.data_write),
+            source.len.eq(8),
             If(source.ready,
                 NextState("WRITE-RET"),
             )
@@ -271,8 +294,22 @@ class LiteSPIMMAP(Module, AutoCSR):
             cs.eq(1),
             sink.ready.eq(1),
             If(sink.valid,
-                bus.ack.eq(1),
-                NextValue(burst_adr, burst_adr + 1),
-                NextState("IDLE"),
+                If(byte_count != 3,
+                    NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
+                    NextValue(byte_count, byte_count + 1),
+                    NextValue(self.data_write, self.data_write >> 8),
+                    If(write_mask[1],
+                        NextState("WRITE"),
+                    ).Else(
+                        cs.eq(0),
+                        NextValue(write, 0),
+                        NextState("PRE-BURST-CMD-WRITE"),
+                    ),
+
+                ).Else(
+                    bus.ack.eq(1),
+                    NextValue(burst_adr, burst_adr + 1),
+                    NextState("IDLE"),
+                ),
             )
         )
