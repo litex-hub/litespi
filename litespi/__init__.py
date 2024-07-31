@@ -50,6 +50,18 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
     mmap_endianness : string
         If endianness is set to ``small`` then byte order of each 32-bit word comming MMAP core will be reversed.
 
+    with_csr : bool
+        The number of dummy bits can be configure when set to True.
+
+    with_mmap_write : bool or string
+        MMAP writes are supported when set to True or "csr". When set to "csr", they are disabled by default but
+        can be enabled on demand using a CSR.
+
+        Please note that only False and "csr" should be used with flash chips! True is only meant for RAM.
+
+        When using "csr" with a flash chip, make sure to erase the corresponding pages of the flash beforehand
+        using the LiteSPI master. It is also recommended to disable mmap writing once it is not required anymore.
+
     Attributes
     ----------
     bus : Interface(), out
@@ -59,7 +71,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
     def __init__(self, phy, clock_domain="sys",
         with_mmap=True, mmap_endianness="big",
         with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1,
-        with_csr=True):
+        with_csr=True, with_mmap_write=False):
 
         self.submodules.crossbar = crossbar = LiteSPICrossbar(clock_domain)
         self.comb += phy.cs.eq(crossbar.cs)
@@ -67,7 +79,8 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
         if with_mmap:
             self.submodules.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
                                                       endianness=mmap_endianness,
-                                                      with_csr=with_csr)
+                                                      with_csr=with_csr,
+                                                      with_write=with_mmap_write)
             port_mmap = crossbar.get_port(mmap.cs)
             self.bus = mmap.bus
             self.comb += [
