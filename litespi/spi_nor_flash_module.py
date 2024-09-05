@@ -165,13 +165,19 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
         assert hasattr(self, 'page_size')
         assert hasattr(self, 'total_pages')
         assert hasattr(self, 'supported_opcodes')
-        assert hasattr(self, 'dummy_bits')
+        assert hasattr(self, 'dummy_bits') or hasattr(self, 'dummy_cycles')
 
         # Make sure default read command is on the list
         if default_read_cmd not in read_cmds:
             read_cmds.append(default_read_cmd)
 
         self.read_cmds = read_cmds
+
+        if hasattr(self, "dummy_cycles"):
+            if isinstance(self.dummy_cycles, dict):
+                self.dummy_cycles = self.dummy_cycles.get(default_read_cmd, self.dummy_bits if hasattr(self, 'dummy_bits') else 0)
+        else:
+            self.dummy_cycles = self.dummy_bits
 
         # Configure a chip using provided default_read_cmd
         self._configure_chip(default_read_cmd,

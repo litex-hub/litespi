@@ -31,6 +31,12 @@ class MX25L12833F(SpiNorFlashModule):
     ]
     dummy_bits = 8
 
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_1_1_FAST: 8,
+        SpiNorFlashOpCodes.READ_1_2_2: 8,
+        SpiNorFlashOpCodes.READ_1_4_4: 8,
+        SpiNorFlashOpCodes.READ_4_4_4: 6,
+    }
 
 class MX25L6406E(SpiNorFlashModule):
     """MX25L6406E
