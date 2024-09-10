@@ -33,6 +33,7 @@ class SpiNorFlashOpCodes:
     READ_1_2_2         = _Op(0xbb, "Read data bytes (Dual I/O SPI)")
     READ_1_1_4         = _Op(0x6b, "Read data bytes (Quad Output SPI)")
     READ_1_4_4         = _Op(0xeb, "Read data bytes (Quad I/O SPI)") # Fast Read Quad
+    READ_4_4_4_LOW     = _Op(0x0b, "Read data bytes (Quad I/O QPI) (low frequency)") # might need less dummy cycles
     READ_4_4_4         = _Op(0xeb, "Read data bytes (Quad I/O QPI)")
     READ_1_1_8         = _Op(0x8b, "Read data bytes (Octal Output SPI)")
     READ_1_8_8         = _Op(0xcb, "Read data bytes (Octal I/O SPI)")

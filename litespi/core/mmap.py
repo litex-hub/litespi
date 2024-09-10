@@ -93,12 +93,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         cmd_bits  = 8
         data_bits = 32
 
-        if flash.cmd_width == 1:
-            self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
-        elif flash.cmd_width == 4:
-            self._default_dummy_bits = flash.dummy_bits * 3 if flash.fast_mode else 0
-        else:
-            raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
+        self._default_dummy_bits = flash.dummy_cycles * flash.addr_width if flash.fast_mode else 0
 
         self._spi_dummy_bits = spi_dummy_bits = Signal(8)
 
