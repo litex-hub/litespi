@@ -8121,8 +8121,15 @@ class W25Q128JV(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_2,
         SpiNorFlashOpCodes.READ_1_1_4,
         SpiNorFlashOpCodes.PP_1_1_4,
+        SpiNorFlashOpCodes.READ_1_2_2,
+        SpiNorFlashOpCodes.READ_1_4_4,
     ]
     dummy_bits = 8
+
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_2_2: 0,
+        SpiNorFlashOpCodes.READ_1_4_4: 4,
+    }
 
 
 class W25Q16DW(SpiNorFlashModule):
