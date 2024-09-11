@@ -146,7 +146,7 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
 
         # Check if program command is supported
         if program_cmd not in self.supported_opcodes:
-            raise ValueError("Read command (%s) not supported in chip %s!" % (str(read_cmd), self.name))
+            raise ValueError("Programm command (%s) not supported in chip %s!" % (str(program_cmd), self.name))
 
         # Set commands
         self.read_opcode = default_read_cmd
