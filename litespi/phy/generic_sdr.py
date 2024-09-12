@@ -85,25 +85,11 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         if flash:
             # Check if number of pads matches configured mode.
             assert flash.check_bus_width(bus_width)
-
-            self.addr_bits  = addr_bits  = flash.addr_bits
-            self.cmd_width  = cmd_width  = flash.cmd_width
-            self.addr_width = addr_width = flash.addr_width
-            self.data_width = data_width = flash.bus_width
-            self.ddr        = ddr        = flash.ddr
-
-            self.command = command = flash.read_opcode.code
-        else:
-            # master only
-            self.ddr        = ddr        = False
+            assert not flash.ddr
 
         # Clock Generator.
-        self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device, with_ddr=ddr)
-        self.comb += [
-            clkgen.div.eq(spi_clk_divisor),
-            clkgen.sample_cnt.eq(1),
-            clkgen.update_cnt.eq(1),
-        ]
+        self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device)
+        self.comb += clkgen.div.eq(spi_clk_divisor)
 
         # CS control.
         cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.

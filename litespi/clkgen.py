@@ -51,9 +51,6 @@ class LiteSPIClkGen(Module, AutoDoc):
     cnt_width : int
         Width of the internal counter ``cnt`` used for dividing the clock.
 
-    with_ddr : bool
-        Generate additional ``sample`` and ``update`` signals.
-
     Attributes
     ----------
     div : Signal(8), in
@@ -67,27 +64,11 @@ class LiteSPIClkGen(Module, AutoDoc):
 
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
-
-    sample : Signal(), out
-        Outputs 1 when ``sample_cnt==cnt``, can be used to sample incoming DDR data.
-
-    sample_cnt : Signal(8), in
-        Controls generation of the ``sample`` signal.
-
-    update : Signal(), out
-        Outputs 1 when ``update_cnt==cnt``, can be used to update outgoing DDR data.
-
-    update_cnt : Signal(8), in
-        Controls generation of the ``update`` signal.
     """
-    def __init__(self, pads, device, cnt_width=8, with_ddr=False):
+    def __init__(self, pads, device, cnt_width=8):
         self.div        = div        = Signal(cnt_width)
-        self.sample_cnt = sample_cnt = Signal(cnt_width)
-        self.update_cnt = update_cnt = Signal(cnt_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
-        self.sample     = sample     = Signal()
-        self.update     = update     = Signal()
         self.en         = en         = Signal()
         cnt             = Signal(cnt_width)
         en_int          = Signal()
@@ -96,8 +77,6 @@ class LiteSPIClkGen(Module, AutoDoc):
         self.comb += [
             posedge.eq(en & ~clk & (cnt == div)),
             negedge.eq(en & clk & (cnt == div)),
-            sample.eq(cnt == sample_cnt),
-            update.eq(cnt == update_cnt),
         ]
 
         # Delayed edge to account for IO register delays.
