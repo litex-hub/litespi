@@ -5,7 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.cdc import MultiReg
+
+from litex.gen import *
 
 from litex.gen.genlib.misc import WaitTimer
 
@@ -13,16 +14,12 @@ from litespi.common import *
 from litespi.clkgen import DDRLiteSPIClkGen
 
 from litex.soc.interconnect import stream
-from litex.soc.interconnect.csr import *
 
 from litex.build.io import DDRTristate
 
-from litex.soc.integration.doc import AutoDoc
-
-
 # LiteSPI DDR PHY Core -----------------------------------------------------------------------------
 
-class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc):
+class LiteSPIDDRPHYCore(LiteXModule):
     """LiteSPI PHY DDR instantiator
 
     The ``DDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
@@ -73,12 +70,11 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc):
             assert not flash.ddr
 
         # Clock Generator.
-        self.submodules.clkgen = clkgen = DDRLiteSPIClkGen(pads)
+        self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
+        self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_enable = Signal()
-        self.submodules += cs_timer
         self.comb += cs_timer.wait.eq(self.cs)
         self.comb += cs_enable.eq(cs_timer.done)
         self.comb += pads.cs_n.eq(~cs_enable)
@@ -141,7 +137,7 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc):
         )
 
         # FSM.
-        self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
+        self.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
             # Stop Clk.
             NextValue(clkgen.en, 0),

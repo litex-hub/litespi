@@ -5,7 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.fsm import FSM, NextState
+
+from litex.gen import *
 
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
@@ -13,7 +14,7 @@ from litex.soc.interconnect.csr import *
 from litespi.common import *
 
 
-class LiteSPIMaster(Module, AutoCSR):
+class LiteSPIMaster(LiteXModule):
     """Generic LiteSPI Master
 
     The ``LiteSPIMaster`` class provides a generic SPI master that can be controlled using CSRs.
@@ -61,9 +62,8 @@ class LiteSPIMaster(Module, AutoCSR):
         # # #
 
         # FIFOs.
-        tx_fifo = stream.SyncFIFO(spi_core2phy_layout, depth=tx_fifo_depth)
-        rx_fifo = stream.SyncFIFO(spi_phy2core_layout, depth=rx_fifo_depth)
-        self.submodules += tx_fifo, rx_fifo
+        self.tx_fifo = tx_fifo = stream.SyncFIFO(spi_core2phy_layout, depth=tx_fifo_depth)
+        self.rx_fifo = rx_fifo = stream.SyncFIFO(spi_phy2core_layout, depth=rx_fifo_depth)
         self.comb += self.sink.connect(rx_fifo.sink)
         self.comb += tx_fifo.source.connect(self.source)
 

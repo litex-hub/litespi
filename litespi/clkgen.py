@@ -6,11 +6,11 @@
 
 from migen import *
 
-from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.gen import *
 
 from litex.build.io import SDROutput, DDROutput
 
-class DDRLiteSPIClkGen(Module, AutoDoc):
+class DDRLiteSPIClkGen(LiteXModule):
     """SPI Clock generator
 
     The ``DDRLiteSPIClkGen`` class provides a generic SPI clock generator.
@@ -33,7 +33,7 @@ class DDRLiteSPIClkGen(Module, AutoDoc):
         self.specials += DDROutput(i1=en, i2=0, o=pads.clk)
 
 
-class LiteSPIClkGen(Module, AutoDoc):
+class LiteSPIClkGen(LiteXModule):
     """SPI Clock generator
 
     The ``LiteSPIClkGen`` class provides a generic SPI clock generator.

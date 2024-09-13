@@ -7,6 +7,8 @@
 
 from migen import *
 
+from litex.gen import *
+
 from litex.gen.genlib.misc import WaitTimer
 
 from litespi.common import *
@@ -17,11 +19,9 @@ from litex.soc.interconnect.csr import *
 
 from litex.build.io import SDROutput, SDRInput, SDRTristate
 
-from litex.soc.integration.doc import AutoDoc
-
 # LiteSPI PHY Core ---------------------------------------------------------------------------------
 
-class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
+class LiteSPISDRPHYCore(LiteXModule):
     """LiteSPI PHY instantiator
 
     The ``LiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
@@ -88,13 +88,12 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
             assert not flash.ddr
 
         # Clock Generator.
-        self.submodules.clkgen = clkgen = LiteSPIClkGen(pads, device)
+        self.clkgen = clkgen = LiteSPIClkGen(pads, device)
         self.comb += clkgen.div.eq(spi_clk_divisor)
 
         # CS control.
-        cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
+        self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_enable = Signal()
-        self.submodules += cs_timer
         self.comb += cs_timer.wait.eq(self.cs)
         self.comb += cs_enable.eq(cs_timer.done)
         self.comb += pads.cs_n.eq(~cs_enable)
@@ -168,7 +167,7 @@ class LiteSPISDRPHYCore(Module, AutoCSR, AutoDoc):
         )
 
         # FSM.
-        self.submodules.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
+        self.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
             # Wait for CS and a CMD from the Core.
             If(cs_enable & sink.valid,

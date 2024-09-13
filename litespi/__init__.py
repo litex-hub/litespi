@@ -6,9 +6,9 @@
 
 from migen import *
 
-from litex.soc.integration.doc import AutoDoc
-from litex.soc.interconnect import wishbone, stream
-from litex.soc.interconnect.csr import *
+from litex.gen import *
+
+from litex.soc.interconnect import stream
 
 from litespi.common import *
 from litespi.crossbar import LiteSPICrossbar
@@ -23,7 +23,7 @@ class LiteSPICore(Module):
         self.cs     = Signal()
 
 
-class LiteSPI(Module, AutoCSR, AutoDoc):
+class LiteSPI(LiteXModule):
     """SPI Controller wrapper.
 
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
@@ -73,11 +73,11 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
         with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1,
         with_csr=True, with_mmap_write=False):
 
-        self.submodules.crossbar = crossbar = LiteSPICrossbar(clock_domain)
+        self.crossbar = crossbar = LiteSPICrossbar(clock_domain)
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
-            self.submodules.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
+            self.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
                                                       endianness=mmap_endianness,
                                                       with_csr=with_csr,
                                                       with_write=with_mmap_write)
@@ -90,7 +90,7 @@ class LiteSPI(Module, AutoCSR, AutoDoc):
             if hasattr(phy, "dummy_bits"):
                 self.comb += phy.dummy_bits.eq(mmap._spi_dummy_bits)
         if with_master:
-            self.submodules.master = master = LiteSPIMaster(
+            self.master = master = LiteSPIMaster(
                 tx_fifo_depth = master_tx_fifo_depth,
                 rx_fifo_depth = master_rx_fifo_depth)
             port_master = crossbar.get_port(master.cs)
