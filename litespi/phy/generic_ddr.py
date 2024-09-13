@@ -67,13 +67,10 @@ class LiteSPIDDRPHYCore(Module, AutoCSR, AutoDoc):
 
         assert bus_width in [1, 2, 4, 8]
 
-        # Check if number of pads matches configured mode.
-        assert flash.check_bus_width(bus_width)
-
-        self.addr_bits  = addr_bits  = flash.addr_bits
-        self.ddr        = ddr        = flash.ddr
-
-        assert not ddr
+        if flash:
+            # Check if number of pads matches configured mode.
+            assert flash.check_bus_width(bus_width)
+            assert not flash.ddr
 
         # Clock Generator.
         self.submodules.clkgen = clkgen = DDRLiteSPIClkGen(pads)
