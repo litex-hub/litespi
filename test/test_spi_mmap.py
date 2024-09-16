@@ -87,9 +87,6 @@ class TestSPIMMAP(unittest.TestCase):
 
             yield
             yield dut.sink.valid.eq(1)
-            while (yield dut.source.valid) == 0:
-                yield
-            yield dut.sink.valid.eq(0)
             yield
         addr = 0xcafe
         data = 0xdeadbeef
