@@ -5,22 +5,17 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
-from migen.genlib.cdc import MultiReg
 
-from litex.gen.genlib.misc import WaitTimer
+from litex.gen import *
 
 from litespi.common import *
-
-from litex.soc.interconnect.csr import *
-
-from litex.soc.integration.doc import AutoDoc
 
 from litespi.phy.generic_sdr import LiteSPISDRPHYCore
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
-class LiteSPIPHY(Module, AutoCSR, AutoDoc):
+class LiteSPIPHY(LiteXModule):
     """LiteSPI PHY instantiator
 
     The ``LiteSPIPHY`` class instantiate generic PHY - ``LiteSPIPHYCore`` that can be connected to the ``LiteSPICore``,
@@ -64,22 +59,22 @@ class LiteSPIPHY(Module, AutoCSR, AutoDoc):
     def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0):
         assert rate in ["1:1", "1:2"]
         if rate == "1:1":
-            self.phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
+            phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
         if rate == "1:2":
-            self.phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency)
+            phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency)
 
         self.flash = flash
 
-        self.source = self.phy.source
-        self.sink   = self.phy.sink
-        self.cs     = self.phy.cs
+        self.source = phy.source
+        self.sink   = phy.sink
+        self.cs     = phy.cs
 
         # # #
 
         if clock_domain != "sys":
-            self.phy = ClockDomainsRenamer(clock_domain)(self.phy)
+            phy = ClockDomainsRenamer(clock_domain)(phy)
 
-        self.submodules.spiflash_phy = self.phy
+        self.spiflash_phy = phy
 
     def get_csrs(self):
         return self.spiflash_phy.get_csrs()

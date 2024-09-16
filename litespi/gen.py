@@ -83,7 +83,7 @@ class LiteSPICore(SoCMini):
         sim            = False
     ):
         # CRG --------------------------------------------------------------------------------------
-        self.submodules.crg = CRG(platform.request("clk"), platform.request("rst"))
+        self.crg = CRG(platform.request("clk"), platform.request("rst"))
 
         # SoCMini ----------------------------------------------------------------------------------
         SoCMini.__init__(self, platform, clk_freq=int(1e6))
@@ -123,32 +123,28 @@ class LiteSPICore(SoCMini):
 
         if sim:
             from litespi.phy.model import LiteSPIPHYModel
-            spiflash_phy = LiteSPIPHYModel(spiflash_module, init=[i for i in range(16)]) # FIXME: Allow custom init?
-            self.submodules += spiflash_phy
+            self.spiflash_phy = spiflash_phy = LiteSPIPHYModel(spiflash_module, init=[i for i in range(16)]) # FIXME: Allow custom init?
         else:
             pads = self.platform.request("spiflash" if mode == "x1" else "spiflash4x")
-            spiflash_phy = LiteSPIPHY(
+            self.spiflash_phy = spiflash_phy = LiteSPIPHY(
                 pads            = pads,
                 flash           = spiflash_module,
                 device          = platform.device,
                 default_divisor = int(divisor),
                 rate            = rate
             )
-            self.submodules += spiflash_phy
-
 
         # SPI Flash Core / MMAP --------------------------------------------------------------------
 
         assert bus_standard in ["wishbone", "axi-lite"]
 
-        spiflash_core = LiteSPI(
+        self.spiflash_core = spiflash_core = LiteSPI(
             phy             = spiflash_phy,
             mmap_endianness = bus_endianness,
             with_master     = with_master,
             with_mmap       = True,
             with_csr        = False
         )
-        self.submodules += spiflash_core
 
         # Wishbone.
         if bus_standard == "wishbone":
