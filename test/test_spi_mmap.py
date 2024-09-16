@@ -44,15 +44,7 @@ class TestSPIMMAP(unittest.TestCase):
             dut.done = 0
 
             yield dut.offset.eq(offset)
-            yield dut.bus.adr.eq(addr + offset)
-            print((yield dut.bus.adr))
-            yield dut.bus.we.eq(1)
-            yield dut.bus.cyc.eq(1)
-            yield dut.bus.stb.eq(1)
-            yield dut.bus.dat_w.eq(data)
-
-            while (yield dut.bus.ack) == 0:
-                yield
+            yield from dut.bus.write(addr + offset, data)
 
             dut.done = 1
 
@@ -95,9 +87,6 @@ class TestSPIMMAP(unittest.TestCase):
 
             yield
             yield dut.sink.valid.eq(1)
-            while (yield dut.source.valid) == 0:
-                yield
-            yield dut.sink.valid.eq(0)
             yield
         addr = 0xcafe
         data = 0xdeadbeef
@@ -116,15 +105,9 @@ class TestSPIMMAP(unittest.TestCase):
         def wb_gen(dut, addr, data):
             dut.data_ok = 0
 
-            yield dut.bus.adr.eq(addr)
-            yield dut.bus.we.eq(0)
-            yield dut.bus.cyc.eq(1)
-            yield dut.bus.stb.eq(1)
+            dat = yield from dut.bus.read(addr)
 
-            while (yield dut.bus.ack) == 0:
-                yield
-            print((yield dut.bus.dat_r))
-            if (yield dut.bus.dat_r) == data:
+            if dat == data:
                 dut.data_ok = 1
 
         def phy_gen(dut, addr, data):
