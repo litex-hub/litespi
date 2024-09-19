@@ -8,7 +8,29 @@ from migen import *
 
 from litex.gen import *
 
-from litex.build.io import SDROutput, DDROutput
+from litex.build.io import SDROutput, DDROutput, QDROutput
+
+class QDRLiteSPIClkGen(LiteXModule):
+    """SPI Clock generator
+
+    The ``QDRLiteSPIClkGen`` class provides a generic SPI clock generator.
+
+    The class can be combined with QDR PHY Core.
+
+    Parameters
+    ----------
+    pads : Object
+        SPI pads description.
+
+    Attributes
+    ----------
+    en : Signal(), in
+        Clock enable input, output clock will be generated if set to 1, 0 resets the core.
+    """
+    def __init__(self, pads, cd_fastclk):
+        self.en         = en         = Signal()
+
+        self.specials += QDROutput(i1=en, i2=0, i3=en, i4=0, o=pads.clk, fastclk=ClockSignal(cd_fastclk))
 
 class DDRLiteSPIClkGen(LiteXModule):
     """SPI Clock generator
