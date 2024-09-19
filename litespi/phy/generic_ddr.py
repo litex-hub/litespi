@@ -83,15 +83,15 @@ class LiteSPIDDRPHYCore(LiteXModule):
         data_bits = 32
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
+        dq_i  = Signal(len(pads.dq))
+        dq_oe = Signal(len(pads.dq))
 
         for i in range(len(pads.dq)):
             self.specials += DDRTristate(
                 io  = pads.dq[i],
                 o1  =  dq_o[0][i],  o2 =  dq_o[1][i],
-                oe1 = dq_oe[0][i], oe2 = dq_oe[1][i],
-                i1  =  dq_i[0][i],  i2 =  dq_i[1][i]
+                oe1 =    dq_oe[i],  oe2 =   dq_oe[i],
+                i1  =     dq_i[i],  i2 =    Signal(),
             )
 
         # Data Shift Registers.
@@ -104,7 +104,6 @@ class LiteSPIDDRPHYCore(LiteXModule):
 
         # Data Out Shift.
         self.comb += [
-            dq_oe[1].eq(sink.mask),
             Case(sink.width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
@@ -116,7 +115,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
             sr_out.eq(sink.data << (len(sink.data) - sink.len))
         )
         self.sync += If(sr_out_shift,
-            dq_oe[0].eq(dq_oe[1]),
+            dq_oe.eq(sink.mask),
             dq_o[0].eq(dq_o[1]),
             Case(sink.width, {
                 1 : sr_out.eq(Cat(Signal(1), sr_out)),
@@ -129,10 +128,10 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # Data In Shift.
         self.sync += If(sr_in_shift,
             Case(sink.width, {
-                1 : sr_in.eq(Cat(dq_i[0][1],  sr_in)), # 1: pads.miso
-                2 : sr_in.eq(Cat(dq_i[0][:2], sr_in)),
-                4 : sr_in.eq(Cat(dq_i[0][:4], sr_in)),
-                8 : sr_in.eq(Cat(dq_i[0][:8], sr_in)),
+                1 : sr_in.eq(Cat(dq_i[1],  sr_in)), # 1: pads.miso
+                2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
+                4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
+                8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
             })
         )
 
@@ -172,6 +171,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         fsm.act("XFER-END",
             # Stop Clk.
             NextValue(clkgen.en, 0),
+            NextValue(dq_oe, 0),
 
             # Data In Shift.
             sr_in_shift.eq(1),
