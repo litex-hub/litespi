@@ -4,7 +4,7 @@
             / /__/ / __/ -_)\ \/ ___// /
            /____/_/\__/\__/___/_/  /___/
 
-    Copyright (c) 2020-2022, LiteSPI Developers
+    Copyright (c) 2020-2024, LiteSPI Developers
 ```
 [![](https://github.com/litex-hub/litespi/workflows/ci/badge.svg)](https://github.com/litex-hub/litespi/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
