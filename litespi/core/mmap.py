@@ -75,11 +75,12 @@ class LiteSPIMMAP(LiteXModule):
     write_config : CSRStorage
         Optional register holding configuration bits for the write mode.
     """
-    def __init__(self, flash, clock_domain="sys", endianness="big", with_csr=True, with_write=False):
+    def __init__(self, flash, clock_domain="sys", endianness="big", with_csr=True, with_write=False, cs_width=1, cs_mask=1):
         self.source = source = stream.Endpoint(spi_core2phy_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
         self.bus    = bus    = wishbone.Interface()
-        self.cs     = cs     = Signal()
+        self.cs              = Signal(cs_width)
+        self.request = cs    = Signal()
         self.offset = offset = Signal(len(bus.adr))
 
         # Burst Control.
@@ -122,6 +123,8 @@ class LiteSPIMMAP(LiteXModule):
 
         self.byte_count = byte_count = Signal(2, reset_less=True)
         self.data_write = Signal(32)
+
+        self.comb += If(self.request, self.cs.eq(cs_mask))
 
         # FSM.
         self.fsm = fsm = FSM(reset_state="IDLE")
