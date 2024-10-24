@@ -27,7 +27,7 @@ class LiteSPISlavePort:
 
 
 class LiteSPICrossbar(Module):
-    def __init__(self, cd):
+    def __init__(self, cd, cs_width=1):
         self.cd     = cd
         self.users  = []
         self.master = LiteSPIMasterPort()
@@ -41,7 +41,7 @@ class LiteSPICrossbar(Module):
                 self.master.source.connect(self.tx_cdc.sink),
             ]
 
-        self.cs           = Signal()
+        self.cs           = Signal(cs_width)
         self.user_cs      = []
         self.user_request = []
 
@@ -59,7 +59,7 @@ class LiteSPICrossbar(Module):
 
         if request is None:
             request = Signal()
-            self.comb += request.eq(cs)
+            self.comb += request.eq(cs != 0)
 
         self.users.append(internal_port)
         self.user_cs.append(self.cs.eq(cs))
