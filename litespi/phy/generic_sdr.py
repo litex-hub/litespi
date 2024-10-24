@@ -63,7 +63,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs               = Signal()
+        self.cs               = Signal().like(pads.cs_n)
         self._spi_clk_divisor = spi_clk_divisor = Signal(8)
 
         self._default_divisor = default_divisor
@@ -94,11 +94,12 @@ class LiteSPISDRPHYCore(LiteXModule):
         # CS control.
         self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_enable = Signal()
-        self.comb += cs_timer.wait.eq(self.cs)
+        self.comb += cs_timer.wait.eq(self.cs != 0)
         self.comb += cs_enable.eq(cs_timer.done)
-        self.specials += SDROutput(
-                i = ~cs_enable,
-                o = pads.cs_n
+        for i in range(len(pads.cs_n)):
+            self.specials += SDROutput(
+                i = ~(cs_enable & self.cs[i]),
+                o = pads.cs_n[i]
             )
 
         if hasattr(pads, "mosi"):

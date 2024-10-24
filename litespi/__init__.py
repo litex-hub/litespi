@@ -71,17 +71,21 @@ class LiteSPI(LiteXModule):
     def __init__(self, phy, clock_domain="sys",
         with_mmap=True, mmap_endianness="big",
         with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1,
-        with_csr=True, with_mmap_write=False):
+        with_csr=True, with_mmap_write=False, mmap_cs_mask=1):
 
-        self.crossbar = crossbar = LiteSPICrossbar(clock_domain)
+        cs_width=len(phy.cs)
+
+        self.crossbar = crossbar = LiteSPICrossbar(clock_domain, cs_width)
         self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap:
             self.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
                                                       endianness=mmap_endianness,
                                                       with_csr=with_csr,
-                                                      with_write=with_mmap_write)
-            port_mmap = crossbar.get_port(mmap.cs)
+                                                      with_write=with_mmap_write,
+                                                      cs_width=cs_width,
+                                                      cs_mask=mmap_cs_mask)
+            port_mmap = crossbar.get_port(mmap.cs, mmap.request)
             self.bus = mmap.bus
             self.comb += [
                 port_mmap.source.connect(mmap.sink),
@@ -92,7 +96,8 @@ class LiteSPI(LiteXModule):
         if with_master:
             self.master = master = LiteSPIMaster(
                 tx_fifo_depth = master_tx_fifo_depth,
-                rx_fifo_depth = master_rx_fifo_depth)
+                rx_fifo_depth = master_rx_fifo_depth,
+                cs_width = cs_width)
             port_master = crossbar.get_port(master.cs)
             self.comb += [
                 port_master.source.connect(master.sink),

@@ -15,7 +15,7 @@ from litespi.clkgen import DDRLiteSPIClkGen
 
 from litex.soc.interconnect import stream
 
-from litex.build.io import DDRTristate
+from litex.build.io import DDRTristate, SDROutput
 
 # LiteSPI DDR PHY Core -----------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     def __init__(self, pads, flash, cs_delay, extra_latency=0):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs     = Signal()
+        self.cs              = Signal().like(pads.cs_n)
 
         if hasattr(pads, "miso"):
             bus_width = 1
@@ -75,9 +75,13 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # CS control.
         self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_enable = Signal()
-        self.comb += cs_timer.wait.eq(self.cs)
+        self.comb += cs_timer.wait.eq(self.cs != 0)
         self.comb += cs_enable.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_enable)
+        for i in range(len(pads.cs_n)):
+            self.specials += SDROutput(
+                i = ~(cs_enable & self.cs[i]),
+                o = pads.cs_n[i]
+            )
 
         # I/Os.
         data_bits = 32
