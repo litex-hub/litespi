@@ -96,11 +96,12 @@ class LiteSPISDRPHYCore(LiteXModule):
         cs_enable = Signal()
         self.comb += cs_timer.wait.eq(self.cs != 0)
         self.comb += cs_enable.eq(cs_timer.done)
-        for i in range(len(pads.cs_n)):
-            self.specials += SDROutput(
-                i = ~(cs_enable & self.cs[i]),
-                o = pads.cs_n[i]
-            )
+        cs_n = Signal().like(pads.cs_n)
+        self.comb += cs_n.eq(~(Replicate(cs_enable, len(pads.cs_n)) & self.cs))
+        self.specials += SDROutput(
+            i = cs_n,
+            o = pads.cs_n
+        )
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
@@ -118,12 +119,11 @@ class LiteSPISDRPHYCore(LiteXModule):
             dq_o  = Signal().like(pads.dq)
             dq_i  = Signal().like(pads.dq)
             dq_oe = Signal().like(pads.dq)
-            for i in range(len(pads.dq)):
-                self.specials += SDRTristate(
-                    io = pads.dq[i],
-                    o  = dq_o[i],
-                    oe = dq_oe[i],
-                    i  = dq_i[i],
+            self.specials += SDRTristate(
+                    io = pads.dq,
+                    o  = dq_o,
+                    oe = dq_oe,
+                    i  = dq_i,
                 )
 
         # Data Shift Registers.
