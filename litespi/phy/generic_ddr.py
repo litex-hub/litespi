@@ -77,26 +77,23 @@ class LiteSPIDDRPHYCore(LiteXModule):
         cs_enable = Signal()
         self.comb += cs_timer.wait.eq(self.cs != 0)
         self.comb += cs_enable.eq(cs_timer.done)
-        for i in range(len(pads.cs_n)):
-            self.specials += SDROutput(
-                i = ~(cs_enable & self.cs[i]),
-                o = pads.cs_n[i]
-            )
-
-        # I/Os.
-        data_bits = 32
+        cs_n = Signal().like(pads.cs_n)
+        self.comb += cs_n.eq(~(Replicate(cs_enable, len(pads.cs_n)) & self.cs))
+        self.specials += SDROutput(
+            i = cs_n,
+            o = pads.cs_n
+        )
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
 
-        for i in range(len(pads.dq)):
-            self.specials += DDRTristate(
-                io  = pads.dq[i],
-                o1  =  dq_o[0][i],  o2 =  dq_o[1][i],
-                oe1 = dq_oe[0][i], oe2 = dq_oe[1][i],
-                i1  =  dq_i[0][i],  i2 =  dq_i[1][i]
-            )
+        self.specials += DDRTristate(
+            io  = pads.dq,
+            o1  =  dq_o[0],  o2 =  dq_o[1],
+            oe1 = dq_oe[0], oe2 = dq_oe[1],
+            i1  =  dq_i[0],  i2 =  dq_i[1]
+        )
 
         # Data Shift Registers.
         sr_cnt       = Signal(8, reset_less=True)
