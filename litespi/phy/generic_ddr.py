@@ -12,10 +12,11 @@ from litex.gen.genlib.misc import WaitTimer
 
 from litespi.common import *
 from litespi.clkgen import DDRLiteSPIClkGen
+from litespi.cscontrol import LiteSPICSControl
 
 from litex.soc.interconnect import stream
 
-from litex.build.io import DDRTristate, SDROutput
+from litex.build.io import DDRTristate
 
 # LiteSPI DDR PHY Core -----------------------------------------------------------------------------
 
@@ -73,16 +74,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
-        cs_enable = Signal()
-        self.comb += cs_timer.wait.eq(self.cs != 0)
-        self.comb += cs_enable.eq(cs_timer.done)
-        cs_n = Signal().like(pads.cs_n)
-        self.comb += cs_n.eq(~(Replicate(cs_enable, len(pads.cs_n)) & self.cs))
-        self.specials += SDROutput(
-            i = cs_n,
-            o = pads.cs_n
-        )
+        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
@@ -143,7 +135,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
             # Stop Clk.
             NextValue(clkgen.en, 0),
             # Wait for CS and a CMD from the Core.
-            If(cs_enable & sink.valid,
+            If(cs_control.enable & sink.valid,
                 # Load Shift Register Count/Data Out.
                 NextValue(sr_cnt, sink.len - sink.width),
                 sr_out_load.eq(1),
