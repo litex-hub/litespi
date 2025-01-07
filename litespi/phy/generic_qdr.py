@@ -2,6 +2,7 @@
 # This file is part of LiteSPI
 #
 # Copyright (c) 2020 Antmicro <www.antmicro.com>
+# Copyright (c) 2024 Fin Maaß <f.maass@vogl-electronic.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -11,26 +12,22 @@ from litex.gen import *
 from litex.gen.genlib.misc import WaitTimer
 
 from litespi.common import *
-from litespi.clkgen import DDRLiteSPIClkGen
+from litespi.clkgen import QDRLiteSPIClkGen
 
 from litex.soc.interconnect import stream
 
-from litex.build.io import DDRTristate
+from litex.build.io import QDRTristate
 
-# LiteSPI DDR PHY Core -----------------------------------------------------------------------------
+# LiteSPI QDR PHY Core -----------------------------------------------------------------------------
 
-class LiteSPIDDRPHYCore(LiteXModule):
-    """LiteSPI PHY DDR instantiator
+class LiteSPIQDRPHYCore(LiteXModule):
+    """LiteSPI PHY QDR instantiator
 
-    The ``DDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
+    The ``QDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
     It supports single/dual/quad/octal output reads from the flash chips.
 
-    You can use this class only with devices that supports the DDR primitives.
-
-    The following diagram shows how each clock configuration option relates to outputs and input sampling in DDR mode:
-
-    .. wavedrom:: ../../doc/ddr-timing-diagram.json
+    You can use this class only with devices that supports the QDR primitives.
 
     Parameters
     ----------
@@ -51,7 +48,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     cs : Signal(), in
         Flash CS signal.
     """
-    def __init__(self, pads, flash, cs_delay, extra_latency=0):
+    def __init__(self, pads, flash, cs_delay, cd_fastclk, extra_latency=0):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs     = Signal()
@@ -70,7 +67,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
             assert not flash.ddr
 
         # Clock Generator.
-        self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
+        self.clkgen = clkgen = QDRLiteSPIClkGen(pads, cd_fastclk)
 
         # CS control.
         self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
@@ -82,16 +79,17 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # I/Os.
         data_bits = 32
 
-        dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_i  = Signal(len(pads.dq))
+        dq_o  = Array([Signal(len(pads.dq)) for _ in range(3)])
+        dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_oe = Signal(len(pads.dq))
 
         for i in range(len(pads.dq)):
-            self.specials += DDRTristate(
+            self.specials += QDRTristate(
                 io  = pads.dq[i],
-                o1  =  dq_o[0][i],  o2 =  dq_o[1][i],
-                oe1 =    dq_oe[i],  oe2 =   dq_oe[i],
-                i1  =     dq_i[i],  i2 =    Signal(),
+                o1  = dq_o[0][i],  o2 = dq_o[1][i], o3 = dq_o[1][i], o4= dq_o[2][i],
+                oe1 =   dq_oe[i],
+                i1  = dq_i[0][i],  i2 =   Signal(), i3 = dq_i[1][i],  i4 =  Signal(),
+                fastclk = ClockSignal(cd_fastclk),
             )
 
         # Data Shift Registers.
@@ -105,10 +103,10 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # Data Out Shift.
         self.comb += [
             Case(sink.width, {
-                1:  dq_o[1].eq(sr_out[-1:]),
-                2:  dq_o[1].eq(sr_out[-2:]),
-                4:  dq_o[1].eq(sr_out[-4:]),
-                8:  dq_o[1].eq(sr_out[-8:]),
+                1:  {dq_o[1].eq(sr_out[-1:]), dq_o[2].eq(sr_out[-2:-1])},
+                2:  {dq_o[1].eq(sr_out[-2:]), dq_o[2].eq(sr_out[-4:-2])},
+                4:  {dq_o[1].eq(sr_out[-4:]), dq_o[2].eq(sr_out[-8:-4])},
+                8:  {dq_o[1].eq(sr_out[-8:]), dq_o[2].eq(sr_out[-16:-8])},
             })
         ]
         self.sync += If(sr_out_load,
@@ -116,22 +114,22 @@ class LiteSPIDDRPHYCore(LiteXModule):
         )
         self.sync += If(sr_out_shift,
             dq_oe.eq(sink.mask),
-            dq_o[0].eq(dq_o[1]),
+            dq_o[0].eq(dq_o[2]),
             Case(sink.width, {
-                1 : sr_out.eq(Cat(Signal(1), sr_out)),
-                2 : sr_out.eq(Cat(Signal(2), sr_out)),
-                4 : sr_out.eq(Cat(Signal(4), sr_out)),
-                8 : sr_out.eq(Cat(Signal(8), sr_out)),
+                1 : sr_out.eq(Cat(Signal(2), sr_out)),
+                2 : sr_out.eq(Cat(Signal(4), sr_out)),
+                4 : sr_out.eq(Cat(Signal(8), sr_out)),
+                8 : sr_out.eq(Cat(Signal(16), sr_out)),
             })
         )
 
         # Data In Shift.
         self.sync += If(sr_in_shift,
             Case(sink.width, {
-                1 : sr_in.eq(Cat(dq_i[1],  sr_in)), # 1: pads.miso
-                2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
-                4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
-                8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
+                1 : sr_in.eq(Cat(dq_i[1][1],  dq_i[0][1],  sr_in)), # 1: pads.miso
+                2 : sr_in.eq(Cat(dq_i[1][:2], dq_i[0][:2], sr_in)),
+                4 : sr_in.eq(Cat(dq_i[1][:4], dq_i[0][:4], sr_in)),
+                8 : sr_in.eq(Cat(dq_i[1][:8], dq_i[0][:8], sr_in)),
             })
         )
 
@@ -161,23 +159,22 @@ class LiteSPIDDRPHYCore(LiteXModule):
             sr_out_shift.eq(1),
 
             # Shift Register Count Update/Check.
-            NextValue(sr_cnt, sr_cnt - sink.width),
+            NextValue(sr_cnt, sr_cnt - (2 * sink.width)),
             # End XFer.
             If(sr_cnt == 0,
-                NextValue(sr_cnt, (2 + 2*extra_latency)*sink.width), # FIXME: Explain magic numbers.
+                NextValue(sr_cnt, (2 + 2*extra_latency)*(2 * sink.width)), # FIXME: Explain magic numbers.
                 NextState("XFER-END"),
             ),
         )
         fsm.act("XFER-END",
             # Stop Clk.
             NextValue(clkgen.en, 0),
-            NextValue(dq_oe, 0),
 
             # Data In Shift.
             sr_in_shift.eq(1),
 
             # Shift Register Count Update/Check.
-            NextValue(sr_cnt, sr_cnt - sink.width),
+            NextValue(sr_cnt, sr_cnt - (2 * sink.width)),
             If(sr_cnt == 0,
                 sink.ready.eq(1),
                 NextState("SEND-STATUS-DATA"),

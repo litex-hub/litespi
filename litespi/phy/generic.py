@@ -12,6 +12,7 @@ from litespi.common import *
 
 from litespi.phy.generic_sdr import LiteSPISDRPHYCore
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
+from litespi.phy.generic_qdr import LiteSPIQDRPHYCore
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
@@ -56,13 +57,14 @@ class LiteSPIPHY(LiteXModule):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0):
-        assert rate in ["1:1", "1:2"]
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0, cd_fastclk="sys4x_ps"):
+        assert rate in ["1:1", "1:2", "1:4"]
         if rate == "1:1":
             phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
         if rate == "1:2":
             phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency)
-
+        if rate == "1:4":
+            phy = LiteSPIQDRPHYCore(pads, flash, cs_delay, cd_fastclk, extra_latency)
         self.flash = flash
 
         self.source = phy.source
