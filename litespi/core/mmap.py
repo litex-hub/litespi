@@ -80,7 +80,6 @@ class LiteSPIMMAP(LiteXModule):
         self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
         self.bus    = bus    = wishbone.Interface()
         self.cs     = cs     = Signal()
-        self.offset = offset = Signal(len(bus.adr))
 
         # Burst Control.
         burst_cs      = Signal()
@@ -208,7 +207,7 @@ class LiteSPIMMAP(LiteXModule):
             source.valid.eq(1),
             source.width.eq(flash.addr_width),
             source.mask.eq(addr_oe_mask[flash.addr_width]),
-            source.data.eq(Cat(byte_count, bus.adr - offset)), # send address.
+            source.data.eq(Cat(byte_count, bus.adr)), # send address.
             source.len.eq(flash.addr_bits),
             NextValue(burst_cs, 1),
             NextValue(burst_adr, bus.adr),
