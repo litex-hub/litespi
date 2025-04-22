@@ -63,7 +63,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs               = Signal()
+        self.cs               = Signal().like(pads.cs_n)
         self._spi_clk_divisor = spi_clk_divisor = Signal(8)
 
         self._default_divisor = default_divisor
@@ -94,13 +94,13 @@ class LiteSPISDRPHYCore(LiteXModule):
         # CS control.
         self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
         cs_enable = Signal()
-        self.comb += cs_timer.wait.eq(self.cs)
+        self.comb += cs_timer.wait.eq(self.cs != 0)
         self.comb += cs_enable.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_enable)
-
-        # I/Os.
-        data_bits = 32
-        cmd_bits  = 8
+        for i in range(len(pads.cs_n)):
+            self.specials += SDROutput(
+                i = ~(cs_enable & self.cs[i]),
+                o = pads.cs_n[i]
+            )
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
@@ -115,9 +115,9 @@ class LiteSPISDRPHYCore(LiteXModule):
                 o = dq_i[1]
             )
         else:
-            dq_o  = Signal(len(pads.dq))
-            dq_i  = Signal(len(pads.dq))
-            dq_oe = Signal(len(pads.dq))
+            dq_o  = Signal().like(pads.dq)
+            dq_i  = Signal().like(pads.dq)
+            dq_oe = Signal().like(pads.dq)
             for i in range(len(pads.dq)):
                 self.specials += SDRTristate(
                     io = pads.dq[i],
@@ -130,13 +130,12 @@ class LiteSPISDRPHYCore(LiteXModule):
         sr_cnt       = Signal(8, reset_less=True)
         sr_out_load  = Signal()
         sr_out_shift = Signal()
-        sr_out       = Signal(len(sink.data), reset_less=True)
+        sr_out       = Signal().like(sink.data)
         sr_in_shift  = Signal()
-        sr_in        = Signal(len(sink.data), reset_less=True)
+        sr_in        = Signal().like(sink.data)
 
         # Data Out Generation/Load/Shift.
         self.comb += [
-            dq_oe.eq(sink.mask),
             Case(sink.width, {
                 1 : dq_o.eq(sr_out[-1:]),
                 2 : dq_o.eq(sr_out[-2:]),
@@ -145,15 +144,11 @@ class LiteSPISDRPHYCore(LiteXModule):
             })
         ]
         self.sync += If(sr_out_load,
-            sr_out.eq(sink.data << (len(sink.data) - sink.len))
+            sr_out.eq(sink.data << (len(sink.data) - sink.len)),
+            sr_in.eq(0),
         )
         self.sync += If(sr_out_shift,
-            Case(sink.width, {
-                1 : sr_out.eq(Cat(Signal(1), sr_out)),
-                2 : sr_out.eq(Cat(Signal(2), sr_out)),
-                4 : sr_out.eq(Cat(Signal(4), sr_out)),
-                8 : sr_out.eq(Cat(Signal(8), sr_out)),
-            })
+            sr_out.eq(sr_out << sink.width),
         )
 
         # Data In Shift.
@@ -173,6 +168,7 @@ class LiteSPISDRPHYCore(LiteXModule):
             If(cs_enable & sink.valid,
                 # Load Shift Register Count/Data Out.
                 NextValue(sr_cnt, sink.len - sink.width),
+                NextValue(dq_oe, sink.mask),
                 sr_out_load.eq(1),
                 # Start XFER.
                 NextState("XFER"),
@@ -214,6 +210,7 @@ class LiteSPISDRPHYCore(LiteXModule):
             # Send Data In to Core and return to WAIT when accepted.
             source.valid.eq(1),
             source.last.eq(1),
+            NextValue(dq_oe, 0),
             If(source.ready,
                 NextState("WAIT-CMD-DATA"),
             )
