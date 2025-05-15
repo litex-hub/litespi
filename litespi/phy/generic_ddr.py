@@ -12,6 +12,7 @@ from litex.gen.genlib.misc import WaitTimer
 
 from litespi.common import *
 from litespi.clkgen import DDRLiteSPIClkGen
+from litespi.cscontrol import LiteSPICSControl
 
 from litex.soc.interconnect import stream
 
@@ -54,7 +55,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     def __init__(self, pads, flash, cs_delay, extra_latency=0):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
-        self.cs     = Signal()
+        self.cs              = Signal().like(pads.cs_n)
 
         if hasattr(pads, "miso"):
             bus_width = 1
@@ -73,26 +74,18 @@ class LiteSPIDDRPHYCore(LiteXModule):
         self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        self.cs_timer = cs_timer  = WaitTimer(cs_delay + 1) # Ensure cs_delay cycles between XFers.
-        cs_enable = Signal()
-        self.comb += cs_timer.wait.eq(self.cs)
-        self.comb += cs_enable.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_enable)
-
-        # I/Os.
-        data_bits = 32
+        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
 
-        for i in range(len(pads.dq)):
-            self.specials += DDRTristate(
-                io  = pads.dq[i],
-                o1  =  dq_o[0][i],  o2 =  dq_o[1][i],
-                oe1 = dq_oe[0][i], oe2 = dq_oe[1][i],
-                i1  =  dq_i[0][i],  i2 =  dq_i[1][i]
-            )
+        self.specials += DDRTristate(
+            io  = pads.dq,
+            o1  =  dq_o[0],  o2 =  dq_o[1],
+            oe1 = dq_oe[0], oe2 = dq_oe[1],
+            i1  =  dq_i[0],  i2 =  dq_i[1]
+        )
 
         # Data Shift Registers.
         sr_cnt       = Signal(8, reset_less=True)
@@ -142,7 +135,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
             # Stop Clk.
             NextValue(clkgen.en, 0),
             # Wait for CS and a CMD from the Core.
-            If(cs_enable & sink.valid,
+            If(cs_control.enable & sink.valid,
                 # Load Shift Register Count/Data Out.
                 NextValue(sr_cnt, sink.len - sink.width),
                 sr_out_load.eq(1),
