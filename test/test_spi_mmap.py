@@ -40,11 +40,10 @@ class TestSPIMMAP(unittest.TestCase):
         opcode = Codes.PP_1_1_1
         dut = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode), with_write=True)
 
-        def wb_gen(dut, addr, data, offset):
+        def wb_gen(dut, addr, data):
             dut.done = 0
 
-            yield dut.offset.eq(offset)
-            yield from dut.bus.write(addr + offset, data)
+            yield from dut.bus.write(addr, data)
 
             dut.done = 1
 
@@ -90,9 +89,8 @@ class TestSPIMMAP(unittest.TestCase):
             yield
         addr = 0xcafe
         data = 0xdeadbeef
-        offset = 0x10000
 
-        run_simulation(dut, [wb_gen(dut, addr, data, offset), phy_gen(dut, addr, data)])
+        run_simulation(dut, [wb_gen(dut, addr, data), phy_gen(dut, addr, data)])
         self.assertEqual(dut.done, 1)
         self.assertEqual(dut.addr_ok, 1)
         self.assertEqual(dut.opcode_ok, 1)
