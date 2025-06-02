@@ -88,10 +88,12 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         # Clock Generator.
         self.clkgen = clkgen = LiteSPIClkGen(pads, device)
-        self.comb += clkgen.div.eq(spi_clk_divisor)
 
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
+
+         # Only Clk Divisor when not active.
+        self.sync += If(~cs_control.enable, clkgen.div.eq(spi_clk_divisor))
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
