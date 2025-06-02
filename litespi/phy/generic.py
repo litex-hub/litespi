@@ -56,7 +56,7 @@ class LiteSPIPHY(LiteXModule):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0):
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0, **kwargs):
         assert rate in ["1:1", "1:2"]
         if rate == "1:1":
             phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)

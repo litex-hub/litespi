@@ -10,6 +10,7 @@ from litex.gen import *
 
 from litex.soc.interconnect import stream
 from litex.soc.interconnect.csr import *
+from litex.soc.interconnect.csr_eventmanager import *
 
 from litespi.common import *
 
@@ -41,7 +42,7 @@ class LiteSPIMaster(LiteXModule):
         Slave CS signal.
 
     """
-    def __init__(self, cs_width=1, tx_fifo_depth=1, rx_fifo_depth=1):
+    def __init__(self, cs_width=1, tx_fifo_depth=1, rx_fifo_depth=1, with_irq=False):
         self.sink   = stream.Endpoint(spi_phy2core_layout)
         self.source = stream.Endpoint(spi_core2phy_layout)
         self.cs     = Signal(cs_width)
@@ -86,3 +87,12 @@ class LiteSPIMaster(LiteXModule):
             self._status.fields.rx_ready.eq(rx_fifo.source.valid),
             self._rxtx.w.eq(rx_fifo.source.data),
         ]
+
+        if with_irq:
+            self.ev            = EventManager()
+            self.ev.rx_ready   = EventSourceProcess(edge="rising")
+            self.ev.finalize()
+
+            self.comb += [
+                self.ev.rx_ready.trigger.eq(rx_fifo.source.valid),
+            ]
