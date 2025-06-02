@@ -24,6 +24,7 @@ class LiteSPICore(Module):
 
 
 class LiteSPI(LiteXModule):
+    autocsr_exclude = {"ev"}
     """SPI Controller wrapper.
 
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
@@ -70,7 +71,7 @@ class LiteSPI(LiteXModule):
 
     def __init__(self, phy, clock_domain="sys",
         with_mmap=True, mmap_endianness="big",
-        with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1,
+        with_master=True, master_tx_fifo_depth=1, master_rx_fifo_depth=1, master_with_irq=False,
         with_csr=True, with_mmap_write=False, mmap_cs_mask=1):
 
         cs_width=len(phy.cs)
@@ -97,12 +98,15 @@ class LiteSPI(LiteXModule):
             self.master = master = LiteSPIMaster(
                 tx_fifo_depth = master_tx_fifo_depth,
                 rx_fifo_depth = master_rx_fifo_depth,
+                with_irq = master_with_irq,
                 cs_width = cs_width)
             port_master = crossbar.get_port(master.cs)
             self.comb += [
                 port_master.source.connect(master.sink),
                 master.source.connect(port_master.sink),
             ]
+            if hasattr(master, "ev"):
+                self.ev = master.ev
 
         if clock_domain != "sys":
             self.comb += [
