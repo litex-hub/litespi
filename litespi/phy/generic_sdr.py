@@ -199,7 +199,6 @@ class LiteSPISDRPHYCore(LiteXModule):
         fsm.act("SEND-STATUS-DATA",
             # Send Data In to Core and return to WAIT when accepted.
             source.valid.eq(1),
-            source.last.eq(1),
             NextValue(dq_oe, 0),
             If(source.ready,
                 NextState("WAIT-CMD-DATA"),
