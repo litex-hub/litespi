@@ -118,18 +118,3 @@ class LiteSPI(LiteXModule):
                 crossbar.master.source.connect(phy.sink),
                 phy.source.connect(crossbar.master.sink),
             ]
-
-class LiteSPIWrapper(LiteXModule):
-    autocsr_exclude = {"ev"}
-    def __init__(self, pads=None, module=None, phy=None, **kwargs):
-        assert pads is not None or module is not None, "Either pads or module must be provided."
-        # PHY.
-        self.phy = LiteSPIPHY(pads, module, **kwargs) if phy is None else phy
-
-        # Core.
-        self.core = LiteSPI(self.phy, **kwargs)
-
-        if hasattr(self.core, "bus"):
-            self.bus = self.core.bus
-        if hasattr(self.core, "ev"):
-            self.ev = self.core.ev
