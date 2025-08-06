@@ -61,6 +61,58 @@ class MX25L6406E(SpiNorFlashModule):
     dummy_bits = 8
 
 
+class MX25U25645G(SpiNorFlashModule):
+    """MX25U25645G
+
+    Datasheet: https://www.macronix.com/Lists/Datasheet/Attachments/8738/MX25U25645G,%201.8V,%20256Mb,%20v1.4.pdf
+    """
+
+    manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
+    device_id = 0x2018
+    name = "mx25u25645g"
+
+    total_size  =   33554432   # bytes
+    page_size   =        256   # bytes
+    total_pages =     131072
+
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.READ_1_2_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.READ_1_4_4,
+        SpiNorFlashOpCodes.READ_4_4_4,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_2_2_4B,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.READ_1_4_4_4B,
+        SpiNorFlashOpCodes.READ_4_4_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.PP_1_4_4,
+        SpiNorFlashOpCodes.PP_1_1_1_4B,
+        SpiNorFlashOpCodes.PP_1_4_4_4B,
+    ]
+    dummy_bits = 8
+
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_1_1_FAST: 8,
+        SpiNorFlashOpCodes.READ_1_1_2: 8,
+        SpiNorFlashOpCodes.READ_1_2_2: 4,
+        SpiNorFlashOpCodes.READ_1_1_4: 8,
+        SpiNorFlashOpCodes.READ_1_4_4: 6,
+        SpiNorFlashOpCodes.READ_4_4_4: 6,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B: 8,
+        SpiNorFlashOpCodes.READ_1_1_2_4B: 8,
+        SpiNorFlashOpCodes.READ_1_2_2_4B: 4,
+        SpiNorFlashOpCodes.READ_1_1_4_4B: 8,
+        SpiNorFlashOpCodes.READ_1_4_4_4B: 6,
+        SpiNorFlashOpCodes.READ_4_4_4_4B: 6,
+    }
+
+
 class W25Q512JV(SpiNorFlashModule):
     """W25Q512JV
 
