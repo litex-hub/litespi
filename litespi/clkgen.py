@@ -2,6 +2,7 @@
 # This file is part of LiteSPI
 #
 # Copyright (c) 2020 Antmicro <www.antmicro.com>
+# Copyright (c) 2025 Fin Maaß <f.maass@vogl-electronic.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
 from migen import *
@@ -133,3 +134,88 @@ class LiteSPIClkGen(LiteXModule):
                 raise NotImplementedError
         else:
             self.specials += SDROutput(i=clk, o=pads.clk)
+
+class LiteSPIClkGen2(LiteXModule):
+    """SPI Clock generator
+
+    The ``LiteSPIClkGen`` class provides a generic SPI DDR clock generator.
+
+    Parameters
+    ----------
+    pads : Object
+        SPI pads description.
+
+    div_width : int
+        Width of the ``div`` used for dividing the clock.
+
+    Attributes
+    ----------
+    div : Signal(8), in
+        Clock divisor, output clock frequency will be equal to ``sys_clk_freq/div``.
+
+    posedge : Signal(), out
+        Outputs 1 when there is a rising edge on the generated clock, 0 otherwise.
+
+    negedge : Signal(), out
+        Outputs 1 when there is a falling edge on the generated clock, 0 otherwise.
+
+    en : Signal(), in
+        Clock enable input, output clock will be generated if set to 1, 0 resets the core.
+    """
+    def __init__(self, pads, div_width=8, extra_latency=0):
+        self.div        = div        = Signal(div_width)
+        self.posedge    = posedge    = Signal(2)
+        self.negedge    = negedge    = Signal(2)
+        self.en         = en         = Signal()
+        cnt             = Signal(div_width + 1)
+        clk             = Signal(2)
+        next_clk        = Signal(2)
+        next_cnt        = Signal(div_width + 1)
+
+        double_div = Signal(div_width + 1)
+        self.comb += double_div.eq(Cat(C(0,1), div))
+
+        self.comb += [
+                If(cnt == 2,
+                   next_cnt.eq(double_div),
+                   next_clk[0].eq(cnt <= div),
+                   next_clk[1].eq(1),
+               ).Elif(cnt <= 1,
+                   next_cnt.eq(double_div - 1),
+                   next_clk[0].eq(1),
+                   next_clk[1].eq(0),
+               ).Else(
+                    next_cnt.eq(cnt - 2),
+                    next_clk[0].eq(cnt <= div),
+                    next_clk[1].eq((cnt - 1) <= div),
+                ),
+        ]
+
+        self.comb += [
+            posedge[0].eq(en & ~clk[1] & next_clk[0]),
+            negedge[0].eq(en &  clk[1] & ~next_clk[0]),
+            posedge[1].eq(en & ~next_clk[0] & next_clk[1]),
+            negedge[1].eq(en &  next_clk[0] & ~next_clk[1]),
+        ]
+
+        # Delayed edge to account for IO register delays.
+        posedge_reg  = Signal(2 + 2 + 2 + int(extra_latency))
+        self.posedge_reg2 = posedge_reg2 = Signal(2)
+
+        self.sync += [
+            posedge_reg.eq(Cat(posedge_reg[2:], posedge)),
+        ]
+
+        self.comb += posedge_reg2.eq(posedge_reg[:2])
+
+        self.sync += [
+            If(en,
+                cnt.eq(next_cnt),
+                clk.eq(next_clk),
+            ).Else(
+                clk.eq(0),
+                cnt.eq(double_div),
+            )
+        ]
+
+        self.specials += DDROutput(i1=(en & clk[0]), i2=(en & clk[1]), o=pads.clk)
