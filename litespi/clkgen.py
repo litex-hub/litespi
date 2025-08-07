@@ -49,13 +49,14 @@ class LiteSPIClkGen(LiteXModule):
     device : str
         Device type for determining how to get output pin if it was not provided in pads.
 
-    cnt_width : int
-        Width of the internal counter ``cnt`` used for dividing the clock.
+    div_width : int
+        Width of the ``div`` used for dividing the clock.
 
     Attributes
     ----------
     div : Signal(8), in
-        Clock divisor, output clock frequency will be equal to ``sys_clk_freq/(2*(1+div))``.
+        Clock divisor, output clock frequency will be equal to ``sys_clk_freq/(2*((div + 1)//2))``.
+        It's ``sys_clk_freq/div``, but div is rounded up to the nearest even number.
 
     posedge : Signal(), out
         Outputs 1 when there is a rising edge on the generated clock, 0 otherwise.
@@ -66,18 +67,21 @@ class LiteSPIClkGen(LiteXModule):
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
     """
-    def __init__(self, pads, device, cnt_width=8, extra_latency=0):
-        self.div        = div        = Signal(cnt_width)
+    def __init__(self, pads, device, div_width=8, extra_latency=0):
+        self.div        = div        = Signal(div_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
         self.en         = en         = Signal()
-        cnt             = Signal(cnt_width)
+        cnt             = Signal(div_width - 1)
         en_int          = Signal()
         clk             = Signal()
+        half            = Signal(div_width - 1)
+
+        self.comb += half.eq((div + 1) >> 1)
 
         self.comb += [
-            posedge.eq(en & ~clk & (cnt == div)),
-            negedge.eq(en & clk & (cnt == div)),
+            posedge.eq(en & ~clk & (cnt <= 1)),
+            negedge.eq(en &  clk & (cnt <= 1)),
         ]
 
         # Delayed edge to account for IO register delays.
@@ -92,15 +96,15 @@ class LiteSPIClkGen(LiteXModule):
 
         self.sync += [
             If(en | en_int,
-                If(cnt < div,
-                    cnt.eq(cnt+1),
+                If(cnt <= 1,
+                    clk.eq(~clk),   # 50 % duty-cycle toggle.
+                    cnt.eq(half)    # reload count.
                 ).Else(
-                    cnt.eq(0),
-                    clk.eq(~clk),
+                    cnt.eq(cnt - 1) # simple down-count.
                 )
             ).Else(
                 clk.eq(0),
-                cnt.eq(0),
+                cnt.eq(half),
             )
         ]
 
