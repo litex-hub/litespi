@@ -60,6 +60,9 @@ class LiteSPIMaster(LiteXModule):
             CSRField("rx_ready", size=1, offset=1, description="RX FIFO is not empty."),
         ])
 
+        # Clock Divider.
+        self._clk_divisor = CSRStorage(len(self.source.clk_div))
+
         # # #
 
         # FIFOs.
@@ -79,6 +82,7 @@ class LiteSPIMaster(LiteXModule):
             tx_fifo.sink.len.eq(self._phyconfig.fields.len),
             tx_fifo.sink.width.eq(self._phyconfig.fields.width),
             tx_fifo.sink.mask.eq(self._phyconfig.fields.mask),
+            tx_fifo.sink.clk_div.eq(self._clk_divisor.storage),
         ]
 
         # SPI RX (MISO).
