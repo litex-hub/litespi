@@ -187,12 +187,14 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         )
         fsm.act("XFER-END",
-            # Last data already captured in XFER when divisor > 0 so only capture for divisor == 0.
-            If((spi_clk_divisor > 0) | clkgen.posedge_reg2,
+            # Last data already captured in XFER when divisor > 2 so only capture for divisor <= 2.
+            If((clkgen.div > 2) | clkgen.posedge_reg2,
                 # Accept CMD.
                 sink.ready.eq(1),
-                # Capture last data (only for spi_clk_divisor == 0).
-                sr_in_shift.eq(spi_clk_divisor == 0),
+                # Capture last data (only for clkgen.div <= 2).
+                If(clkgen.div <= 2,
+                    sr_in_shift.eq(clkgen.posedge_reg2),
+                ),
                 # Send Status/Data to Core.
                 NextState("SEND-STATUS-DATA"),
             )
