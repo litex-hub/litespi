@@ -63,11 +63,11 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs               = Signal().like(pads.cs_n)
-        self._spi_clk_divisor = spi_clk_divisor = Signal(8)
+        self._spi_clk_divisor = spi_clk_divisor = Signal(len(sink.clk_div))
 
         self._default_divisor = default_divisor
 
-        self.clk_divisor      = clk_divisor = CSRStorage(8, reset=self._default_divisor)
+        self.clk_divisor      = clk_divisor = CSRStorage(len(sink.clk_div), reset=self._default_divisor)
 
         # # #
 
@@ -87,13 +87,19 @@ class LiteSPISDRPHYCore(LiteXModule):
             assert not flash.ddr
 
         # Clock Generator.
-        self.clkgen = clkgen = LiteSPIClkGen(pads, device, extra_latency=extra_latency)
+        self.clkgen = clkgen = LiteSPIClkGen(pads, device, div_width=len(sink.clk_div), extra_latency=extra_latency)
 
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
 
-         # Only Clk Divisor when not active.
-        self.sync += If(~cs_control.enable, clkgen.div.eq(spi_clk_divisor))
+        # Only Clk Divisor when not active or when set by core.
+        self.sync += [
+            If(sink.valid & (sink.clk_div > 0),
+                clkgen.div.eq(sink.clk_div),
+            ).Elif(~cs_control.enable,
+                clkgen.div.eq(spi_clk_divisor),
+            )
+        ]
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
