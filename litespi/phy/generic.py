@@ -59,9 +59,9 @@ class LiteSPIPHY(LiteXModule):
     def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0, **kwargs):
         assert rate in ["1:1", "1:2"]
         if rate == "1:1":
-            phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay)
+            phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay, **kwargs)
         if rate == "1:2":
-            phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency)
+            phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency, **kwargs)
 
         self.flash = flash
 
