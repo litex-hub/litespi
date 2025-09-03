@@ -206,6 +206,11 @@ class LiteSPISDRPHYCore(LiteXModule):
                 sr_in_shift.eq(clkgen.posedge_reg2),
                 If(clkgen.posedge_reg2,
                     NextValue(sr_in_cnt, sr_in_cnt - sink.width),
+                    If(sr_in_cnt == sink.width,
+                       sink.ready.eq(1),
+                       # Send Status/Data to Core.
+                       NextState("SEND-STATUS-DATA"),
+                    ),
                 ),
             ),
         )
