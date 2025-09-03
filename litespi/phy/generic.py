@@ -41,8 +41,8 @@ class LiteSPIPHY(LiteXModule):
     rate : str
         Rate: 1:1 SDR, 1:2 DDR.
 
-    extra_latency : int (1:2 rate)
-        Compensate for additional DDROutput/Input latency
+    extra_latency : int
+        Compensate for additional Output/Input latency
 
     Attributes
     ----------
@@ -56,12 +56,12 @@ class LiteSPIPHY(LiteXModule):
         Flash CS signal from ``LiteSPIPHYCore``.
     """
 
-    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", extra_latency=0, **kwargs):
+    def __init__(self, pads, flash, device="xc7", clock_domain="sys", default_divisor=9, cs_delay=10, rate="1:1", **kwargs):
         assert rate in ["1:1", "1:2"]
         if rate == "1:1":
             phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, default_divisor, cs_delay, **kwargs)
         if rate == "1:2":
-            phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, extra_latency, **kwargs)
+            phy = LiteSPIDDRPHYCore(pads, flash, cs_delay, **kwargs)
 
         self.flash = flash
 
