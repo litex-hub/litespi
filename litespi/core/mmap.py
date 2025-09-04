@@ -78,7 +78,7 @@ class LiteSPIMMAP(LiteXModule):
     def __init__(self, flash, clock_domain="sys", endianness="big", with_csr=True, with_write=False, cs_width=1, cs_mask=1):
         self.source = source = stream.Endpoint(spi_core2phy_layout)
         self.sink   = sink   = stream.Endpoint(spi_phy2core_layout)
-        self.bus    = bus    = wishbone.Interface()
+        self.bus    = bus    = wishbone.Interface(mode="rw" if with_write else "r")
         self.cs              = Signal(cs_width)
         self.request = cs    = Signal()
 
@@ -87,8 +87,6 @@ class LiteSPIMMAP(LiteXModule):
         burst_adr     = Signal(len(bus.adr), reset_less=True)
         self.burst_timeout = burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
 
-        write = Signal()
-        write_enabled = Signal()
         write_mask = Signal(len(bus.sel))
 
         cmd_bits  = 8
@@ -110,6 +108,7 @@ class LiteSPIMMAP(LiteXModule):
         dummy = Signal(data_bits, reset=0xdead)
 
         if with_write and with_write == "csr":
+            write_enabled = Signal()
             self.write_config = write_config = CSRStorage(fields=[
                 CSRField("write_enable", size=1, reset=0, description="MMAP write enable"),
             ])
@@ -118,10 +117,15 @@ class LiteSPIMMAP(LiteXModule):
             else:
                 self.comb += write_enabled.eq(write_config.fields.write_enable)
         else:
-            self.comb += write_enabled.eq(Constant(with_write == True))
+            write_enabled = Constant(with_write == True)
+        
+        if with_write:
+            write = Signal()
+            self.data_write = Signal(32)
+        else:
+            write = Constant(0)
 
         self.byte_count = byte_count = Signal(2, reset_less=True)
-        self.data_write = Signal(32)
 
         self.comb += If(self.request, self.cs.eq(cs_mask))
 
@@ -145,49 +149,54 @@ class LiteSPIMMAP(LiteXModule):
                         cs.eq(0),
                         NextState("BURST-CMD")
                     ),
-                    NextValue(write, 0)
-                # On Bus Write access (if enabled)...
-                ).Elif(write_enabled,
-                    # If CS is still active, Bus address matches previous Burst address and previous access was writing:
-                    # Just continue the current Burst.
-                    NextValue(write_mask, bus.sel),
-                    NextValue(self.data_write, bus.dat_w),
-                    If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write,
-                        NextState("WRITE")
-                    # Otherwise initialize a new Burst.
-                    ).Else(
-                        cs.eq(0),
-                        NextState("PRE-BURST-CMD-WRITE"),
-                    ),
-                    NextValue(write, 1)
                 )
             )
         )
 
-        fsm.act("PRE-BURST-CMD-WRITE",
-            cs.eq(0),
-            If(write_mask[0],
-               NextState("BURST-CMD"),
-               NextValue(write, 1)
-            ).Elif(byte_count == 3,
-                bus.ack.eq(1),
-                NextValue(burst_adr, burst_adr + 1),
-                NextState("IDLE"),
-                NextValue(write, 0)
-            ).Else(
-                NextValue(byte_count, byte_count + 1),
-                NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
+        if with_write:
+            fsm.act("IDLE",
+                If(bus.cyc & bus.stb,
+                    # On Bus Read access...
+                    If(~bus.we,
+                        NextValue(write, 0)
+                    # On Bus Write access (if enabled)...
+                    ).Elif(write_enabled,
+                        # If CS is still active, Bus address matches previous Burst address and previous access was writing:
+                        # Just continue the current Burst.
+                        NextValue(write_mask, bus.sel),
+                        NextValue(self.data_write, bus.dat_w),
+                        If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write,
+                            NextState("WRITE")
+                        # Otherwise initialize a new Burst.
+                        ).Else(
+                            cs.eq(0),
+                            NextState("PRE-BURST-CMD-WRITE"),
+                        ),
+                        NextValue(write, 1)
+                    )
+                )
             )
-        )
+
+            fsm.act("PRE-BURST-CMD-WRITE",
+                cs.eq(0),
+                If(write_mask[0],
+                    NextState("BURST-CMD"),
+                    NextValue(write, 1)
+                ).Elif(byte_count == 3,
+                    bus.ack.eq(1),
+                    NextValue(burst_adr, burst_adr + 1),
+                    NextState("IDLE"),
+                    NextValue(write, 0)
+                ).Else(
+                    NextValue(byte_count, byte_count + 1),
+                    NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
+                )
+            )
 
         fsm.act("BURST-CMD",
             cs.eq(1),
             source.valid.eq(1),
-            If(write_enabled & write,
-                source.data.eq(flash.program_opcode.code), # send command.
-            ).Else(
-                source.data.eq(flash.read_opcode.code), # send command.
-            ),
+            source.data.eq(flash.read_opcode.code), # send command.
             source.len.eq(cmd_bits),
             source.width.eq(flash.cmd_width),
             source.mask.eq(cmd_oe_mask[flash.cmd_width]),
@@ -196,6 +205,13 @@ class LiteSPIMMAP(LiteXModule):
                 NextState("CMD-RET"),
             )
         )
+
+        if with_write:
+            fsm.act("BURST-CMD",
+                If(write_enabled & write,
+                    source.data.eq(flash.program_opcode.code), # send command.
+                )
+            )
 
         fsm.act("CMD-RET",
             cs.eq(1),
@@ -223,15 +239,20 @@ class LiteSPIMMAP(LiteXModule):
             cs.eq(1),
             sink.ready.eq(1),
             If(sink.valid,
-                If(write_enabled & write,
-                    NextState("WRITE"),
-                ).Elif(spi_dummy_bits == 0,
+                If(spi_dummy_bits == 0,
                     NextState("BURST-REQ"),
                 ).Else(
                     NextState("DUMMY"),
                 )
             )
         )
+
+        if with_write:
+            fsm.act("ADDR-RET",
+                If(sink.valid & write_enabled & write,
+                    NextState("WRITE"),
+                )
+            )
 
         fsm.act("DUMMY",
             cs.eq(1),
@@ -275,38 +296,39 @@ class LiteSPIMMAP(LiteXModule):
             )
         )
 
-        fsm.act("WRITE",
-            cs.eq(1),
-            source.valid.eq(1),
-            source.width.eq(flash.addr_width),
-            source.mask.eq(addr_oe_mask[flash.bus_width]),
-            source.data.eq(self.data_write),
-            source.len.eq(8),
-            If(source.ready,
-                NextState("WRITE-RET"),
+        if with_write:
+            fsm.act("WRITE",
+                cs.eq(1),
+                source.valid.eq(1),
+                source.width.eq(flash.addr_width),
+                source.mask.eq(addr_oe_mask[flash.bus_width]),
+                source.data.eq(self.data_write),
+                source.len.eq(8),
+                If(source.ready,
+                    NextState("WRITE-RET"),
+                )
             )
-        )
 
-        fsm.act("WRITE-RET",
-            cs.eq(1),
-            sink.ready.eq(1),
-            If(sink.valid,
-                If(byte_count != 3,
-                    NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
-                    NextValue(byte_count, byte_count + 1),
-                    NextValue(self.data_write, self.data_write >> 8),
-                    If(write_mask[1],
-                        NextState("WRITE"),
+            fsm.act("WRITE-RET",
+                cs.eq(1),
+                sink.ready.eq(1),
+                If(sink.valid,
+                    If(byte_count != 3,
+                        NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
+                        NextValue(byte_count, byte_count + 1),
+                        NextValue(self.data_write, self.data_write >> 8),
+                        If(write_mask[1],
+                            NextState("WRITE"),
+                        ).Else(
+                            cs.eq(0),
+                            NextValue(write, 0),
+                            NextState("PRE-BURST-CMD-WRITE"),
+                        ),
+
                     ).Else(
-                        cs.eq(0),
-                        NextValue(write, 0),
-                        NextState("PRE-BURST-CMD-WRITE"),
+                        bus.ack.eq(1),
+                        NextValue(burst_adr, burst_adr + 1),
+                        NextState("IDLE"),
                     ),
-
-                ).Else(
-                    bus.ack.eq(1),
-                    NextValue(burst_adr, burst_adr + 1),
-                    NextState("IDLE"),
-                ),
+                )
             )
-        )
