@@ -59,7 +59,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     clk_divisor : CSRStorage
         Register which holds a clock divisor value applied to clkgen.
     """
-    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay, extra_latency=0, **kwargs):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor=9, extra_latency=0, **kwargs):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs               = Signal().like(pads.cs_n)
@@ -90,7 +90,7 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.clkgen = clkgen = LiteSPIClkGen(pads, device, div_width=len(sink.clk_div), extra_latency=extra_latency)
 
         # CS control.
-        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
+        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
         # Only Clk Divisor when not active or when set by core.
         self.sync += [
