@@ -92,6 +92,8 @@ class LiteSPIMMAP(LiteXModule):
         cmd_bits  = 8
         data_bits = 32
 
+        self.clk_divisor = clk_divisor = CSRStorage(len(source.clk_div))
+
         self._default_dummy_bits = flash.dummy_cycles * flash.addr_width if flash.fast_mode else 0
 
         self._spi_dummy_bits = spi_dummy_bits = Signal(8)
@@ -134,6 +136,7 @@ class LiteSPIMMAP(LiteXModule):
         fsm.act("IDLE",
             # Keep CS active after Burst for Timeout.
             burst_timeout.wait.eq(1),
+            NextValue(source.clk_div, clk_divisor.storage),
             NextValue(burst_cs, burst_cs & ~burst_timeout.done),
             cs.eq(burst_cs),
             If(bus.cyc & bus.stb,
