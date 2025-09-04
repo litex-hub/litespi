@@ -52,7 +52,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     cs : Signal(), in
         Flash CS signal.
     """
-    def __init__(self, pads, flash, cs_delay, extra_latency=0, **kwargs):
+    def __init__(self, pads, flash, extra_latency=0, **kwargs):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs              = Signal().like(pads.cs_n)
@@ -74,7 +74,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
+        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
