@@ -92,12 +92,16 @@ class LiteSPISDRPHYCore(LiteXModule):
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
+        spi_clk_divisor_delayed = Signal(len(sink.clk_div))
+
         # Only Clk Divisor when not active or when set by core.
-        self.sync += [
+        self.sync += If(~clkgen.en, spi_clk_divisor_delayed.eq(spi_clk_divisor))
+
+        self.comb += [
             If(sink.valid & (sink.clk_div > 0),
                 clkgen.div.eq(sink.clk_div),
-            ).Elif(~cs_control.enable,
-                clkgen.div.eq(spi_clk_divisor),
+            ).Else(
+                clkgen.div.eq(spi_clk_divisor_delayed),
             )
         ]
 
