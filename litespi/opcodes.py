@@ -97,6 +97,7 @@ class SpiNorFlashOpCodes:
     READ_1_2_2_4B      = _Op(0xbc, "Read data bytes (Dual I/O SPI)")
     READ_1_1_4_4B      = _Op(0x6c, "Read data bytes (Quad Output SPI)")
     READ_1_4_4_4B      = _Op(0xec, "Read data bytes (Quad I/O SPI)")
+    READ_4_4_4_4B      = _Op(0xec, "Read data bytes (Quad I/O QPI)")
     READ_1_1_8_4B      = _Op(0x7c, "Read data bytes (Octal Output SPI)")
     READ_1_8_8_4B      = _Op(0xcc, "Read data bytes (Octal I/O SPI)")
 
