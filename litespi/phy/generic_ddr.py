@@ -52,7 +52,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     cs : Signal(), in
         Flash CS signal.
     """
-    def __init__(self, pads, flash, cs_delay, extra_latency=0):
+    def __init__(self, pads, flash, cs_delay, extra_latency=0, **kwargs):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs              = Signal().like(pads.cs_n)

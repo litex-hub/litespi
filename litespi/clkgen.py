@@ -65,7 +65,7 @@ class LiteSPIClkGen(LiteXModule):
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
     """
-    def __init__(self, pads, device, cnt_width=8):
+    def __init__(self, pads, device, cnt_width=8, extra_latency=0):
         self.div        = div        = Signal(cnt_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
@@ -80,13 +80,14 @@ class LiteSPIClkGen(LiteXModule):
         ]
 
         # Delayed edge to account for IO register delays.
-        self.posedge_reg  = posedge_reg  = Signal()
+        posedge_reg  = Signal(1 + 1 + int(extra_latency))
         self.posedge_reg2 = posedge_reg2 = Signal()
 
         self.sync += [
-            posedge_reg.eq(posedge),
-            posedge_reg2.eq(posedge_reg),
+            posedge_reg.eq(Cat(posedge_reg[1:], posedge)),
         ]
+
+        self.comb += posedge_reg2.eq(posedge_reg[:1])
 
         self.sync += [
             If(en | en_int,
