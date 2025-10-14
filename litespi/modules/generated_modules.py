@@ -2856,13 +2856,37 @@ class IS25WP512M(SpiNorFlashModule):
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
-        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B,
         SpiNorFlashOpCodes.READ_1_1_2,
-        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_2_4B,
+        SpiNorFlashOpCodes.READ_1_2_2,
+        SpiNorFlashOpCodes.READ_1_2_2_4B,
         SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
+        SpiNorFlashOpCodes.READ_4_4_4,
+        SpiNorFlashOpCodes.READ_4_4_4_4B,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_2,
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_1_1_FAST:    8,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST_4B: 8,
+        SpiNorFlashOpCodes.READ_1_1_2:    8,
+        SpiNorFlashOpCodes.READ_1_1_2_4B: 8,
+        SpiNorFlashOpCodes.READ_1_2_2:    4,
+        SpiNorFlashOpCodes.READ_1_2_2_4B: 4,
+        SpiNorFlashOpCodes.READ_1_1_4:    8,
+        SpiNorFlashOpCodes.READ_1_1_4_4B: 8,
+        SpiNorFlashOpCodes.READ_1_4_4:    6,
+        SpiNorFlashOpCodes.READ_1_4_4_4B: 6,
+        SpiNorFlashOpCodes.READ_4_4_4:    6,
+        SpiNorFlashOpCodes.READ_4_4_4_4B: 6,
+    }
 
 
 class LE25FU106B(SpiNorFlashModule):
