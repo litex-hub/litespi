@@ -52,7 +52,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
     cs : Signal(), in
         Flash CS signal.
     """
-    def __init__(self, pads, flash, cs_delay, extra_latency=0, **kwargs):
+    def __init__(self, pads, flash, extra_latency=0, **kwargs):
         self.source = source = stream.Endpoint(spi_phy2core_layout)
         self.sink   = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs              = Signal().like(pads.cs_n)
@@ -74,17 +74,17 @@ class LiteSPIDDRPHYCore(LiteXModule):
         self.clkgen = clkgen = DDRLiteSPIClkGen(pads)
 
         # CS control.
-        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, cs_delay)
+        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
         dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
+        dq_oe = Signal(len(pads.dq))
 
         self.specials += DDRTristate(
             io  = pads.dq,
             o1  =  dq_o[0],  o2 =  dq_o[1],
-            oe1 = dq_oe[0], oe2 = dq_oe[1],
-            i1  =  dq_i[0],  i2 =  dq_i[1]
+            i1  =  dq_i[0],  i2 =  dq_i[1],
+            oe1 =  dq_oe,
         )
 
         # Data Shift Registers.
@@ -97,7 +97,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
 
         # Data Out Shift.
         self.comb += [
-            dq_oe[1].eq(sink.mask),
+            dq_oe.eq(sink.mask),
             Case(sink.width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
@@ -109,7 +109,6 @@ class LiteSPIDDRPHYCore(LiteXModule):
             sr_out.eq(sink.data << (len(sink.data) - sink.len))
         )
         self.sync += If(sr_out_shift,
-            dq_oe[0].eq(dq_oe[1]),
             dq_o[0].eq(dq_o[1]),
             Case(sink.width, {
                 1 : sr_out.eq(Cat(Signal(1), sr_out)),
