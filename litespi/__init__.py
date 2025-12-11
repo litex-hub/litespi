@@ -79,7 +79,7 @@ class LiteSPI(LiteXModule):
         self.crossbar = crossbar = LiteSPICrossbar(clock_domain, cs_width)
         self.comb += phy.cs.eq(crossbar.cs)
 
-        if with_mmap:
+        if with_mmap and phy.flash:
             self.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
                                                       endianness=mmap_endianness,
                                                       with_csr=with_csr,
