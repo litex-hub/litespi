@@ -70,7 +70,9 @@ class LiteSPIClkGen(LiteXModule):
         self.div        = div        = Signal(div_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
+        self.mode       = mode       = Signal(2)
         self.en         = en         = Signal()
+        self.start      = start      = Signal()
         cnt             = Signal(div_width - 1)
         en_int          = Signal()
         clk             = Signal()
@@ -80,7 +82,7 @@ class LiteSPIClkGen(LiteXModule):
 
         self.comb += [
             posedge.eq(en & ~clk & (cnt <= 1)),
-            negedge.eq(en &  clk & (cnt <= 1)),
+            negedge.eq(clk & (cnt <= 1)),
         ]
 
         # Delayed edge to account for IO register delays.
@@ -101,8 +103,11 @@ class LiteSPIClkGen(LiteXModule):
                 ).Else(
                     cnt.eq(cnt - 1) # simple down-count.
                 )
-            ).Else(
+            ).Elif(start,
                 clk.eq(0),
+                cnt.eq(half),
+            ).Else(
+                clk.eq(mode[1]),
                 cnt.eq(half),
             )
         ]

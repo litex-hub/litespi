@@ -69,6 +69,8 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         self.clk_divisor      = clk_divisor = CSRStorage(len(sink.clk_div), reset=self._default_divisor)
 
+        self.mode = mode = CSRStorage(2, reset=3, description="SPI mode (CPOL/CPHA). Curently only mode 0 and 3 are supported.") 
+
         # # #
 
         # Resynchronize CSR Clk Divisor to LiteSPI Clk Domain.
@@ -89,21 +91,14 @@ class LiteSPISDRPHYCore(LiteXModule):
         # Clock Generator.
         self.clkgen = clkgen = LiteSPIClkGen(pads, device, div_width=len(sink.clk_div), extra_latency=extra_latency)
 
+        self.submodules += ResyncReg(mode.storage, clkgen.mode, clock_domain)
+
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
         spi_clk_divisor_delayed = Signal(len(sink.clk_div))
 
-        # Only Clk Divisor when not active or when set by core.
-        self.sync += If(~clkgen.en, spi_clk_divisor_delayed.eq(spi_clk_divisor))
-
-        self.comb += [
-            If(sink.valid & (sink.clk_div > 0),
-                clkgen.div.eq(sink.clk_div),
-            ).Else(
-                clkgen.div.eq(spi_clk_divisor_delayed),
-            )
-        ]
+        self.comb += clkgen.div.eq(spi_clk_divisor_delayed)
 
         if hasattr(pads, "mosi"):
             dq_o  = Signal()
@@ -137,9 +132,24 @@ class LiteSPISDRPHYCore(LiteXModule):
         sr_in_shift  = Signal()
         sr_in        = Signal().like(sink.data)
 
+        no_read = Signal()
+        last_sink_width = Signal.like(sink.width)
+
+        if not hasattr(pads, "mosi"):
+            # Determine if no read is expected based on mask for current transfer width,
+            # so we can skip waiting for data in the case of write-only transfers.
+            self.comb += [
+                Case(last_sink_width, {
+                    "default" : no_read.eq(0),
+                    2 : no_read.eq(sink.mask == 0b00000011),
+                    4 : no_read.eq(sink.mask == 0b00001111),
+                    8 : no_read.eq(sink.mask == 0b11111111),
+                })
+            ]
+
         # Data Out Generation/Load/Shift.
         self.comb += [
-            Case(sink.width, {
+            Case(last_sink_width, {
                 1 : dq_o.eq(sr_out[-1:]),
                 2 : dq_o.eq(sr_out[-2:]),
                 4 : dq_o.eq(sr_out[-4:]),
@@ -149,31 +159,40 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.sync += If(sr_out_load,
             sr_out.eq(sink.data << (len(sink.data) - sink.len)),
             sr_in.eq(0),
+            sr_out_cnt.eq(sink.len - sink.width),
+            sr_in_cnt.eq(sink.len),
         )
         self.sync += If(sr_out_shift,
-            sr_out.eq(sr_out << sink.width),
+            sr_out.eq(sr_out << last_sink_width),
+            sr_out_cnt.eq(sr_out_cnt - last_sink_width),
         )
 
         # Data In Shift.
         self.sync += If(sr_in_shift,
-            Case(sink.width, {
+            Case(last_sink_width, {
                 1 : sr_in.eq(Cat(dq_i[1], sr_in)),
                 2 : sr_in.eq(Cat(dq_i[:2], sr_in)),
                 4 : sr_in.eq(Cat(dq_i[:4], sr_in)),
                 8 : sr_in.eq(Cat(dq_i[:8], sr_in)),
-            })
+            }),
+            sr_in_cnt.eq(sr_in_cnt - last_sink_width),
         )
 
         # FSM.
         self.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
+            NextValue(spi_clk_divisor_delayed, spi_clk_divisor),
             # Wait for CS and a CMD from the Core.
             If(cs_control.enable & sink.valid,
-                # Load Shift Register Count/Data Out.
-                NextValue(sr_out_cnt, sink.len - sink.width),
-                NextValue(sr_in_cnt, sink.len),
+                self.clkgen.start.eq(1),
                 NextValue(dq_oe, sink.mask),
+                NextValue(last_sink_width, sink.width),
                 sr_out_load.eq(1),
+                sink.ready.eq(1),
+                If(sink.clk_div > 0,
+                    clkgen.div.eq(sink.clk_div),
+                    NextValue(spi_clk_divisor_delayed, sink.clk_div),
+                ),
                 # Start XFER.
                 NextState("XFER"),
             ),
@@ -186,35 +205,25 @@ class LiteSPISDRPHYCore(LiteXModule):
             If(clkgen.posedge_reg2, sr_in_shift.eq(1)),
 
             # Data Out Shift.
-            If(clkgen.negedge, sr_out_shift.eq(1)),
-
-            # Shift Register Count Update/Check.
-            If(clkgen.posedge_reg2,
-                NextValue(sr_in_cnt, sr_in_cnt - sink.width),
-            ),
             If(self.clkgen.negedge,
-                NextValue(sr_out_cnt, sr_out_cnt - sink.width),
+                sr_out_shift.eq(1),
                 # End XFer.
                 If(sr_out_cnt == 0,
+                    self.clkgen.en.eq(0),
                     NextState("XFER-END"),
+                    If(no_read | (sr_in_cnt == 0) | (clkgen.posedge_reg2 & (sr_in_cnt == last_sink_width)),
+                        NextState("SEND-STATUS-DATA"),
+                    ),
                 ),
             ),
 
         )
         fsm.act("XFER-END",
-            If(sr_in_cnt == 0,
-                sink.ready.eq(1),
-                # Send Status/Data to Core.
-                NextState("SEND-STATUS-DATA"),
-            ).Else(
-                sr_in_shift.eq(clkgen.posedge_reg2),
-                If(clkgen.posedge_reg2,
-                    NextValue(sr_in_cnt, sr_in_cnt - sink.width),
-                    If(sr_in_cnt == sink.width,
-                       sink.ready.eq(1),
-                       # Send Status/Data to Core.
-                       NextState("SEND-STATUS-DATA"),
-                    ),
+            If(clkgen.posedge_reg2,
+                sr_in_shift.eq(1),
+                If(sr_in_cnt == last_sink_width,
+                    # Send Status/Data to Core.
+                    NextState("SEND-STATUS-DATA"),
                 ),
             ),
         )
