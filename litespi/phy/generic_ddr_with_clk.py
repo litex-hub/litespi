@@ -98,7 +98,6 @@ class LiteSPIDDRPHYCore2(LiteXModule):
         dq_o  = Array([Signal(dq_len, name="dq_o"+str(n)) for n in range(2)])
         dq_i  = Array([Signal(dq_len, name="dq_i"+str(n)) for n in range(2)])
         dq_oe = Signal(dq_len)
-        last_dq_oe = Signal(dq_len)
 
         self.specials += DDRTristate(
             io  = pads.dq,
@@ -117,6 +116,7 @@ class LiteSPIDDRPHYCore2(LiteXModule):
         sr_out_loaded  = Signal(len(sink.data), reset_less=True)
         sr_in_shift  = Signal(2)
         sr_in        = Signal(len(sink.data), reset_less=True)
+        sr_in_now    = Signal(len(sink.data), reset_less=True)
 
         no_read = Signal()
         last_sink_width = Signal.like(sink.width)
@@ -134,7 +134,6 @@ class LiteSPIDDRPHYCore2(LiteXModule):
 
         # Data Out Shift.
         self.comb += [
-            dq_oe.eq(last_dq_oe),
             Case(last_sink_width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
@@ -173,23 +172,32 @@ class LiteSPIDDRPHYCore2(LiteXModule):
         )
 
         # Data In Shift.
-        self.sync += If(sr_in_shift[0],
+        self.comb += If(sr_in_shift[0],
             Case(last_sink_width, {
-                1 : sr_in.eq(Cat(dq_i[0][1],  sr_in)), # 1: pads.miso
-                2 : sr_in.eq(Cat(dq_i[0][:2], sr_in)),
-                4 : sr_in.eq(Cat(dq_i[0][:4], sr_in)),
-                8 : sr_in.eq(Cat(dq_i[0][:8], sr_in)),
+                1 : sr_in_now.eq(Cat(dq_i[0][1],  sr_in)), # 1: pads.miso
+                2 : sr_in_now.eq(Cat(dq_i[0][:2], sr_in)),
+                4 : sr_in_now.eq(Cat(dq_i[0][:4], sr_in)),
+                8 : sr_in_now.eq(Cat(dq_i[0][:8], sr_in)),
             }),
-            sr_in_cnt.eq(sr_in_cnt - last_sink_width),
         ).Elif(sr_in_shift[1],
             Case(last_sink_width, {
-                1 : sr_in.eq(Cat(dq_i[1][1],  sr_in)), # 1: pads.miso
-                2 : sr_in.eq(Cat(dq_i[1][:2], sr_in)),
-                4 : sr_in.eq(Cat(dq_i[1][:4], sr_in)),
-                8 : sr_in.eq(Cat(dq_i[1][:8], sr_in)),
+                1 : sr_in_now.eq(Cat(dq_i[1][1],  sr_in)), # 1: pads.miso
+                2 : sr_in_now.eq(Cat(dq_i[1][:2], sr_in)),
+                4 : sr_in_now.eq(Cat(dq_i[1][:4], sr_in)),
+                8 : sr_in_now.eq(Cat(dq_i[1][:8], sr_in)),
             }),
-            sr_in_cnt.eq(sr_in_cnt - last_sink_width),
+        ).Else(
+            sr_in_now.eq(sr_in),
         )
+
+        self.sync += [
+            If(sr_in_shift,
+                sr_in_cnt.eq(sr_in_cnt - last_sink_width),
+            ),
+            sr_in.eq(sr_in_now),
+        ]
+
+        self.comb += source.data.eq(sr_in_now),
 
         # FSM.
         self.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
@@ -199,8 +207,7 @@ class LiteSPIDDRPHYCore2(LiteXModule):
             If(cs_control.enable & sink.valid,
                 self.clkgen.start.eq(1),
                 NextValue(last_sink_width, sink.width),
-                NextValue(last_dq_oe, sink.mask),
-                dq_oe.eq(sink.mask),
+                NextValue(dq_oe, sink.mask),
                 sr_out_load.eq(1),
                 sink.ready.eq(1),
                 If(sink.clk_div > 0,
@@ -223,10 +230,14 @@ class LiteSPIDDRPHYCore2(LiteXModule):
 
             # Shift Register Count Update/Check.
             If((self.clkgen.negedge != 0) & (sr_out_cnt == 0),
-                self.clkgen.en.eq(0),
                 NextState("XFER-END"),
+                NextValue(dq_oe, 0),
                 If(no_read | (sr_in_cnt == 0) | ((clkgen.posedge_reg2 != 0) & (sr_in_cnt == last_sink_width)),
                     NextState("SEND-STATUS-DATA"),
+                    source.valid.eq(1),
+                    If(source.ready,
+                        NextState("WAIT-CMD-DATA"),
+                    ),
                 ),
             ),
 
@@ -236,9 +247,12 @@ class LiteSPIDDRPHYCore2(LiteXModule):
             If((clkgen.posedge_reg2 != 0) & (sr_in_cnt == last_sink_width),
                 # Send Status/Data to Core.
                 NextState("SEND-STATUS-DATA"),
+                source.valid.eq(1),
+                If(source.ready,
+                    NextState("WAIT-CMD-DATA"),
+                ),
             ),
         )
-        self.comb += source.data.eq(sr_in)
         fsm.act("SEND-STATUS-DATA",
             # Send Data In to Core and return to WAIT when accepted.
             source.valid.eq(1),
