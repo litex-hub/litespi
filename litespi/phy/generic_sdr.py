@@ -138,14 +138,14 @@ class LiteSPISDRPHYCore(LiteXModule):
         if not hasattr(pads, "mosi"):
             # Determine if no read is expected based on mask for current transfer width,
             # so we can skip waiting for data in the case of write-only transfers.
-            self.comb += [
-                Case(last_sink_width, {
+            self.sync += If(sr_out_load,
+                Case(sink.width, {
                     "default" : no_read.eq(0),
                     2 : no_read.eq(sink.mask == 0b00000011),
                     4 : no_read.eq(sink.mask == 0b00001111),
                     8 : no_read.eq(sink.mask == 0b11111111),
                 })
-            ]
+            )
 
         # Data Out Generation/Load/Shift.
         self.comb += [
