@@ -176,6 +176,7 @@ class LiteSPIClkGen2(LiteXModule):
         self.posedge    = posedge    = Signal(2)
         self.negedge    = negedge    = Signal(2)
         self.en         = en         = Signal()
+        self.start      = start      = Signal()
         cnt             = Signal(div_width + 1)
         clk             = Signal(2)
         next_clk        = Signal(2)
@@ -185,26 +186,41 @@ class LiteSPIClkGen2(LiteXModule):
         self.comb += double_div.eq(Cat(C(0,1), div))
 
         self.comb += [
-                If(cnt == 2,
-                   next_cnt.eq(double_div),
-                   next_clk[0].eq(cnt <= div),
-                   next_clk[1].eq(1),
-               ).Elif(cnt <= 1,
-                   next_cnt.eq(double_div - 1),
-                   next_clk[0].eq(1),
-                   next_clk[1].eq(0),
-               ).Else(
-                    next_cnt.eq(cnt - 2),
-                    next_clk[0].eq(cnt <= div),
-                    next_clk[1].eq((cnt - 1) <= div),
+            If(start,
+                en.eq(1),
+                If(double_div == 2,
+                    next_cnt.eq(2),
+                    next_clk[0].eq(0),
+                    next_clk[1].eq(1),
+                ).Elif(double_div <= 1,
+                    next_cnt.eq(1),
+                    next_clk[0].eq(1),
+                    next_clk[1].eq(0),
+                ).Else(
+                    next_cnt.eq(double_div - 2),
+                    next_clk[0].eq(0),
+                    next_clk[1].eq(0),
                 ),
+            ).Elif(cnt == 2,
+               next_cnt.eq(double_div),
+               next_clk[0].eq(cnt <= div),
+               next_clk[1].eq(1),
+            ).Elif(cnt <= 1,
+                next_cnt.eq(double_div - 1),
+                next_clk[0].eq(1),
+                next_clk[1].eq(0),
+            ).Else(
+                next_cnt.eq(cnt - 2),
+                next_clk[0].eq(cnt <= div),
+                next_clk[1].eq((cnt - 1) <= div),
+            ),
         ]
 
         self.comb += [
-            posedge[0].eq(en & ~clk[1] & next_clk[0]),
-            negedge[0].eq(en &  clk[1] & ~next_clk[0]),
-            posedge[1].eq(en & ~next_clk[0] & next_clk[1]),
-            negedge[1].eq(en &  next_clk[0] & ~next_clk[1]),
+            posedge[0].eq(en &      ~clk[1] &  next_clk[0]),
+            negedge[0].eq(           clk[1] & ~next_clk[0]),
+            posedge[1].eq(en & ~next_clk[0] &  next_clk[1]),
+            negedge[1].eq(      next_clk[0] & ~next_clk[1]),
         ]
 
         # Delayed edge to account for IO register delays.
@@ -223,7 +239,7 @@ class LiteSPIClkGen2(LiteXModule):
                 clk.eq(next_clk),
             ).Else(
                 clk.eq(0),
-                cnt.eq(double_div),
+                cnt.eq(0),
             )
         ]
 

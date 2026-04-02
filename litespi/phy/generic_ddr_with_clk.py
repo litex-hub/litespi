@@ -93,20 +93,12 @@ class LiteSPIDDRPHYCore2(LiteXModule):
 
         spi_clk_divisor_delayed = Signal(len(sink.clk_div))
 
-        # Only Clk Divisor when not active or when set by core.
-        self.sync += If(~clkgen.en, spi_clk_divisor_delayed.eq(spi_clk_divisor))
-
-        self.comb += [
-            If(sink.valid & (sink.clk_div > 0),
-                clkgen.div.eq(sink.clk_div),
-            ).Else(
-                clkgen.div.eq(spi_clk_divisor_delayed),
-            )
-        ]
+        self.comb += clkgen.div.eq(spi_clk_divisor_delayed)
 
         dq_o  = Array([Signal(dq_len, name="dq_o"+str(n)) for n in range(2)])
         dq_i  = Array([Signal(dq_len, name="dq_i"+str(n)) for n in range(2)])
         dq_oe = Signal(dq_len)
+        last_dq_oe = Signal(dq_len)
 
         self.specials += DDRTristate(
             io  = pads.dq,
@@ -126,16 +118,30 @@ class LiteSPIDDRPHYCore2(LiteXModule):
         sr_in_shift  = Signal(2)
         sr_in        = Signal(len(sink.data), reset_less=True)
 
+        no_read = Signal()
+        last_sink_width = Signal.like(sink.width)
+
+        # Determine if no read is expected based on mask for current transfer width,
+        # so we can skip waiting for data in the case of write-only transfers.
+        self.sync += If(sr_out_load,
+            Case(sink.width, {
+                "default" : no_read.eq(0),
+                2 : no_read.eq(sink.mask == 0b00000011),
+                4 : no_read.eq(sink.mask == 0b00001111),
+                8 : no_read.eq(sink.mask == 0b11111111),
+            })
+        )
+
         # Data Out Shift.
         self.comb += [
-            dq_oe.eq(sink.mask),
-            Case(sink.width, {
+            dq_oe.eq(last_dq_oe),
+            Case(last_sink_width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
                 4:  dq_o[1].eq(sr_out[-4:]),
                 8:  dq_o[1].eq(sr_out[-8:]),
             }),
-            sr_out_shifted.eq(sr_out << sink.width),
+            sr_out_shifted.eq(sr_out << last_sink_width),
             sr_out_loaded.eq(sink.data << (len(sink.data) - sink.len))
         ]
         self.sync += If(sr_out_load,
@@ -147,49 +153,60 @@ class LiteSPIDDRPHYCore2(LiteXModule):
                 4:  dq_o[0].eq(sr_out_loaded[-4:]),
                 8:  dq_o[0].eq(sr_out_loaded[-8:]),
             }),
+            sr_out_cnt.eq(sink.len - sink.width),
+            sr_in_cnt.eq(sink.len),
         ).Elif(sr_out_shift[0],
-            Case(sink.width, {
+            Case(last_sink_width, {
                 1:  dq_o[0].eq(sr_out_shifted[-1:]),
                 2:  dq_o[0].eq(sr_out_shifted[-2:]),
                 4:  dq_o[0].eq(sr_out_shifted[-4:]),
                 8:  dq_o[0].eq(sr_out_shifted[-8:]),
             }),
             sr_out.eq(sr_out_shifted),
+            sr_out_cnt.eq(sr_out_cnt - last_sink_width),
         ).Elif(sr_out_shift[1],
             dq_o[0].eq(dq_o[1]),
             sr_out.eq(sr_out_shifted),
+            sr_out_cnt.eq(sr_out_cnt - last_sink_width),
         ).Else(
             dq_o[0].eq(dq_o[1]),
         )
 
         # Data In Shift.
         self.sync += If(sr_in_shift[0],
-            Case(sink.width, {
+            Case(last_sink_width, {
                 1 : sr_in.eq(Cat(dq_i[0][1],  sr_in)), # 1: pads.miso
                 2 : sr_in.eq(Cat(dq_i[0][:2], sr_in)),
                 4 : sr_in.eq(Cat(dq_i[0][:4], sr_in)),
                 8 : sr_in.eq(Cat(dq_i[0][:8], sr_in)),
-            })
+            }),
+            sr_in_cnt.eq(sr_in_cnt - last_sink_width),
         ).Elif(sr_in_shift[1],
-            Case(sink.width, {
+            Case(last_sink_width, {
                 1 : sr_in.eq(Cat(dq_i[1][1],  sr_in)), # 1: pads.miso
                 2 : sr_in.eq(Cat(dq_i[1][:2], sr_in)),
                 4 : sr_in.eq(Cat(dq_i[1][:4], sr_in)),
                 8 : sr_in.eq(Cat(dq_i[1][:8], sr_in)),
-            })
+            }),
+            sr_in_cnt.eq(sr_in_cnt - last_sink_width),
         )
 
         # FSM.
         self.fsm = fsm = FSM(reset_state="WAIT-CMD-DATA")
         fsm.act("WAIT-CMD-DATA",
+            NextValue(spi_clk_divisor_delayed, spi_clk_divisor),
             # Wait for CS and a CMD from the Core.
             If(cs_control.enable & sink.valid,
-                self.clkgen.en.eq(1),
-                # Load Shift Register Count/Data Out.
-                NextValue(sr_out_cnt, sink.len - sink.width),
-                NextValue(sr_in_cnt, sink.len),
-
+                self.clkgen.start.eq(1),
+                NextValue(last_sink_width, sink.width),
+                NextValue(last_dq_oe, sink.mask),
+                dq_oe.eq(sink.mask),
                 sr_out_load.eq(1),
+                sink.ready.eq(1),
+                If(sink.clk_div > 0,
+                    clkgen.div.eq(sink.clk_div),
+                    NextValue(spi_clk_divisor_delayed, sink.clk_div),
+                ),
                 # Start XFER.
                 NextState("XFER"),
             ),
@@ -205,34 +222,20 @@ class LiteSPIDDRPHYCore2(LiteXModule):
             sr_out_shift.eq(clkgen.negedge),
 
             # Shift Register Count Update/Check.
-            If(clkgen.posedge_reg2,
-                NextValue(sr_in_cnt, sr_in_cnt - sink.width),
-            ),
-            If(self.clkgen.negedge,
-                # End XFer.
-                If(sr_out_cnt == 0,
-                    NextState("XFER-END"),
-                ).Else(
-                    NextValue(sr_out_cnt, sr_out_cnt - sink.width),
+            If((self.clkgen.negedge != 0) & (sr_out_cnt == 0),
+                self.clkgen.en.eq(0),
+                NextState("XFER-END"),
+                If(no_read | (sr_in_cnt == 0) | ((clkgen.posedge_reg2 != 0) & (sr_in_cnt == last_sink_width)),
+                    NextState("SEND-STATUS-DATA"),
                 ),
             ),
 
         )
         fsm.act("XFER-END",
-            If(sr_in_cnt == 0,
-               sink.ready.eq(1),
+            sr_in_shift.eq(clkgen.posedge_reg2),
+            If((clkgen.posedge_reg2 != 0) & (sr_in_cnt == last_sink_width),
                 # Send Status/Data to Core.
                 NextState("SEND-STATUS-DATA"),
-            ).Else(
-                sr_in_shift.eq(clkgen.posedge_reg2),
-                If(clkgen.posedge_reg2,
-                    NextValue(sr_in_cnt, sr_in_cnt - sink.width),
-                    If(sr_in_cnt == sink.width,
-                       sink.ready.eq(1),
-                       # Send Status/Data to Core.
-                       NextState("SEND-STATUS-DATA"),
-                    ),
-                ),
             ),
         )
         self.comb += source.data.eq(sr_in)
