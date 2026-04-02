@@ -21,6 +21,7 @@ spi_core2phy_layout = [
     ("len",   6),
     ("width", 4),
     ("mask",  8),
+    ("clk_div", 10),
 ]
 """
 Stream layout for PHY->LiteSPICore connection
