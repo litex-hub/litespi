@@ -91,6 +91,9 @@ class LiteSPIClkGen(LiteXModule):
 
         self.sync += [
             posedge_reg.eq(Cat(posedge_reg[1:], posedge)),
+            If(start,
+                posedge_reg.eq(0),
+            ),
         ]
 
         self.comb += posedge_reg2.eq(posedge_reg[:1])
