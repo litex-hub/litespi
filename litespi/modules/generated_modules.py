@@ -8155,6 +8155,35 @@ class W25Q128JV(SpiNorFlashModule):
         SpiNorFlashOpCodes.READ_1_4_4: 4,
     }
 
+class W25Q128JW(SpiNorFlashModule):
+
+    manufacturer_id = SpiNorFlashManufacturerIDs.WINBOND
+    device_id = 0x6018
+    name = "w25q128jw"
+
+    total_size  =   16777216   # bytes
+    page_size   =        256   # bytes
+    total_pages =      65536
+
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.READ_1_4_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
+    dummy_bits = 8
+
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_1_2    : 8,
+        SpiNorFlashOpCodes.READ_1_2_2    : 4,
+        SpiNorFlashOpCodes.READ_1_1_4    : 32,
+        SpiNorFlashOpCodes.READ_1_4_4    : 6,
+    }
+
 
 class W25Q16DW(SpiNorFlashModule):
 
