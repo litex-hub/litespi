@@ -6975,6 +6975,7 @@ class S25FL128S(SpiNorFlashModule):
         SpiNorFlashOpCodes.READ_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25FL128S0(SpiNorFlashModule):
@@ -6997,6 +6998,7 @@ class S25FL128S0(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25FL128S1(SpiNorFlashModule):
@@ -7019,6 +7021,7 @@ class S25FL128S1(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25FL129PXXXXXX1(SpiNorFlashModule):
@@ -7279,6 +7282,7 @@ class S25FL256S1(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25FL512S(SpiNorFlashModule):
@@ -7301,6 +7305,7 @@ class S25FL512S(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25FS512S(SpiNorFlashModule):
@@ -7323,6 +7328,7 @@ class S25FS512S(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrr_cr1_bit1"
 
 
 class S25SL004A(SpiNorFlashModule):
@@ -8872,5 +8878,4 @@ class ZD25D40(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_1,
     ]
     dummy_bits = 8
-
 
