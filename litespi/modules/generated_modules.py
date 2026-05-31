@@ -6232,6 +6232,28 @@ class N25Q512AX3(SpiNorFlashModule):
     dummy_bits = 8
 
 
+class P25Q32H(SpiNorFlashModule):
+
+    manufacturer_id = SpiNorFlashManufacturerIDs.PUYA
+    device_id = 0x6016
+    name = "p25q32h"
+
+    total_size  = 4194304   # bytes
+    page_size   =     256   # bytes
+    total_pages =   16384
+
+    supported_opcodes = [
+        SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.PP_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_FAST,
+        SpiNorFlashOpCodes.READ_1_1_2,
+        SpiNorFlashOpCodes.PP_1_1_2,
+        SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.PP_1_1_4,
+    ]
+    dummy_bits = 8
+
+
 class PM25LD010(SpiNorFlashModule):
 
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
