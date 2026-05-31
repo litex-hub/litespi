@@ -55,6 +55,7 @@ class SpiNorFlashManufacturerIDs(enum.Enum):
     ST         = CFIManufacturerIDs.ST.value
     MICRON     = CFIManufacturerIDs.MICRON.value
     MACRONIX   = CFIManufacturerIDs.MACRONIX.value
+    PUYA       = 0x85
     SPANSION   = CFIManufacturerIDs.AMD.value
     SANYO      = CFIManufacturerIDs.SANYO.value
     SST        = CFIManufacturerIDs.SST.value
