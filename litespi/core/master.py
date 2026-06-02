@@ -76,9 +76,9 @@ class LiteSPIMaster(LiteXModule):
 
         # SPI TX (MOSI).
         self.comb += [
-            tx_fifo.sink.valid.eq(self._rxtx.re),
+            tx_fifo.sink.valid.eq(self._rxtx.wr_stb),
             self._status.fields.tx_ready.eq(tx_fifo.sink.ready),
-            tx_fifo.sink.data.eq(self._rxtx.r),
+            tx_fifo.sink.data.eq(self._rxtx.wr_data),
             tx_fifo.sink.len.eq(self._phyconfig.fields.len),
             tx_fifo.sink.width.eq(self._phyconfig.fields.width),
             tx_fifo.sink.mask.eq(self._phyconfig.fields.mask),
@@ -87,9 +87,9 @@ class LiteSPIMaster(LiteXModule):
 
         # SPI RX (MISO).
         self.comb += [
-            rx_fifo.source.ready.eq(self._rxtx.we),
+            rx_fifo.source.ready.eq(self._rxtx.rd_stb),
             self._status.fields.rx_ready.eq(rx_fifo.source.valid),
-            self._rxtx.w.eq(rx_fifo.source.data),
+            self._rxtx.rd_data.eq(rx_fifo.source.data),
         ]
 
         if with_irq:
