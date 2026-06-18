@@ -139,7 +139,7 @@ class LiteSPIClkGen(LiteXModule):
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
                     i_USRMCLKI  = clk_reg,
-                    i_USRMCLKTS = 0
+                    i_USRMCLKTS = ResetSignal()
                 )
             else:
                 raise NotImplementedError
