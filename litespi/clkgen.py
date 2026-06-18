@@ -81,7 +81,7 @@ class LiteSPIClkGen(LiteXModule):
         self.comb += half.eq((div + 1) >> 1)
 
         self.comb += [
-            posedge.eq(en & ~clk & (cnt <= 1)),
+            posedge.eq( (en | en_int)  & ~clk & (cnt <= 1)),
             negedge.eq(clk & (cnt <= 1)),
         ]
 
