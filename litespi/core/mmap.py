@@ -16,20 +16,27 @@ from litex.gen.common import reverse_bytes
 from litex.soc.interconnect.csr import *
 
 from litespi.common import *
+from litespi.opcodes import SpiNorFlashOpCodes
 from migen.genlib.cdc import MultiReg
 
-cmd_oe_mask  = {
+oe_mask  = {
     1: 0b00000001,
     2: 0b00000011,
     4: 0b00001111,
     8: 0b11111111,
 }
-addr_oe_mask = {
-    1: 0b00000001,
-    2: 0b00000011,
-    4: 0b00001111,
-    8: 0b11111111,
-}
+cmd_oe_mask  = oe_mask
+addr_oe_mask = oe_mask
+
+def get_opcode_widths(opcode):
+    cfg      = SpiNorFlashOpCodes()
+    cfg.name = SpiNorFlashOpCodes.name_from_value(SpiNorFlashOpCodes, opcode)
+    return (
+        int(cfg.cmd_width),
+        int(cfg.addr_width),
+        int(cfg.data_width),
+        32 if "4B" in cfg.name else 24,
+    )
 
 class LiteSPIMMAP(LiteXModule):
     """Memory-mapped SPI Flash controller.
@@ -124,6 +131,7 @@ class LiteSPIMMAP(LiteXModule):
         if with_write:
             write = Signal()
             self.data_write = Signal(32)
+            program_cmd_width, program_addr_width, program_data_width, program_addr_bits = get_opcode_widths(flash.program_opcode)
         else:
             write = Constant(0)
 
@@ -176,6 +184,9 @@ class LiteSPIMMAP(LiteXModule):
                             NextState("PRE-BURST-CMD-WRITE"),
                         ),
                         NextValue(write, 1)
+                    ).Else(
+                        bus.ack.eq(1),
+                        NextValue(write, 0),
                     )
                 )
             )
@@ -193,6 +204,7 @@ class LiteSPIMMAP(LiteXModule):
                 ).Else(
                     NextValue(byte_count, byte_count + 1),
                     NextValue(write_mask, Cat(write_mask[1:len(bus.sel)], Signal(1))),
+                    NextValue(self.data_write, self.data_write >> 8),
                 )
             )
 
@@ -213,6 +225,8 @@ class LiteSPIMMAP(LiteXModule):
             fsm.act("BURST-CMD",
                 If(write_enabled & write,
                     source.data.eq(flash.program_opcode.code), # send command.
+                    source.width.eq(program_cmd_width),
+                    source.mask.eq(cmd_oe_mask[program_cmd_width]),
                 )
             )
 
@@ -237,6 +251,15 @@ class LiteSPIMMAP(LiteXModule):
                 NextState("ADDR-RET"),
             )
         )
+
+        if with_write:
+            fsm.act("BURST-ADDR",
+                If(write_enabled & write,
+                    source.width.eq(program_addr_width),
+                    source.mask.eq(addr_oe_mask[program_addr_width]),
+                    source.len.eq(program_addr_bits),
+                )
+            )
 
         fsm.act("ADDR-RET",
             cs.eq(1),
@@ -303,8 +326,8 @@ class LiteSPIMMAP(LiteXModule):
             fsm.act("WRITE",
                 cs.eq(1),
                 source.valid.eq(1),
-                source.width.eq(flash.addr_width),
-                source.mask.eq(addr_oe_mask[flash.bus_width]),
+                source.width.eq(program_data_width),
+                source.mask.eq(oe_mask[program_data_width]),
                 source.data.eq(self.data_write),
                 source.len.eq(8),
                 If(source.ready,
