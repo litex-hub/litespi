@@ -30,6 +30,7 @@ class MX25L12833F(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_4_4,
     ]
     dummy_bits = 8
+    quad_enable = "wrsr_sr1_bit6"
 
     dummy_cycles = {
         SpiNorFlashOpCodes.READ_1_1_1_FAST: 8,
@@ -96,6 +97,7 @@ class MX25U25645G(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_4_4_4B,
     ]
     dummy_bits = 8
+    quad_enable = "wrsr_sr1_bit6"
 
     dummy_cycles = {
         SpiNorFlashOpCodes.READ_1_1_1_FAST: 8,
