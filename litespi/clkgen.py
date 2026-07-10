@@ -30,6 +30,7 @@ class DDRLiteSPIClkGen(LiteXModule):
     def __init__(self, pads):
         self.en         = en         = Signal()
 
+        # Keep SCK rising/falling edges aligned with sys rising/falling edges respectively.
         self.specials += DDROutput(i1=en, i2=0, o=pads.clk)
 
 

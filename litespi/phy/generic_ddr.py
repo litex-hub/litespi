@@ -41,6 +41,9 @@ class LiteSPIDDRPHYCore(LiteXModule):
     flash : SpiNorFlashModule
         SpiNorFlashModule configuration object.
 
+    extra_latency : int
+        Additional input pipeline latency. Each unit extends the pipeline drain by two sys cycles.
+
     Attributes
     ----------
     source : Endpoint(spi_phy2core_layout), out
@@ -59,9 +62,10 @@ class LiteSPIDDRPHYCore(LiteXModule):
 
         if hasattr(pads, "miso"):
             bus_width = 1
-            pads.dq   = [pads.mosi, pads.miso]
+            dq        = Cat(pads.mosi, pads.miso)
         else:
             bus_width = len(pads.dq)
+            dq        = pads.dq
 
         assert bus_width in [1, 2, 4, 8]
 
@@ -76,14 +80,15 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
-        dq_o  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_i  = Array([Signal(len(pads.dq)) for _ in range(2)])
-        dq_oe = Array([Signal(len(pads.dq)) for _ in range(2)])
+        # Lane 0 is aligned with SCK high/rising and lane 1 with SCK low/falling.
+        dq_o  = Array([Signal(len(dq)) for _ in range(2)])
+        dq_i  = Array([Signal(len(dq)) for _ in range(2)])
+        dq_oe = Signal(len(dq))
 
         self.specials += DDRTristate(
-            io  = pads.dq,
+            io  = dq,
             o1  =  dq_o[0],  o2 =  dq_o[1],
-            oe1 = dq_oe[0], oe2 = dq_oe[1],
+            oe1 = dq_oe,
             i1  =  dq_i[0],  i2 =  dq_i[1]
         )
 
@@ -94,10 +99,11 @@ class LiteSPIDDRPHYCore(LiteXModule):
         sr_out       = Signal(len(sink.data), reset_less=True)
         sr_in_shift  = Signal()
         sr_in        = Signal(len(sink.data), reset_less=True)
+        input_pipeline = 2 + 2*extra_latency
 
         # Data Out Shift.
         self.comb += [
-            dq_oe[1].eq(sink.mask),
+            dq_oe.eq(sink.mask),
             Case(sink.width, {
                 1:  dq_o[1].eq(sr_out[-1:]),
                 2:  dq_o[1].eq(sr_out[-2:]),
@@ -109,7 +115,6 @@ class LiteSPIDDRPHYCore(LiteXModule):
             sr_out.eq(sink.data << (len(sink.data) - sink.len))
         )
         self.sync += If(sr_out_shift,
-            dq_oe[0].eq(dq_oe[1]),
             dq_o[0].eq(dq_o[1]),
             Case(sink.width, {
                 1 : sr_out.eq(Cat(Signal(1), sr_out)),
@@ -158,7 +163,8 @@ class LiteSPIDDRPHYCore(LiteXModule):
             NextValue(sr_cnt, sr_cnt - sink.width),
             # End XFer.
             If(sr_cnt == 0,
-                NextValue(sr_cnt, (2 + 2*extra_latency)*sink.width), # FIXME: Explain magic numbers.
+                # Drain the IDDR and fabric input pipeline after the final SCK edge.
+                NextValue(sr_cnt, input_pipeline*sink.width),
                 NextState("XFER-END"),
             ),
         )
