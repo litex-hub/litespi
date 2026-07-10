@@ -12,6 +12,7 @@ from litex.build.io import DDROutput, DDRTristate
 from litex.build.lattice.platform import LatticePlatform
 from litex.build.xilinx.platform import XilinxPlatform
 
+from litespi.clkgen import DDRLiteSPIClkGen
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
 
 
@@ -22,7 +23,7 @@ class _DDRBus:
         self.i             = Signal(width)
         self.o             = Signal(width)
         self.oe            = Signal(width)
-        self.input_latency = input_latency
+        self.input_latency = int(2*input_latency)
 
 
 class _SimDDROutputImpl(Module):
@@ -50,8 +51,8 @@ class _SimDDRTristateImpl(Module):
         oe1 = Signal.like(dr.oe1)
         oe2 = Signal.like(dr.oe1)
         # Match the registered DDR input path and model optional platform I/O latency.
-        i1_pipeline = [Signal.like(dr.i1) for _ in range(1 + 2*bus.input_latency)]
-        i2_pipeline = [Signal.like(dr.i2) for _ in range(1 + 2*bus.input_latency)]
+        i1_pipeline = [Signal.like(dr.i1) for _ in range(1 + bus.input_latency)]
+        i2_pipeline = [Signal.like(dr.i2) for _ in range(1 + bus.input_latency)]
 
         self.sync += [
             o1.eq(dr.o1),
@@ -83,10 +84,22 @@ class _SimDDRTristate:
         return _SimDDRTristateImpl(dr, cls.bus)
 
 
+# DDR Clock Generator DUT --------------------------------------------------------------------------
+
+class _DDRLiteSPIClkGenDUT(Module):
+    def __init__(self, extra_latency=0):
+        self.pads = pads = Record([("clk", 1)])
+        self.submodules.clkgen = DDRLiteSPIClkGen(
+            pads          = pads,
+            div_width     = 8,
+            extra_latency = extra_latency,
+        )
+
+
 # DDR PHY DUT --------------------------------------------------------------------------------------
 
 class _LiteSPIDDRPHYDUT(Module):
-    def __init__(self, width, extra_latency):
+    def __init__(self, width, extra_latency, default_divisor=1):
         self.clock_domains.cd_sys_n = ClockDomain(reset_less=True)
 
         if width == 1:
@@ -107,11 +120,12 @@ class _LiteSPIDDRPHYDUT(Module):
 
         self.bus = _DDRBus(io_width, input_latency=extra_latency)
         self.submodules.phy = LiteSPIDDRPHYCore(
-            pads           = pads,
-            flash          = None,
-            extra_latency  = extra_latency,
-            cs_delay       = 0,
-            with_sdr_cs    = False,
+            pads            = pads,
+            flash           = None,
+            extra_latency   = extra_latency,
+            default_divisor = default_divisor,
+            cs_delay        = 0,
+            with_sdr_cs     = False,
         )
 
 
@@ -145,6 +159,67 @@ class _LiteSPIDDRPHYElaborationDUT(Module):
 
 # DDR PHY Tests ------------------------------------------------------------------------------------
 
+class TestDDRLiteSPIClkGen(unittest.TestCase):
+    def test_extra_latency_validation(self):
+        for extra_latency in [-0.5, 0.25]:
+            with self.subTest(extra_latency=extra_latency):
+                with self.assertRaisesRegex(ValueError, "multiple of 0.5"):
+                    _DDRLiteSPIClkGenDUT(extra_latency=extra_latency)
+
+    def test_divisor_waveforms_and_edges(self):
+        divisors = [(0, 1), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (8, 8)]
+        for requested_divisor, divisor in divisors:
+            with self.subTest(divisor=requested_divisor):
+                dut      = _DDRLiteSPIClkGenDUT()
+                clkgen   = dut.clkgen
+                pairs    = []
+                posedges = []
+                negedges = []
+
+                def generator():
+                    yield clkgen.div.eq(requested_divisor)
+                    yield clkgen.en.eq(1)
+                    yield clkgen.start.eq(1)
+                    yield
+                    yield clkgen.start.eq(0)
+                    yield clkgen.div.eq(7) # The active transfer must continue with the latched value.
+
+                    for _ in range(3*divisor + 1):
+                        pairs.append((yield clkgen.clk))
+                        posedges.append((yield clkgen.posedge))
+                        negedges.append((yield clkgen.negedge))
+                        yield
+
+                run_simulation(
+                    dut,
+                    generator(),
+                    special_overrides = {DDROutput : _SimDDROutput},
+                )
+
+                slots = []
+                for pair in pairs[1:]:
+                    slots += [pair & 0x1, (pair >> 1) & 0x1]
+                posedges = posedges[1:]
+                negedges = negedges[1:]
+
+                expected_slots = ([1]*divisor + [0]*divisor)*3
+                self.assertEqual(slots, expected_slots)
+
+                previous = 0
+                expected_posedges = []
+                expected_negedges = []
+                for i in range(0, len(expected_slots), 2):
+                    lane0 = expected_slots[i + 0]
+                    lane1 = expected_slots[i + 1]
+                    expected_posedges.append((not previous) and lane0)
+                    negedge = (previous and not lane0) | ((lane0 and not lane1) << 1)
+                    expected_negedges.append(negedge)
+                    previous = lane1
+
+                self.assertEqual(posedges, expected_posedges)
+                self.assertEqual(negedges, expected_negedges)
+
+
 class TestLiteSPIDDRPHY(unittest.TestCase):
     # sys_n provides the falling half-cycle used by the behavioral DDR input model.
     clocks = {
@@ -158,11 +233,12 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
     }
 
     @staticmethod
-    def _transfer(phy, data, length, width, mask):
+    def _transfer(phy, data, length, width, mask, clk_div=0):
         yield phy.sink.data.eq(data)
         yield phy.sink.len.eq(length)
         yield phy.sink.width.eq(width)
         yield phy.sink.mask.eq(mask)
+        yield phy.sink.clk_div.eq(clk_div)
         yield phy.sink.valid.eq(1)
 
         while not (yield phy.sink.ready):
@@ -234,6 +310,102 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                 self.assertEqual([oe & output_mask for oe, _ in trace], [output_mask]*len(trace))
                 self.assertEqual([data & (2**width - 1) for _, data in trace], groups)
 
+    def test_divided_output_data_and_clock_edges(self):
+        for divisor in [1, 2, 3, 4, 5, 8]:
+            with self.subTest(divisor=divisor):
+                dut     = _LiteSPIDDRPHYDUT(width=4, extra_latency=0, default_divisor=divisor)
+                phy     = dut.phy
+                groups  = list(range(1, 9))
+                data    = 0x12345678
+                rising  = []
+                previous_sck = [0]
+                sample_index = [0]
+                record       = [False]
+
+                def monitor():
+                    yield "passive"
+                    while True:
+                        yield
+                        sck = yield dut.pads.clk
+                        if record[0]:
+                            if not previous_sck[0] and sck:
+                                rising.append((sample_index[0], (yield dut.bus.oe), (yield dut.bus.o)))
+                            previous_sck[0] = sck
+                            sample_index[0] += 1
+
+                def generator():
+                    yield phy.source.ready.eq(1)
+                    yield phy.cs.eq(1)
+                    for _ in range(3):
+                        yield
+
+                    record[0] = True
+                    yield from self._transfer(phy, data, 32, 4, 0xf)
+                    record[0] = False
+
+                    yield phy.cs.eq(0)
+                    for _ in range(3):
+                        yield
+
+                    self.assertEqual((yield dut.pads.clk), 0)
+
+                self._run(dut, {
+                    "sys"   : [generator(), monitor()],
+                    "sys_n" : monitor(),
+                })
+
+                self.assertEqual(len(rising), len(groups))
+                self.assertEqual([oe & 0xf for _, oe, _ in rising], [0xf]*len(groups))
+                self.assertEqual([value & 0xf for _, _, value in rising], groups)
+                self.assertEqual(
+                    [rising[i + 1][0] - rising[i][0] for i in range(len(rising) - 1)],
+                    [2*divisor]*(len(rising) - 1),
+                )
+
+    def test_per_transfer_clock_divisor(self):
+        dut          = _LiteSPIDDRPHYDUT(width=1, extra_latency=0, default_divisor=3)
+        phy          = dut.phy
+        data         = 0xa5
+        phase        = [None]
+        sample_index = [0]
+        previous_sck = [0]
+        rising       = {2 : [], 3 : [], 5 : []}
+
+        def monitor():
+            yield "passive"
+            while True:
+                yield
+                sck = yield dut.pads.clk
+                if phase[0] is not None:
+                    if not previous_sck[0] and sck:
+                        rising[phase[0]].append((sample_index[0], (yield dut.bus.o) & 0x1))
+                    previous_sck[0] = sck
+                    sample_index[0] += 1
+
+        def generator():
+            yield phy.source.ready.eq(1)
+            yield phy.cs.eq(1)
+            for _ in range(3):
+                yield
+
+            for divisor, override in [(5, 5), (2, 2), (3, 0)]:
+                phase[0] = divisor
+                yield from self._transfer(phy, data, 8, 1, 0x1, clk_div=override)
+                phase[0] = None
+
+        self._run(dut, {
+            "sys"   : [generator(), monitor()],
+            "sys_n" : monitor(),
+        })
+
+        expected_bits = [(data >> shift) & 0x1 for shift in range(7, -1, -1)]
+        for divisor in [2, 3, 5]:
+            self.assertEqual([value for _, value in rising[divisor]], expected_bits)
+            self.assertEqual(
+                [rising[divisor][i + 1][0] - rising[divisor][i][0] for i in range(7)],
+                [2*divisor]*7,
+            )
+
     def test_input_data_with_extra_latency(self):
         for width in [1, 2, 4, 8]:
             for extra_latency in [0, 1]:
@@ -283,8 +455,70 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                     })
                     self.assertEqual(len(edges), 32//width)
 
+    def test_divided_input_data_with_extra_latency(self):
+        for divisor in [2, 3, 5]:
+            for width in [1, 4]:
+                for extra_latency in [0, 0.5, 1]:
+                    with self.subTest(divisor=divisor, width=width, extra_latency=extra_latency):
+                        dut = _LiteSPIDDRPHYDUT(
+                            width           = width,
+                            extra_latency   = extra_latency,
+                            default_divisor = divisor,
+                        )
+                        phy      = dut.phy
+                        expected = 0x89abcdef
+                        groups   = [
+                            (expected >> shift) & (2**width - 1)
+                            for shift in range(32 - width, -1, -width)
+                        ]
+                        input_index  = [0]
+                        previous_sck = [0]
+                        sample_index = [0]
+                        rising       = []
+                        record       = [False]
+
+                        def monitor(negedge_index):
+                            yield "passive"
+                            while True:
+                                yield
+                                sck = yield dut.pads.clk
+                                if record[0]:
+                                    if not previous_sck[0] and sck:
+                                        rising.append(sample_index[0])
+                                    previous_sck[0] = sck
+                                    sample_index[0] += 1
+
+                                    if (yield phy.clkgen.negedge[negedge_index]):
+                                        input_index[0] += 1
+                                        if input_index[0] < len(groups):
+                                            value = groups[input_index[0]] << (1 if width == 1 else 0)
+                                            yield dut.bus.i.eq(value)
+
+                        def generator():
+                            yield phy.source.ready.eq(1)
+                            yield phy.cs.eq(1)
+                            yield dut.bus.i.eq(groups[0] << (1 if width == 1 else 0))
+                            for _ in range(3):
+                                yield
+
+                            record[0] = True
+                            result = yield from self._transfer(phy, 0, 32, width, 0)
+                            record[0] = False
+                            self.assertEqual(result, expected)
+
+                        self._run(dut, {
+                            "sys"   : [generator(), monitor(0)],
+                            "sys_n" : monitor(1),
+                        })
+
+                        self.assertEqual(len(rising), 32//width)
+                        self.assertEqual(
+                            [rising[i + 1] - rising[i] for i in range(len(rising) - 1)],
+                            [2*divisor]*(len(rising) - 1),
+                        )
+
     def test_command_address_read_turnaround(self):
-        dut          = _LiteSPIDDRPHYDUT(width=4, extra_latency=1)
+        dut          = _LiteSPIDDRPHYDUT(width=4, extra_latency=1, default_divisor=3)
         phy          = dut.phy
         command      = 0x6b
         address      = 0x123456
@@ -293,26 +527,25 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
         output_bits  = []
         input_edges  = []
         read_active  = [False]
+        input_index  = [0]
+        previous_sck = [0]
 
-        def flash_model():
+        def flash_model(negedge_index):
             yield "passive"
-            input_index = 0
-
             while True:
-                if read_active[0] and input_index == 0:
-                    yield dut.bus.i.eq(input_groups[0])
-
                 yield
-                if not (yield dut.pads.clk):
-                    continue
+                sck = yield dut.pads.clk
+                if not previous_sck[0] and sck:
+                    if (yield dut.bus.oe) & 0x1:
+                        output_bits.append((yield dut.bus.o) & 0x1)
+                    elif read_active[0]:
+                        input_edges.append(1)
+                previous_sck[0] = sck
 
-                if (yield dut.bus.oe) & 0x1:
-                    output_bits.append((yield dut.bus.o) & 0x1)
-                elif read_active[0]:
-                    input_edges.append(1)
-                    input_index += 1
-                    if input_index < len(input_groups):
-                        yield dut.bus.i.eq(input_groups[input_index])
+                if read_active[0] and (yield phy.clkgen.negedge[negedge_index]):
+                    input_index[0] += 1
+                    if input_index[0] < len(input_groups):
+                        yield dut.bus.i.eq(input_groups[input_index[0]])
 
         def generator():
             yield phy.source.ready.eq(1)
@@ -326,6 +559,7 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
             yield from self._transfer(phy, address, 24, 1, 0x1)
             self.assertEqual((yield dut.pads.cs_n), 0)
 
+            yield dut.bus.i.eq(input_groups[0])
             read_active[0] = True
             yield
             result = yield from self._transfer(phy, 0, 32, 4, 0)
@@ -339,8 +573,8 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
             self.assertEqual((yield dut.pads.cs_n), 1)
 
         self._run(dut, {
-            "sys"   : generator(),
-            "sys_n" : flash_model(),
+            "sys"   : [generator(), flash_model(0)],
+            "sys_n" : flash_model(1),
         })
 
         output = 0

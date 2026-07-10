@@ -61,7 +61,7 @@ class LiteSPIPHY(LiteXModule):
         if rate == "1:1":
             phy = LiteSPISDRPHYCore(pads, flash, device, clock_domain, **kwargs)
         if rate == "1:2":
-            phy = LiteSPIDDRPHYCore(pads, flash, **kwargs)
+            phy = LiteSPIDDRPHYCore(pads, flash, clock_domain=clock_domain, **kwargs)
 
         self.flash = flash
 
