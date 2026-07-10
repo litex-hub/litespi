@@ -9,6 +9,8 @@ import unittest
 from migen import *
 
 from litex.build.io import DDROutput, DDRTristate
+from litex.build.lattice.platform import LatticePlatform
+from litex.build.xilinx.platform import XilinxPlatform
 
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
 
@@ -112,6 +114,34 @@ class _LiteSPIDDRPHYDUT(Module):
         )
 
 
+class _LiteSPIDDRPHYElaborationDUT(Module):
+    def __init__(self, width):
+        self.clock_domains.cd_sys = ClockDomain()
+
+        if width == 1:
+            self.pads = pads = Record([
+                ("clk",  1),
+                ("cs_n", 1),
+                ("mosi", 1),
+                ("miso", 1),
+            ])
+            pads_ios = {pads.clk, pads.cs_n, pads.mosi, pads.miso}
+        else:
+            self.pads = pads = Record([
+                ("clk",  1),
+                ("cs_n", 1),
+                ("dq",   width),
+            ])
+            pads_ios = {pads.clk, pads.cs_n, pads.dq}
+
+        self.submodules.phy = LiteSPIDDRPHYCore(
+            pads     = pads,
+            flash    = None,
+            cs_delay = 0,
+        )
+        self.ios = pads_ios | {self.cd_sys.clk, self.cd_sys.rst}
+
+
 # DDR PHY Tests ------------------------------------------------------------------------------------
 
 class TestLiteSPIDDRPHY(unittest.TestCase):
@@ -154,7 +184,7 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
         )
 
     def test_output_data_and_clock_edges(self):
-        for width in [2, 4, 8]:
+        for width in [1, 2, 4, 8]:
             with self.subTest(width=width):
                 dut    = _LiteSPIDDRPHYDUT(width=width, extra_latency=0)
                 phy    = dut.phy
@@ -203,7 +233,7 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                 self.assertEqual([data & (2**width - 1) for _, data in trace], groups)
 
     def test_input_data_with_extra_latency(self):
-        for width in [2, 4, 8]:
+        for width in [1, 2, 4, 8]:
             for extra_latency in [0, 1]:
                 with self.subTest(width=width, extra_latency=extra_latency):
                     dut      = _LiteSPIDDRPHYDUT(width=width, extra_latency=extra_latency)
@@ -250,6 +280,28 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                         "sys_n" : flash_model(),
                     })
                     self.assertEqual(len(edges), 32//width)
+
+
+class TestLiteSPIDDRPHYElaboration(unittest.TestCase):
+    @staticmethod
+    def _get_verilog(platform, width):
+        dut = _LiteSPIDDRPHYElaborationDUT(width=width)
+        return str(platform.get_verilog(dut, ios=dut.ios))
+
+    def test_lattice_nx_quad_io(self):
+        platform = LatticePlatform("LIFCL-40", [], toolchain="radiant")
+        verilog  = self._get_verilog(platform, width=4)
+
+        self.assertIn("ODDRX1", verilog)
+        self.assertIn("IDDRX1", verilog)
+        self.assertIn("OFD1P3BX", verilog)
+
+    def test_xilinx_7series_single_io(self):
+        platform = XilinxPlatform("xc7a35t-csg324-1", [], toolchain="vivado")
+        verilog  = self._get_verilog(platform, width=1)
+
+        self.assertIn("ODDR", verilog)
+        self.assertIn("IDDR", verilog)
 
 
 if __name__ == "__main__":
