@@ -153,7 +153,7 @@ class LiteSPIMMAP(LiteXModule):
                 If(~bus.we,
                     # If CS is still active, Bus address matches previous Burst address and previous access was reading:
                     # Just continue the current Burst.
-                    If(burst_cs & (bus.adr == burst_adr) & (~write_enabled | ~write),
+                    If(burst_cs & (bus.adr == burst_adr) & ~write,
                         NextState("BURST-REQ")
                     # Otherwise initialize a new Burst.
                     ).Else(
