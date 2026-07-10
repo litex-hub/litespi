@@ -14,6 +14,7 @@ from litespi.common import *
 from litespi.crossbar import LiteSPICrossbar
 from litespi.core.master import LiteSPIMaster
 from litespi.core.mmap import LiteSPIMMAP
+from litespi.flash_model import LiteSPINORFlashModel
 from litespi.phy.generic import LiteSPIPHY
 
 class LiteSPICore(Module):
