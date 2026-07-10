@@ -1,4 +1,3 @@
-from litespi.modules.generated_modules import *
 from litespi.modules.modules import *
 from litespi.modules.ram_modules import *
 from litespi.spi_nor_flash_module import MetaSizes
