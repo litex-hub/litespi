@@ -293,6 +293,44 @@ class TestSPIMMAP(unittest.TestCase):
             {"data" : 0,                 "len" : 32, "width" : 1, "mask" : 0b0000},
         ])
 
+    def test_spi_mmap_write_restarts_at_page_boundary(self):
+        write_opcode = Codes.PP_1_1_1
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=write_opcode),
+            with_write = "csr",
+        )
+        page_words = self.DummyChip.page_size // 4
+        addr       = 0x1000 + page_words - 1
+        first_data = 0x44332211
+        next_data  = 0x88776655
+        transfers  = []
+
+        def wb_gen():
+            yield dut.write_config.fields.write_enable.eq(1)
+            yield
+            yield from dut.bus.write(addr, first_data)
+            yield from dut.bus.write(addr + 1, next_data)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=12, cycles=768),
+        ])
+
+        self.assertEqual(transfers, [
+            {"data" : write_opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : addr << 2,         "len" : 24, "width" : 1, "mask" : 0b0001},
+            {"data" : first_data,        "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : first_data >> 8,   "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : first_data >> 16,  "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : first_data >> 24,  "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : write_opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : (addr + 1) << 2,   "len" : 24, "width" : 1, "mask" : 0b0001},
+            {"data" : next_data,         "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : next_data >> 8,    "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : next_data >> 16,   "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : next_data >> 24,   "len" : 8,  "width" : 1, "mask" : 0b0001},
+        ])
+
     def test_spi_mmap_read_test(self):
         opcode = Codes.READ_1_1_1
         dut = LiteSPIMMAP(flash=self.DummyChip(opcode, []))

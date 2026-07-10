@@ -132,6 +132,15 @@ class LiteSPIMMAP(LiteXModule):
             write = Signal()
             self.data_write = Signal(32)
             program_cmd_width, program_addr_width, program_data_width, program_addr_bits = get_opcode_widths(flash.program_opcode)
+            page_words = flash.page_size // (data_bits//8)
+            if flash.page_size % (data_bits//8) == 0 and page_words & (page_words - 1) == 0:
+                write_page_boundary = Signal()
+                if page_words == 1:
+                    self.comb += write_page_boundary.eq(1)
+                else:
+                    self.comb += write_page_boundary.eq(bus.adr[:log2_int(page_words)] == 0)
+            else:
+                write_page_boundary = Constant(0)
         else:
             write = Constant(0)
 
@@ -176,7 +185,7 @@ class LiteSPIMMAP(LiteXModule):
                         # Just continue the current Burst.
                         NextValue(write_mask, bus.sel),
                         NextValue(self.data_write, bus.dat_w),
-                        If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write,
+                        If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write & ~write_page_boundary,
                             NextState("WRITE")
                         # Otherwise initialize a new Burst.
                         ).Else(
