@@ -12,6 +12,7 @@ from migen.sim import run_simulation
 
 from litespi.clkgen import LiteSPIClkGen
 from litespi.phy.generic_sdr import LiteSPISDRPHYCore
+from litespi.phy.lattice import LiteSPIECP5USRMCLK
 
 
 class _SPIPads:
@@ -22,9 +23,8 @@ class _SPIPads:
 
 
 class _ClockPads:
-    def __init__(self, with_clk):
-        if with_clk:
-            self.clk = Signal()
+    def __init__(self):
+        self.clk = Signal()
 
 
 class _LiteSPISDRPHYDUT(Module):
@@ -47,12 +47,22 @@ class _IgnoreInstance:
 
 
 class TestLiteSPISDRPHY(unittest.TestCase):
-    def test_startup_ready_without_startupe2(self):
-        for device, with_clk in [("xc7a35t", True), ("LFE5U-45F", False)]:
-            with self.subTest(device=device, with_clk=with_clk):
+    def test_startup_cycles_validation(self):
+        for startup_cycles in [-1, 0.5]:
+            with self.subTest(startup_cycles=startup_cycles):
+                with self.assertRaisesRegex(ValueError, "non-negative integer"):
+                    LiteSPIClkGen(
+                        pads           = _ClockPads(),
+                        device         = None,
+                        startup_cycles = startup_cycles,
+                    )
+
+    def test_startup_ready_without_backend(self):
+        for device in ["xc7a35t", "LFE5U-45F"]:
+            with self.subTest(device=device):
                 dut = Module()
                 dut.submodules.clkgen = LiteSPIClkGen(
-                    pads   = _ClockPads(with_clk),
+                    pads   = _ClockPads(),
                     device = device,
                 )
 
@@ -66,6 +76,31 @@ class TestLiteSPISDRPHY(unittest.TestCase):
                     generator(),
                     special_overrides = {Instance : _IgnoreInstance},
                 )
+
+    def test_ecp5_clock_backend_selection(self):
+        dut = Module()
+        dut.submodules.phy = LiteSPISDRPHYCore(
+            pads         = _SPIPads(),
+            flash        = None,
+            device       = "LFE5U-45F",
+            clock_domain = "sys",
+            cs_delay     = 0,
+        )
+        fragment = dut.get_fragment()
+
+        self.assertIsInstance(dut.phy.clk_io, LiteSPIECP5USRMCLK)
+        instances = [
+            special for special in fragment.specials
+            if isinstance(special, Instance) and special.of == "USRMCLK"
+        ]
+        self.assertEqual(len(instances), 1)
+
+        ports = {
+            item.name: item.expr
+            for item in instances[0].items
+            if hasattr(item, "expr")
+        }
+        self.assertIs(ports["USRMCLKI"], dut.phy.clk_io.clk)
 
     @staticmethod
     def _run_first_transfer(idle_cycles):

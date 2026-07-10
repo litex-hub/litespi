@@ -12,6 +12,7 @@ from litespi.common import *
 
 from litespi.phy.generic_sdr import LiteSPISDRPHYCore
 from litespi.phy.generic_ddr import LiteSPIDDRPHYCore
+from litespi.phy.xilinx import LiteSPISTARTUPE3
 
 # LiteSPI PHY --------------------------------------------------------------------------------------
 
@@ -78,3 +79,26 @@ class LiteSPIPHY(LiteXModule):
 
     def get_csrs(self):
         return self.spiflash_phy.get_csrs()
+
+
+# LiteSPI Xilinx UltraScale PHY --------------------------------------------------------------------
+
+class LiteSPIXilinxUSPHY(LiteSPIPHY):
+    """LiteSPI SDR PHY for the primary UltraScale configuration flash.
+
+    The PHY routes its clock, chip select, and four data lines through STARTUPE3. It does not
+    request regular platform pads and is intended to be passed to ``SoC.add_spi_flash`` through
+    its ``phy`` argument.
+    """
+
+    def __init__(self, flash, clock_domain="sys", **kwargs):
+        io = LiteSPISTARTUPE3()
+        LiteSPIPHY.__init__(self,
+            pads         = io.pads,
+            flash        = flash,
+            device       = None,
+            clock_domain = clock_domain,
+            rate         = "1:1",
+            io           = io,
+            **kwargs,
+        )

@@ -39,7 +39,7 @@ class LiteSPIClkGen(LiteXModule):
 
     The ``LiteSPIClkGen`` class provides a generic SPI clock generator.
 
-    It supports accessing CLK pin on a reserved pin by instantiating device specific modules (currently 7 Series only).
+    Device-specific clock routing is provided by a backend exposing a virtual ``clk`` pad.
 
     Parameters
     ----------
@@ -47,10 +47,16 @@ class LiteSPIClkGen(LiteXModule):
         SPI pads description.
 
     device : str
-        Device type for determining how to get output pin if it was not provided in pads.
+        Retained for API compatibility. Device-specific selection is handled by the PHY.
 
     div_width : int
         Width of the ``div`` used for dividing the clock.
+
+    startup_cycles : int
+        Number of clock rising edges required before a transfer can start.
+
+    clk_io : LiteXModule or None
+        Optional clock-only backend accepting an already registered clock signal.
 
     Attributes
     ----------
@@ -70,7 +76,12 @@ class LiteSPIClkGen(LiteXModule):
     ready : Signal(), out
         Indicates that vendor-specific clock startup is complete and a transfer can start.
     """
-    def __init__(self, pads, device, div_width=8, extra_latency=0):
+    def __init__(self, pads, device, div_width=8, extra_latency=0, startup_cycles=0, clk_io=None):
+        if not isinstance(startup_cycles, int) or startup_cycles < 0:
+            raise ValueError("SPI clock startup_cycles must be a non-negative integer")
+        if not hasattr(pads, "clk") and clk_io is None:
+            raise ValueError("LiteSPIClkGen requires a physical clk pad or a clock-only backend")
+
         self.div        = div        = Signal(div_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
@@ -82,9 +93,6 @@ class LiteSPIClkGen(LiteXModule):
         en_int          = Signal()
         clk             = Signal()
         half            = Signal(div_width - 1)
-
-        startup_enable = 0
-        startup_ready  = 1
 
         self.comb += half.eq((div + 1) >> 1)
 
@@ -123,41 +131,24 @@ class LiteSPIClkGen(LiteXModule):
             )
         ]
 
-        if not hasattr(pads, "clk"):
-            # Clock output needs to be registered like an SDROutput.
+        if clk_io is not None:
+            # Match the register previously used directly in front of vendor clock primitives.
             clk_reg = Signal()
             self.sync += clk_reg.eq(clk)
-
-            if device.startswith("xc7"):
-                cycles = Signal(4)
-                self.specials += Instance("STARTUPE2",
-                    i_CLK       = 0,
-                    i_GSR       = 0,
-                    i_GTS       = 0,
-                    i_KEYCLEARB = 0,
-                    i_PACK      = 0,
-                    i_USRCCLKO  = clk_reg,
-                    i_USRCCLKTS = 0,
-                    i_USRDONEO  = 1,
-                    i_USRDONETS = 1,
-                )
-                # STARTUPE2 needs 3 USRCCLKO cycles to switch over to the user clock.
-                startup_enable = cycles < 3
-                startup_ready  = Signal()
-                self.sync += If(en_int & posedge, cycles.eq(cycles+1))
-                # Account for the register between the internal clock and USRCCLKO.
-                self.sync += startup_ready.eq(~en_int)
-            elif device.startswith("LFE5U"):
-                self.specials += Instance("USRMCLK",
-                    i_USRMCLKI  = clk_reg,
-                    i_USRMCLKTS = ResetSignal()
-                )
-            else:
-                raise NotImplementedError
+            self.comb += clk_io.clk.eq(clk_reg)
         else:
             self.specials += SDROutput(i=clk, o=pads.clk)
 
-        self.comb += [
-            en_int.eq(startup_enable),
-            ready.eq(startup_ready),
-        ]
+        if startup_cycles:
+            cycles        = Signal(max=startup_cycles + 1)
+            startup_ready = Signal()
+            self.comb += en_int.eq(cycles < startup_cycles)
+            self.sync += If(en_int & posedge, cycles.eq(cycles + 1))
+            # Account for the register between the internal clock and its output.
+            self.sync += startup_ready.eq(~en_int)
+            self.comb += ready.eq(startup_ready)
+        else:
+            self.comb += [
+                en_int.eq(0),
+                ready.eq(1),
+            ]
