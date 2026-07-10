@@ -50,6 +50,14 @@ class TestSPIMMAP(unittest.TestCase):
             Codes.PP_1_1_1,
         ]
 
+    class FourByteAddressDummyChip(DummyChip):
+        supported_opcodes = [
+            Codes.READ_1_1_1,
+            Codes.READ_1_1_1_4B,
+            Codes.PP_1_1_1,
+            Codes.PP_1_1_1_4B,
+        ]
+
     @staticmethod
     def _record_spi_transfers(dut, transfers, transfer_count=None, cycles=256):
         yield dut.sink.valid.eq(0)
@@ -438,3 +446,49 @@ class TestSPIMMAP(unittest.TestCase):
                     {"data" : 0xdead,      "len" : dummy_bits, "width" : addr_width, "mask" : 0b0000},
                     {"data" : 0,           "len" : 32,         "width" : data_width, "mask" : 0b0000},
                 ])
+
+    def test_spi_mmap_4byte_address_phases(self):
+        addr = 0x12345678
+
+        read_dut = LiteSPIMMAP(
+            flash = self.FourByteAddressDummyChip(Codes.READ_1_1_1_4B, []),
+        )
+        read_transfers = []
+
+        def read_wb_gen():
+            yield from read_dut.bus.read(addr)
+
+        run_simulation(read_dut, [
+            read_wb_gen(),
+            self._record_spi_transfers(read_dut, read_transfers, transfer_count=3),
+        ])
+
+        self.assertEqual(read_transfers, [
+            {"data" : Codes.READ_1_1_1_4B.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : addr << 2,                "len" : 32, "width" : 1, "mask" : 0b0001},
+            {"data" : 0,                        "len" : 32, "width" : 1, "mask" : 0b0000},
+        ])
+
+        write_dut = LiteSPIMMAP(
+            flash      = self.FourByteAddressDummyChip(
+                Codes.READ_1_1_1_4B, [],
+                program_cmd = Codes.PP_1_1_1_4B,
+            ),
+            with_write = True,
+        )
+        write_transfers = []
+        data            = 0xdeadbeef
+
+        def write_wb_gen():
+            yield from write_dut.bus.write(addr, data, sel=0b0001)
+
+        run_simulation(write_dut, [
+            write_wb_gen(),
+            self._record_spi_transfers(write_dut, write_transfers, transfer_count=3),
+        ])
+
+        self.assertEqual(write_transfers, [
+            {"data" : Codes.PP_1_1_1_4B.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : addr << 2,              "len" : 32, "width" : 1, "mask" : 0b0001},
+            {"data" : data,                   "len" : 8,  "width" : 1, "mask" : 0b0001},
+        ])
