@@ -32,6 +32,63 @@ class TestSPIMMAP(unittest.TestCase):
         ]
         dummy_bits = 8
 
+    class WideProgramDummyChip(DummyChip):
+        supported_opcodes = [
+            Codes.READ_1_1_1,
+            Codes.PP_1_1_1,
+            Codes.PP_1_1_4,
+            Codes.PP_1_4_4,
+        ]
+
+    @staticmethod
+    def _record_spi_transfers(dut, transfers, transfer_count=None, cycles=256):
+        yield dut.sink.valid.eq(0)
+        yield dut.source.ready.eq(1)
+
+        for _ in range(cycles):
+            if (yield dut.source.valid):
+                transfers.append({
+                    "data"  : (yield dut.source.data),
+                    "len"   : (yield dut.source.len),
+                    "width" : (yield dut.source.width),
+                    "mask"  : (yield dut.source.mask),
+                })
+                yield
+                yield dut.sink.valid.eq(1)
+                yield
+                yield dut.sink.valid.eq(0)
+                if transfer_count is not None and len(transfers) >= transfer_count:
+                    break
+            else:
+                yield
+
+        yield dut.sink.valid.eq(0)
+
+    @staticmethod
+    def _write_with_timeout(dut, addr, data, sel=0xf, cycles=64):
+        acked = []
+
+        def generator():
+            yield dut.bus.adr.eq(addr)
+            yield dut.bus.dat_w.eq(data)
+            yield dut.bus.sel.eq(sel)
+            yield dut.bus.we.eq(1)
+            yield dut.bus.cyc.eq(1)
+            yield dut.bus.stb.eq(1)
+            yield
+
+            for _ in range(cycles):
+                if (yield dut.bus.ack):
+                    acked.append(True)
+                    break
+                yield
+
+            yield dut.bus.cyc.eq(0)
+            yield dut.bus.stb.eq(0)
+            yield dut.bus.we.eq(0)
+
+        return acked, generator()
+
     def test_spi_mmap_core_syntax(self):
         spi_mmap = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, []))
         spi_write_mmap = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=Codes.PP_1_1_1), with_write=True)
@@ -70,7 +127,6 @@ class TestSPIMMAP(unittest.TestCase):
             yield dut.sink.valid.eq(0)
 
             # WRITE ADDR
-            print((yield dut.source.data))
             if (yield dut.source.data) == (addr<<2): # address cmd
                 dut.addr_ok = 1
 
@@ -95,6 +151,73 @@ class TestSPIMMAP(unittest.TestCase):
         self.assertEqual(dut.addr_ok, 1)
         self.assertEqual(dut.opcode_ok, 1)
         self.assertEqual(dut.data_ok, 1)
+
+    def test_spi_mmap_program_opcode_widths(self):
+        opcode = Codes.PP_1_4_4
+        dut = LiteSPIMMAP(
+            flash      = self.WideProgramDummyChip(Codes.READ_1_1_1, [], program_cmd=opcode),
+            with_write = True,
+        )
+        addr      = 0xcafe
+        data      = 0xdeadbeef
+        transfers = []
+
+        def wb_gen():
+            yield from dut.bus.write(addr, data, sel=0b0001)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=3),
+        ])
+
+        self.assertEqual(transfers, [
+            {"data" : opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : addr << 2,   "len" : 24, "width" : 4, "mask" : 0b1111},
+            {"data" : data,        "len" : 8,  "width" : 4, "mask" : 0b1111},
+        ])
+
+    def test_spi_mmap_csr_disabled_write_acks_without_spi_transfer(self):
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=Codes.PP_1_1_1),
+            with_write = "csr",
+        )
+        transfers = []
+        acked, wb_gen = self._write_with_timeout(dut, addr=0xcafe, data=0xdeadbeef)
+
+        run_simulation(dut, [
+            wb_gen,
+            self._record_spi_transfers(dut, transfers, cycles=64),
+        ])
+
+        self.assertEqual(acked, [True])
+        self.assertEqual(transfers, [])
+
+    def test_spi_mmap_write_sel_skips_unselected_bytes(self):
+        opcode = Codes.PP_1_1_1
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode),
+            with_write = True,
+        )
+        addr      = 0xcafe
+        data      = 0xaabbccdd
+        transfers = []
+
+        def wb_gen():
+            yield from dut.bus.write(addr, data, sel=0b1010)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=6),
+        ])
+
+        self.assertEqual(transfers, [
+            {"data" : opcode.code,       "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : (addr << 2) | 1,   "len" : 24, "width" : 1, "mask" : 0b0001},
+            {"data" : data >> 8,         "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : opcode.code,       "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : (addr << 2) | 3,   "len" : 24, "width" : 1, "mask" : 0b0001},
+            {"data" : data >> 24,        "len" : 8,  "width" : 1, "mask" : 0b0001},
+        ])
 
     def test_spi_mmap_read_test(self):
         opcode = Codes.READ_1_1_1
