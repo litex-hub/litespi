@@ -41,6 +41,9 @@ class LiteSPIDDRPHYCore(LiteXModule):
     flash : SpiNorFlashModule
         SpiNorFlashModule configuration object.
 
+    extra_latency : int
+        Additional input pipeline latency. Each unit extends the pipeline drain by two sys cycles.
+
     Attributes
     ----------
     source : Endpoint(spi_phy2core_layout), out
@@ -77,6 +80,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         # CS control.
         self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
 
+        # Lane 0 is aligned with SCK high/rising and lane 1 with SCK low/falling.
         dq_o  = Array([Signal(len(dq)) for _ in range(2)])
         dq_i  = Array([Signal(len(dq)) for _ in range(2)])
         dq_oe = Signal(len(dq))
@@ -95,6 +99,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         sr_out       = Signal(len(sink.data), reset_less=True)
         sr_in_shift  = Signal()
         sr_in        = Signal(len(sink.data), reset_less=True)
+        input_pipeline = 2 + 2*extra_latency
 
         # Data Out Shift.
         self.comb += [
@@ -158,7 +163,8 @@ class LiteSPIDDRPHYCore(LiteXModule):
             NextValue(sr_cnt, sr_cnt - sink.width),
             # End XFer.
             If(sr_cnt == 0,
-                NextValue(sr_cnt, (2 + 2*extra_latency)*sink.width), # FIXME: Explain magic numbers.
+                # Drain the IDDR and fabric input pipeline after the final SCK edge.
+                NextValue(sr_cnt, input_pipeline*sink.width),
                 NextState("XFER-END"),
             ),
         )

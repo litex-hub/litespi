@@ -49,6 +49,7 @@ class _SimDDRTristateImpl(Module):
         o2  = Signal.like(dr.o2)
         oe1 = Signal.like(dr.oe1)
         oe2 = Signal.like(dr.oe1)
+        # Match the registered DDR input path and model optional platform I/O latency.
         i1_pipeline = [Signal.like(dr.i1) for _ in range(1 + 2*bus.input_latency)]
         i2_pipeline = [Signal.like(dr.i2) for _ in range(1 + 2*bus.input_latency)]
 
@@ -145,6 +146,7 @@ class _LiteSPIDDRPHYElaborationDUT(Module):
 # DDR PHY Tests ------------------------------------------------------------------------------------
 
 class TestLiteSPIDDRPHY(unittest.TestCase):
+    # sys_n provides the falling half-cycle used by the behavioral DDR input model.
     clocks = {
         "sys"   : 10,
         "sys_n" : (10, 5),
