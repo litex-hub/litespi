@@ -1,9 +1,0 @@
-*.json
-*.log
-src
-__pycache__
-linux
-openocd
-flashrom
-*.c
-*.h
