@@ -40,6 +40,16 @@ class TestSPIMMAP(unittest.TestCase):
             Codes.PP_1_4_4,
         ]
 
+    class WideReadDummyChip(DummyChip):
+        supported_opcodes = [
+            Codes.READ_1_1_1,
+            Codes.READ_1_1_1_FAST,
+            Codes.READ_1_1_4,
+            Codes.READ_1_4_4,
+            Codes.READ_1_1_8,
+            Codes.PP_1_1_1,
+        ]
+
     @staticmethod
     def _record_spi_transfers(dut, transfers, transfer_count=None, cycles=256):
         yield dut.sink.valid.eq(0)
@@ -399,3 +409,32 @@ class TestSPIMMAP(unittest.TestCase):
         self.assertEqual(dut.addr_ok, 1)
         self.assertEqual(dut.opcode_ok, 1)
         self.assertEqual(dut.no_dummy, 1)
+
+    def test_spi_mmap_fast_read_dummy_cycles(self):
+        cases = [
+            (Codes.READ_1_1_1_FAST, 1, 1, 1, 8),
+            (Codes.READ_1_1_4,      1, 1, 4, 8),
+            (Codes.READ_1_4_4,      1, 4, 4, 32),
+            (Codes.READ_1_1_8,      1, 1, 8, 8),
+        ]
+
+        for opcode, cmd_width, addr_width, data_width, dummy_bits in cases:
+            with self.subTest(opcode=opcode):
+                dut = LiteSPIMMAP(flash=self.WideReadDummyChip(opcode, []))
+                addr      = 0xcafe
+                transfers = []
+
+                def wb_gen():
+                    yield from dut.bus.read(addr)
+
+                run_simulation(dut, [
+                    wb_gen(),
+                    self._record_spi_transfers(dut, transfers, transfer_count=4),
+                ])
+
+                self.assertEqual(transfers, [
+                    {"data" : opcode.code, "len" : 8,          "width" : cmd_width,  "mask" : (1 << cmd_width) - 1},
+                    {"data" : addr << 2,   "len" : 24,         "width" : addr_width, "mask" : (1 << addr_width) - 1},
+                    {"data" : 0xdead,      "len" : dummy_bits, "width" : addr_width, "mask" : 0b0000},
+                    {"data" : 0,           "len" : 32,         "width" : data_width, "mask" : 0b0000},
+                ])
