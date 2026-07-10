@@ -45,6 +45,10 @@ class LiteSPISDRPHYCore(LiteXModule):
     default_divisor : int
         Default frequency divisor for clkgen.
 
+    io : LiteXModule or None
+        Optional backend providing virtual clock/CS pads, split DQ signals, bus width, and
+        startup-cycle requirements.
+
     Attributes
     ----------
     source : Endpoint(spi_phy2core_layout), out
@@ -59,7 +63,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     clk_divisor : CSRStorage
         Register which holds a clock divisor value applied to clkgen.
     """
-    def __init__(self, pads, flash, device, clock_domain, default_divisor=9, extra_latency=0, **kwargs):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor=9, extra_latency=0, io=None, **kwargs):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs               = Signal().like(pads.cs_n)
@@ -73,11 +77,18 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         # # #
 
+        if io is not None:
+            if pads is not io.pads:
+                raise ValueError("SPI I/O backend pads must be used by the PHY")
+            self.submodules.io = io
+
         # Resynchronize CSR Clk Divisor to LiteSPI Clk Domain.
         self.submodules += ResyncReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
 
         # Determine SPI Bus width and DQs.
-        if hasattr(pads, "mosi"):
+        if io is not None:
+            bus_width = io.data_width
+        elif hasattr(pads, "mosi"):
             bus_width = 1
         else:
             bus_width = len(pads.dq)
@@ -89,7 +100,14 @@ class LiteSPISDRPHYCore(LiteXModule):
             assert not flash.ddr
 
         # Clock Generator.
-        self.clkgen = clkgen = LiteSPIClkGen(pads, device, div_width=len(sink.clk_div), extra_latency=extra_latency)
+        startup_cycles = 0 if io is None else io.startup_cycles
+        self.clkgen = clkgen = LiteSPIClkGen(
+            pads           = pads,
+            device         = device,
+            div_width      = len(sink.clk_div),
+            extra_latency  = extra_latency,
+            startup_cycles = startup_cycles,
+        )
 
         self.submodules += ResyncReg(mode.storage, clkgen.mode, clock_domain)
 
@@ -103,7 +121,11 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         self.comb += clkgen.div.eq(spi_clk_divisor_delayed)
 
-        if hasattr(pads, "mosi"):
+        if io is not None:
+            dq_o  = io.dq_o
+            dq_i  = io.dq_i
+            dq_oe = io.dq_oe
+        elif hasattr(pads, "mosi"):
             dq_o  = Signal()
             dq_i  = Signal(2)
             dq_oe = Signal() # Unused.
