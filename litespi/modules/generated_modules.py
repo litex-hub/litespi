@@ -2609,6 +2609,7 @@ class IS25LP128(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_2,
     ]
     dummy_bits = 8
+    quad_enable = "wrsr_sr1_bit6"
 
 
 class IS25LP128D(SpiNorFlashModule):

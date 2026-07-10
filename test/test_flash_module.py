@@ -7,6 +7,7 @@
 import unittest
 
 from litespi.spi_nor_flash_module import SpiNorFlashModule
+from litespi.modules import IS25LP128
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 from litespi.ids import SpiNorFlashManufacturerIDs
 
@@ -82,6 +83,11 @@ class TestFlashModule(unittest.TestCase):
         # Nonsupported mode
         with self.assertRaises(ValueError):
             chip = self.GoodDummyChip(Codes.READ_1_8_8)
+
+    def test_is25lp128_quad_enable(self):
+        chip = IS25LP128(Codes.READ_1_1_4)
+
+        self.assertEqual(chip.quad_enable, "wrsr_sr1_bit6")
 
     def test_meta_sizes(self):
         with self.assertRaises(AssertionError):
