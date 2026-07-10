@@ -50,7 +50,7 @@ class LiteSPIMaster(LiteXModule):
 
         self._cs = CSRStorage(cs_width)
         self._phyconfig = CSRStorage(fields=[
-            CSRField("len",   size=8, offset=0,  description="SPI Xfer length (in bits)."),
+            CSRField("len",   size=len(self.source.len), offset=0,  description="SPI Xfer length (in bits)."),
             CSRField("width", size=4, offset=8,  description="SPI Xfer width (1/2/4/8)."),
             CSRField("mask",  size=8, offset=16, description="SPI DQ output enable mask (set bits to ``1`` to enable output drivers on DQ lines)."),
         ], description="SPI PHY settings.")
