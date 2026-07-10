@@ -59,19 +59,22 @@ class TestSPIMMAP(unittest.TestCase):
         ]
 
     @staticmethod
-    def _record_spi_transfers(dut, transfers, transfer_count=None, cycles=256):
+    def _record_spi_transfers(dut, transfers, transfer_count=None, cycles=256, read_data=0):
         yield dut.sink.valid.eq(0)
         yield dut.source.ready.eq(1)
 
         for _ in range(cycles):
             if (yield dut.source.valid):
-                transfers.append({
+                transfer = {
                     "data"  : (yield dut.source.data),
                     "len"   : (yield dut.source.len),
                     "width" : (yield dut.source.width),
                     "mask"  : (yield dut.source.mask),
-                })
+                }
+                transfers.append(transfer)
                 yield
+                if transfer["len"] == 32 and transfer["mask"] == 0:
+                    yield dut.sink.data.eq(read_data)
                 yield dut.sink.valid.eq(1)
                 yield
                 yield dut.sink.valid.eq(0)
@@ -491,4 +494,33 @@ class TestSPIMMAP(unittest.TestCase):
             {"data" : Codes.PP_1_1_1_4B.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : addr << 2,              "len" : 32, "width" : 1, "mask" : 0b0001},
             {"data" : data,                   "len" : 8,  "width" : 1, "mask" : 0b0001},
+        ])
+
+    def test_spi_mmap_little_endian_read_reverses_bytes(self):
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, []),
+            endianness = "little",
+        )
+        addr        = 0xcafe
+        read_values = []
+        transfers   = []
+
+        def wb_gen():
+            read_values.append((yield from dut.bus.read(addr)))
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(
+                dut,
+                transfers,
+                transfer_count = 3,
+                read_data      = 0x11223344,
+            ),
+        ])
+
+        self.assertEqual(read_values, [0x44332211])
+        self.assertEqual(transfers, [
+            {"data" : Codes.READ_1_1_1.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : addr << 2,             "len" : 24, "width" : 1, "mask" : 0b0001},
+            {"data" : 0,                     "len" : 32, "width" : 1, "mask" : 0b0000},
         ])
