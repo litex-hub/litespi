@@ -66,6 +66,9 @@ class LiteSPIClkGen(LiteXModule):
 
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
+
+    ready : Signal(), out
+        Indicates that vendor-specific clock startup is complete and a transfer can start.
     """
     def __init__(self, pads, device, div_width=8, extra_latency=0):
         self.div        = div        = Signal(div_width)
@@ -74,15 +77,19 @@ class LiteSPIClkGen(LiteXModule):
         self.mode       = mode       = Signal(2)
         self.en         = en         = Signal()
         self.start      = start      = Signal()
+        self.ready      = ready      = Signal()
         cnt             = Signal(div_width - 1)
         en_int          = Signal()
         clk             = Signal()
         half            = Signal(div_width - 1)
 
+        startup_enable = 0
+        startup_ready  = 1
+
         self.comb += half.eq((div + 1) >> 1)
 
         self.comb += [
-            posedge.eq( (en | en_int)  & ~clk & (cnt <= 1)),
+            posedge.eq((en | en_int) & ~clk & (cnt <= 1)),
             negedge.eq(clk & (cnt <= 1)),
         ]
 
@@ -134,9 +141,12 @@ class LiteSPIClkGen(LiteXModule):
                     i_USRDONEO  = 1,
                     i_USRDONETS = 1,
                 )
-                # startupe2 needs 3 usrcclko cycles to switch over to user clock
-                self.comb += en_int.eq(cycles < 3)
+                # STARTUPE2 needs 3 USRCCLKO cycles to switch over to the user clock.
+                startup_enable = cycles < 3
+                startup_ready  = Signal()
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
+                # Account for the register between the internal clock and USRCCLKO.
+                self.sync += startup_ready.eq(~en_int)
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
                     i_USRMCLKI  = clk_reg,
@@ -146,3 +156,8 @@ class LiteSPIClkGen(LiteXModule):
                 raise NotImplementedError
         else:
             self.specials += SDROutput(i=clk, o=pads.clk)
+
+        self.comb += [
+            en_int.eq(startup_enable),
+            ready.eq(startup_ready),
+        ]

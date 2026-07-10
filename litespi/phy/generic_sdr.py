@@ -94,7 +94,10 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.submodules += ResyncReg(mode.storage, clkgen.mode, clock_domain)
 
         # CS control.
-        self.cs_control = cs_control = LiteSPICSControl(pads, self.cs, **kwargs)
+        cs = Signal().like(self.cs)
+        # Keep the flash deselected until vendor-specific clock startup is complete.
+        self.comb += cs.eq(self.cs & Replicate(clkgen.ready, len(self.cs)))
+        self.cs_control = cs_control = LiteSPICSControl(pads, cs, **kwargs)
 
         spi_clk_divisor_delayed = Signal(len(sink.clk_div))
 
