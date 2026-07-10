@@ -283,6 +283,74 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                     })
                     self.assertEqual(len(edges), 32//width)
 
+    def test_command_address_read_turnaround(self):
+        dut          = _LiteSPIDDRPHYDUT(width=4, extra_latency=1)
+        phy          = dut.phy
+        command      = 0x6b
+        address      = 0x123456
+        expected     = 0x89abcdef
+        input_groups = [(expected >> shift) & 0xf for shift in range(28, -1, -4)]
+        output_bits  = []
+        input_edges  = []
+        read_active  = [False]
+
+        def flash_model():
+            yield "passive"
+            input_index = 0
+
+            while True:
+                if read_active[0] and input_index == 0:
+                    yield dut.bus.i.eq(input_groups[0])
+
+                yield
+                if not (yield dut.pads.clk):
+                    continue
+
+                if (yield dut.bus.oe) & 0x1:
+                    output_bits.append((yield dut.bus.o) & 0x1)
+                elif read_active[0]:
+                    input_edges.append(1)
+                    input_index += 1
+                    if input_index < len(input_groups):
+                        yield dut.bus.i.eq(input_groups[input_index])
+
+        def generator():
+            yield phy.source.ready.eq(1)
+            yield phy.cs.eq(1)
+            for _ in range(3):
+                yield
+
+            yield from self._transfer(phy, command, 8, 1, 0x1)
+            self.assertEqual((yield dut.pads.cs_n), 0)
+
+            yield from self._transfer(phy, address, 24, 1, 0x1)
+            self.assertEqual((yield dut.pads.cs_n), 0)
+
+            read_active[0] = True
+            yield
+            result = yield from self._transfer(phy, 0, 32, 4, 0)
+            self.assertEqual(result, expected)
+
+            yield phy.cs.eq(0)
+            for _ in range(3):
+                yield
+
+            self.assertEqual((yield dut.pads.clk), 0)
+            self.assertEqual((yield dut.pads.cs_n), 1)
+
+        self._run(dut, {
+            "sys"   : generator(),
+            "sys_n" : flash_model(),
+        })
+
+        output = 0
+        for bit in output_bits:
+            output = (output << 1) | bit
+
+        self.assertEqual(len(output_bits), 32)
+        self.assertEqual(output, (command << 24) | address)
+        self.assertEqual(len(input_edges), 8)
+
 
 class TestLiteSPIDDRPHYElaboration(unittest.TestCase):
     @staticmethod
