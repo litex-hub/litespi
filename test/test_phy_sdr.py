@@ -47,6 +47,16 @@ class _IgnoreInstance:
 
 
 class TestLiteSPISDRPHY(unittest.TestCase):
+    def test_startup_cycles_validation(self):
+        for startup_cycles in [-1, 0.5]:
+            with self.subTest(startup_cycles=startup_cycles):
+                with self.assertRaisesRegex(ValueError, "non-negative integer"):
+                    LiteSPIClkGen(
+                        pads           = _ClockPads(with_clk=True),
+                        device         = None,
+                        startup_cycles = startup_cycles,
+                    )
+
     def test_startup_ready_without_startupe2(self):
         for device, with_clk in [("xc7a35t", True), ("LFE5U-45F", False)]:
             with self.subTest(device=device, with_clk=with_clk):
