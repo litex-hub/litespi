@@ -7,7 +7,7 @@
 import unittest
 
 from litespi import modules
-from litespi.spi_nor_flash_module import SpiNorFlashModule
+from litespi.spi_nor_flash_module import SpiNorFlashModule, SpiNorFlashEraseCommand
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 from litespi.ids import SpiNorFlashManufacturerIDs
 
@@ -84,6 +84,57 @@ class TestFlashModule(unittest.TestCase):
         with self.assertRaises(ValueError):
             chip = self.GoodDummyChip(Codes.READ_1_8_8)
 
+    def test_erase_geometry(self):
+        class EraseGeometryChip(self.GoodDummyChip):
+            erase_commands = [
+                SpiNorFlashEraseCommand(Codes.BE_4K,  4 * 1024, 24),
+                SpiNorFlashEraseCommand(Codes.SE,    64 * 1024, 24),
+                SpiNorFlashEraseCommand(Codes.SE_4B, 64 * 1024, 32),
+            ]
+
+        chip = EraseGeometryChip(Codes.READ_1_1_1)
+        self.assertEqual(chip.erase_opcode, Codes.BE_4K)
+        self.assertEqual(chip.erase_size, 4 * 1024)
+        self.assertEqual(chip.erase_addr_bits, 24)
+        self.assertEqual(len(chip.erase_commands), 3)
+
+        chip = EraseGeometryChip(Codes.READ_1_1_1, erase_cmd=Codes.SE_4B)
+        self.assertEqual(chip.erase_opcode, Codes.SE_4B)
+        self.assertEqual(chip.erase_size, 64 * 1024)
+        self.assertEqual(chip.erase_addr_bits, 32)
+
+    def test_legacy_erase_geometry(self):
+        chip = self.GoodDummyChip(Codes.READ_1_1_1)
+        self.assertEqual(chip.erase_opcode, Codes.SE)
+        self.assertEqual(chip.erase_size, 64 * 1024)
+        self.assertEqual(chip.erase_addr_bits, 24)
+
+        chip = self.GoodDummyChip(Codes.READ_1_1_1, erase_cmd=Codes.BE_32K)
+        self.assertEqual(chip.erase_opcode, Codes.BE_32K)
+        self.assertEqual(chip.erase_size, 32 * 1024)
+        self.assertEqual(chip.erase_addr_bits, 24)
+
+    def test_non_erasable_and_invalid_geometry(self):
+        class NonErasableChip(self.GoodDummyChip):
+            erase_commands = []
+
+        chip = NonErasableChip(Codes.READ_1_1_1)
+        self.assertIsNone(chip.erase_opcode)
+        self.assertIsNone(chip.erase_size)
+        self.assertIsNone(chip.erase_addr_bits)
+
+        class InvalidEraseSizeChip(self.GoodDummyChip):
+            erase_commands = [(Codes.BE_4K, 0, 24)]
+
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            InvalidEraseSizeChip(Codes.READ_1_1_1)
+
+        class InvalidEraseAddressChip(self.GoodDummyChip):
+            erase_commands = [(Codes.BE_4K, 4096, 16)]
+
+        with self.assertRaisesRegex(ValueError, "0, 24, or 32"):
+            InvalidEraseAddressChip(Codes.READ_1_1_1)
+
     def test_sr1_bit6_quad_enable_modules(self):
         expected_modules = {
             "IS25LP016D", "IS25LP080D", "IS25LP128", "IS25LP256", "IS25LP512M",
@@ -151,4 +202,3 @@ class TestFlashModule(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             chip = MissingAttrChip(Codes.READ_1_1_1)
-

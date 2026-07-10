@@ -4,10 +4,14 @@
 # Copyright (c) 2020 Antmicro <www.antmicro.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+from collections import namedtuple
 
 from litespi.spi_nor_features import SpiNorFeatures
 from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.spi_nor_flash_metasizes import MetaSizes
+
+
+SpiNorFlashEraseCommand = namedtuple("SpiNorFlashEraseCommand", "opcode size addr_bits")
 
 
 class SpiNorFlashModule(metaclass=MetaSizes):
@@ -31,8 +35,11 @@ class SpiNorFlashModule(metaclass=MetaSizes):
         default: PP_1_1_1 (single mode page program)
 
     erase_cmd : SpiNorFlashOpCode
-        User defined erase command. Default value is Sector Erase.
-        default: SE (sector erase)
+        Preferred erase opcode. When omitted, the first command from ``erase_commands`` is used.
+
+    erase_commands : list of SpiNorFlashEraseCommand
+        Ordered erase operations supported by the chip. Each entry describes the opcode, erase
+        size in bytes, and address length in bits. The first entry is preferred by default.
 
     Attributes
     ----------
@@ -82,6 +89,15 @@ class SpiNorFlashModule(metaclass=MetaSizes):
 
     erase_opcode : SpiNorFlashOpCode
         command used to erase the memory
+
+    erase_size : int or None
+        number of bytes erased by ``erase_opcode``
+
+    erase_addr_bits : int or None
+        number of address bits sent with ``erase_opcode``
+
+    erase_commands : tuple of SpiNorFlashEraseCommand
+        normalized erase operations supported by the chip
 
     bus_width : int
         expected number of data lines
@@ -135,9 +151,74 @@ class SpiNorFlashModule(metaclass=MetaSizes):
     def check_bus_width(self, width):
         return width >= self.bus_width
 
-    def _configure_chip(self, default_read_cmd,
-                        erase_cmd,
-                        program_cmd):
+    @staticmethod
+    def _legacy_erase_command(opcode, total_size):
+        geometries = {
+            SpiNorFlashOpCodes.BE_256       : (       256, 24),
+            SpiNorFlashOpCodes.BE_4K        : (  4 * 1024, 24),
+            SpiNorFlashOpCodes.BE_4K_PMC    : (  4 * 1024, 24),
+            SpiNorFlashOpCodes.BE_32K       : ( 32 * 1024, 24),
+            SpiNorFlashOpCodes.SE           : ( 64 * 1024, 24),
+            SpiNorFlashOpCodes.BE_4K_4B     : (  4 * 1024, 32),
+            SpiNorFlashOpCodes.BE_32K_4B    : ( 32 * 1024, 32),
+            SpiNorFlashOpCodes.SE_4B        : ( 64 * 1024, 32),
+            SpiNorFlashOpCodes.CHIP_ERASE   : (total_size, 0),
+            SpiNorFlashOpCodes.CHIP_ERASE_ALT   : (total_size, 0),
+            SpiNorFlashOpCodes.CHIP_ERASE_ATMEL : (total_size, 0),
+        }
+        if opcode not in geometries:
+            raise ValueError("Erase geometry is required for command %s" % (str(opcode),))
+        size, addr_bits = geometries[opcode]
+        return SpiNorFlashEraseCommand(opcode, size, addr_bits)
+
+    def _configure_erase(self, erase_cmd, erase_commands):
+        class_commands = getattr(type(self), "erase_commands", None)
+        if erase_commands is None:
+            erase_commands = class_commands
+
+        # Preserve the historical 64-KiB/SE behavior for modules that do not yet provide erase
+        # geometry. Explicit legacy opcodes are translated when their geometry is unambiguous.
+        if erase_commands is None:
+            opcode = SpiNorFlashOpCodes.SE if erase_cmd is None else erase_cmd
+            erase_commands = [self._legacy_erase_command(opcode, self.total_size)]
+
+        normalized = []
+        for command in erase_commands:
+            if not isinstance(command, SpiNorFlashEraseCommand):
+                try:
+                    command = SpiNorFlashEraseCommand(*command)
+                except (TypeError, ValueError):
+                    raise ValueError("Invalid SPI NOR erase command descriptor: %r" % (command,))
+            if not isinstance(command.size, int) or command.size <= 0:
+                raise ValueError("SPI NOR erase size must be a positive integer")
+            if command.addr_bits not in [0, 24, 32]:
+                raise ValueError("SPI NOR erase address length must be 0, 24, or 32 bits")
+            normalized.append(command)
+
+        self.erase_commands = tuple(normalized)
+        if not normalized:
+            if erase_cmd is not None:
+                raise ValueError("Cannot select an erase command on a non-erasable module")
+            self.erase_command   = None
+            self.erase_opcode    = None
+            self.erase_size      = None
+            self.erase_addr_bits = None
+            return
+
+        if erase_cmd is None:
+            selected = normalized[0]
+        else:
+            selected = next((command for command in normalized if command.opcode == erase_cmd), None)
+            if selected is None:
+                raise ValueError("Erase command (%s) has no geometry for chip %s!" %
+                    (str(erase_cmd), self.name))
+
+        self.erase_command   = selected
+        self.erase_opcode    = selected.opcode
+        self.erase_size      = selected.size
+        self.erase_addr_bits = selected.addr_bits
+
+    def _configure_chip(self, default_read_cmd, erase_cmd, erase_commands, program_cmd):
         # Check if commands on the list are supported
         for cmd in self.read_cmds:
             if cmd not in self.supported_opcodes:
@@ -151,12 +232,13 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
         # Set commands
         self.read_opcode = default_read_cmd
         self.program_opcode = program_cmd
-        self.erase_opcode = erase_cmd
+        self._configure_erase(erase_cmd, erase_commands)
 
     def __init__(self, default_read_cmd,
                  read_cmds=None,
                  program_cmd=SpiNorFlashOpCodes.PP_1_1_1,
-                 erase_cmd=SpiNorFlashOpCodes.SE):
+                 erase_cmd=None,
+                 erase_commands=None):
         # Check if mandatory attributes are set by an inheritor
         assert hasattr(self, 'manufacturer_id')
         assert hasattr(self, 'device_id')
@@ -184,4 +266,5 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
         # Configure a chip using provided default_read_cmd
         self._configure_chip(default_read_cmd,
                              erase_cmd,
+                             erase_commands,
                              program_cmd)
