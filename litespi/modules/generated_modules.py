@@ -2511,6 +2511,7 @@ class IS25LP016D(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x6015
     name = "is25lp016d"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    2097152   # bytes
     page_size   =        256   # bytes
@@ -2573,6 +2574,7 @@ class IS25LP080D(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x6014
     name = "is25lp080d"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    1048576   # bytes
     page_size   =        256   # bytes
@@ -2634,6 +2636,7 @@ class IS25LP256(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x6019
     name = "is25lp256"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
@@ -2679,6 +2682,7 @@ class IS25LP512M(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x601a
     name = "is25lp512m"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
@@ -2700,6 +2704,7 @@ class IS25LQ040B(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x4013
     name = "is25lq040b"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =     524288   # bytes
     page_size   =        256   # bytes
@@ -2722,6 +2727,7 @@ class IS25WP032(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x7016
     name = "is25wp032"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    4194304   # bytes
     page_size   =        256   # bytes
@@ -2744,6 +2750,7 @@ class IS25WP064(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x7017
     name = "is25wp064"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    8388608   # bytes
     page_size   =        256   # bytes
@@ -2766,6 +2773,7 @@ class IS25WP128(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x7018
     name = "is25wp128"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   16777216   # bytes
     page_size   =        256   # bytes
@@ -2805,6 +2813,7 @@ class IS25WP256(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x7019
     name = "is25wp256"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
@@ -2850,6 +2859,7 @@ class IS25WP512M(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.ISSI
     device_id = 0x701a
     name = "is25wp512m"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
@@ -4711,6 +4721,7 @@ class MX25L25635E(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2019
     name = "mx25l25635e"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
@@ -5247,6 +5258,7 @@ class MX25R1035F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2811
     name = "mx25r1035f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =     131072   # bytes
     page_size   =        256   # bytes
@@ -5268,6 +5280,7 @@ class MX25R1635F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2815
     name = "mx25r1635f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    2097152   # bytes
     page_size   =        256   # bytes
@@ -5289,6 +5302,7 @@ class MX25R2035F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2812
     name = "mx25r2035f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =     262144   # bytes
     page_size   =        256   # bytes
@@ -5310,6 +5324,7 @@ class MX25R3235F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2816
     name = "mx25r3235f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    4194304   # bytes
     page_size   =        256   # bytes
@@ -5332,6 +5347,7 @@ class MX25R4035F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2813
     name = "mx25r4035f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =     524288   # bytes
     page_size   =        256   # bytes
@@ -5353,6 +5369,7 @@ class MX25R512F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2810
     name = "mx25r512f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =      65536   # bytes
     page_size   =        256   # bytes
@@ -5391,6 +5408,7 @@ class MX25R8035F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2814
     name = "mx25r8035f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    1048576   # bytes
     page_size   =        256   # bytes
@@ -5412,6 +5430,7 @@ class MX25U12835F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2538
     name = "mx25u12835f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   16777216   # bytes
     page_size   =        256   # bytes
@@ -5434,6 +5453,7 @@ class MX25U1635E(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2535
     name = "mx25u1635e"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    2097152   # bytes
     page_size   =        256   # bytes
@@ -5492,6 +5512,7 @@ class MX25U3235E(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2536
     name = "mx25u3235e"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    4194304   # bytes
     page_size   =        256   # bytes
@@ -5511,6 +5532,7 @@ class MX25U3235F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2536
     name = "mx25u3235f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    4194304   # bytes
     page_size   =        256   # bytes
@@ -5551,6 +5573,7 @@ class MX25U51245G(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x253a
     name = "mx25u51245g"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
@@ -5576,6 +5599,7 @@ class MX25U6435E(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2537
     name = "mx25u6435e"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    8388608   # bytes
     page_size   =        256   # bytes
@@ -5699,6 +5723,7 @@ class MX25V8035F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x2314
     name = "mx25v8035f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =    1048576   # bytes
     page_size   =        256   # bytes
@@ -5721,6 +5746,7 @@ class MX66L1G45G(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x201b
     name = "mx66l1g45g"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =  134217728   # bytes
     page_size   =        256   # bytes
@@ -5743,6 +5769,7 @@ class MX66L1G55G(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x261b
     name = "mx66l1g55g"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =  134217728   # bytes
     page_size   =        256   # bytes
@@ -5784,6 +5811,7 @@ class MX66L51235L(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x201a
     name = "mx66l51235l"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
@@ -5812,6 +5840,7 @@ class MX66U51235F(SpiNorFlashModule):
     manufacturer_id = SpiNorFlashManufacturerIDs.MACRONIX
     device_id = 0x253a
     name = "mx66u51235f"
+    quad_enable = "wrsr_sr1_bit6"
 
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
