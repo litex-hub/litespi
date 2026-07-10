@@ -27,6 +27,7 @@ PHY:
   - Portable/Generic.
   - Single/Dual/Quad/Octal SPI Bus support.
   - Dynamic Clk frequency configuration and auto-calibration.
+  - Pin-level SPI NOR flash read model for simulation.
 
 Core:
   - Dynamic Crossbar.
