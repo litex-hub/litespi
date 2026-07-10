@@ -10,10 +10,11 @@ from migen import *
 from migen.fhdl.specials import Instance
 from migen.sim import run_simulation
 
-from litex.build.xilinx.platform import XilinxUSPlatform
+from litex.build.xilinx.platform import XilinxPlatform, XilinxUSPlatform
 
 from litespi.phy.generic import LiteSPIXilinxUSPHY
-from litespi.phy.xilinx import LiteSPISTARTUPE3
+from litespi.phy.generic_sdr import LiteSPISDRPHYCore
+from litespi.phy.xilinx import LiteSPISTARTUPE2, LiteSPISTARTUPE3
 
 
 class _IgnoreInstance:
@@ -30,6 +31,58 @@ class _LiteSPIXilinxUSDUT(Module):
             default_divisor = default_divisor,
             cs_delay        = 0,
         )
+
+
+class _S7SPIPads:
+    def __init__(self):
+        self.cs_n = Signal(reset=1)
+        self.mosi = Signal()
+        self.miso = Signal()
+
+
+class _LiteSPIXilinxS7DUT(Module):
+    def __init__(self):
+        self.clock_domains.cd_sys = ClockDomain()
+        self.pads = pads = _S7SPIPads()
+        self.submodules.phy = LiteSPISDRPHYCore(
+            pads            = pads,
+            flash           = None,
+            device          = "xc7a35t",
+            clock_domain    = "sys",
+            default_divisor = 4,
+            cs_delay        = 0,
+        )
+        self.ios = {self.cd_sys.clk, self.cd_sys.rst, pads.cs_n, pads.mosi, pads.miso}
+
+
+class TestLiteSPISTARTUPE2(unittest.TestCase):
+    def test_instance_port_mapping(self):
+        dut      = _LiteSPIXilinxS7DUT()
+        core     = dut.phy
+        fragment = dut.get_fragment()
+
+        self.assertIsInstance(core.clk_io, LiteSPISTARTUPE2)
+        self.assertEqual(core.clk_io.startup_cycles, 3)
+
+        instances = [
+            special for special in fragment.specials
+            if isinstance(special, Instance) and special.of == "STARTUPE2"
+        ]
+        self.assertEqual(len(instances), 1)
+
+        ports = {
+            item.name: item.expr
+            for item in instances[0].items
+            if hasattr(item, "expr")
+        }
+        self.assertIs(ports["USRCCLKO"], core.clk_io.clk)
+
+    def test_7series_elaboration(self):
+        platform = XilinxPlatform("xc7a35t-csg324-1", [], toolchain="vivado")
+        dut      = _LiteSPIXilinxS7DUT()
+        verilog  = str(platform.get_verilog(dut, ios=dut.ios, name="top"))
+        self.assertEqual(verilog.count("STARTUPE2 STARTUPE2"), 1)
+        self.assertIn(".USRCCLKO", verilog)
 
 
 class TestLiteSPISTARTUPE3(unittest.TestCase):

@@ -9,6 +9,29 @@ from migen import *
 from litex.gen import *
 
 
+# Xilinx 7-Series STARTUPE2 ------------------------------------------------------------------------
+
+class LiteSPISTARTUPE2(LiteXModule):
+    """Route the registered LiteSPI SDR clock through the 7-Series STARTUPE2 primitive."""
+
+    startup_cycles = 3
+
+    def __init__(self):
+        self.clk = clk = Signal()
+
+        self.specials += Instance("STARTUPE2",
+            i_CLK       = 0,
+            i_GSR       = 0,
+            i_GTS       = 0,
+            i_KEYCLEARB = 0,
+            i_PACK      = 0,
+            i_USRCCLKO  = clk,
+            i_USRCCLKTS = 0,
+            i_USRDONEO  = 1,
+            i_USRDONETS = 1,
+        )
+
+
 # Xilinx UltraScale STARTUPE3 ----------------------------------------------------------------------
 
 class LiteSPISTARTUPE3(LiteXModule):

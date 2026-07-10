@@ -40,7 +40,7 @@ class LiteSPISDRPHYCore(LiteXModule):
         SpiNorFlashModule configuration object.
 
     device : str
-        Device type for use by the ``LiteSPIClkGen``.
+        Device type used to select a compatible clock-only backend for clockless pads.
 
     default_divisor : int
         Default frequency divisor for clkgen.
@@ -48,6 +48,9 @@ class LiteSPISDRPHYCore(LiteXModule):
     io : LiteXModule or None
         Optional backend providing virtual clock/CS pads, split DQ signals, bus width, and
         startup-cycle requirements.
+
+    clk_io : LiteXModule or None
+        Optional clock-only backend providing a virtual clock pad and startup-cycle requirements.
 
     Attributes
     ----------
@@ -63,7 +66,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     clk_divisor : CSRStorage
         Register which holds a clock divisor value applied to clkgen.
     """
-    def __init__(self, pads, flash, device, clock_domain, default_divisor=9, extra_latency=0, io=None, **kwargs):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor=9, extra_latency=0, io=None, clk_io=None, **kwargs):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs               = Signal().like(pads.cs_n)
@@ -77,10 +80,32 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         # # #
 
+        if io is not None and clk_io is not None:
+            raise ValueError("SPI full I/O and clock-only backends are mutually exclusive")
+
         if io is not None:
             if pads is not io.pads:
                 raise ValueError("SPI I/O backend pads must be used by the PHY")
             self.submodules.io = io
+
+        if io is not None:
+            startup_cycles = io.startup_cycles
+        else:
+            if clk_io is None and not hasattr(pads, "clk"):
+                if device is not None and device.startswith("xc7"):
+                    from litespi.phy.xilinx import LiteSPISTARTUPE2
+                    clk_io = LiteSPISTARTUPE2()
+                elif device is not None and device.startswith("LFE5U"):
+                    from litespi.phy.lattice import LiteSPIECP5USRMCLK
+                    clk_io = LiteSPIECP5USRMCLK()
+                else:
+                    raise NotImplementedError("No LiteSPI clock backend for device {!r}".format(device))
+
+            if clk_io is not None:
+                self.submodules.clk_io = clk_io
+                startup_cycles         = clk_io.startup_cycles
+            else:
+                startup_cycles = 0
 
         # Resynchronize CSR Clk Divisor to LiteSPI Clk Domain.
         self.submodules += ResyncReg(clk_divisor.storage, spi_clk_divisor, clock_domain)
@@ -100,13 +125,13 @@ class LiteSPISDRPHYCore(LiteXModule):
             assert not flash.ddr
 
         # Clock Generator.
-        startup_cycles = 0 if io is None else io.startup_cycles
         self.clkgen = clkgen = LiteSPIClkGen(
             pads           = pads,
             device         = device,
             div_width      = len(sink.clk_div),
             extra_latency  = extra_latency,
             startup_cycles = startup_cycles,
+            clk_io         = clk_io,
         )
 
         self.submodules += ResyncReg(mode.storage, clkgen.mode, clock_domain)
