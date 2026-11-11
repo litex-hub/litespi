@@ -283,6 +283,35 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                     })
                     self.assertEqual(len(edges), 32//width)
 
+    def test_short_read_after_long_read(self):
+        # Bits above the transfer length must not hold bits of an earlier transfer.
+        for width in [1, 4]:
+            for extra_latency in [0, 1]:
+                with self.subTest(width=width, extra_latency=extra_latency):
+                    dut     = _LiteSPIDDRPHYDUT(width=width, extra_latency=extra_latency)
+                    phy     = dut.phy
+                    results = []
+
+                    def flash_model():
+                        yield "passive"
+                        yield dut.bus.i.eq(0xff)
+                        while True:
+                            yield
+
+                    def generator():
+                        yield phy.source.ready.eq(1)
+                        yield phy.cs.eq(1)
+                        for _ in range(3):
+                            yield
+                        results.append((yield from self._transfer(phy, 0, 32, width, 0)))
+                        results.append((yield from self._transfer(phy, 0,  8, width, 0)))
+
+                    self._run(dut, {
+                        "sys"   : generator(),
+                        "sys_n" : flash_model(),
+                    })
+                    self.assertEqual(results, [0xffffffff, 0xff])
+
     def test_extra_latency_rejects_non_half_cycle_steps(self):
         for extra_latency in [0.25, -0.5]:
             with self.subTest(extra_latency=extra_latency):

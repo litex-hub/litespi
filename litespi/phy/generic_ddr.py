@@ -99,6 +99,7 @@ class LiteSPIDDRPHYCore(LiteXModule):
         sr_out       = Signal(len(sink.data), reset_less=True)
         sr_in_shift  = Signal()
         sr_in        = Signal(len(sink.data), reset_less=True)
+        sr_in_mask   = Signal(len(sink.data), reset_less=True)
         if (2*extra_latency) != int(2*extra_latency) or extra_latency < 0:
             raise ValueError("SPI DDR PHY extra_latency must be a non-negative multiple of 0.5")
         input_pipeline = 2 + int(2*extra_latency)
@@ -114,7 +115,8 @@ class LiteSPIDDRPHYCore(LiteXModule):
             })
         ]
         self.sync += If(sr_out_load,
-            sr_out.eq(sink.data << (len(sink.data) - sink.len))
+            sr_out.eq(sink.data << (len(sink.data) - sink.len)),
+            sr_in_mask.eq((2**len(sink.data) - 1) >> (len(sink.data) - sink.len)),
         )
         self.sync += If(sr_out_shift,
             dq_o[0].eq(dq_o[1]),
@@ -184,7 +186,9 @@ class LiteSPIDDRPHYCore(LiteXModule):
                 NextState("SEND-STATUS-DATA"),
             ),
         )
-        self.comb += source.data.eq(sr_in)
+        # Only return the bits of the current transfer (sr_in also holds the input pipeline drain
+        # and bits of earlier transfers above sink.len).
+        self.comb += source.data.eq(sr_in & sr_in_mask)
         fsm.act("SEND-STATUS-DATA",
             # Send Data In to Core and return to WAIT when accepted.
             source.valid.eq(1),
