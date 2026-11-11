@@ -8244,7 +8244,7 @@ class W25Q128JW(SpiNorFlashModule):
     dummy_cycles = {
         SpiNorFlashOpCodes.READ_1_1_2: 8,
         SpiNorFlashOpCodes.READ_1_2_2: 4,
-        SpiNorFlashOpCodes.READ_1_1_4: 32,
+        SpiNorFlashOpCodes.READ_1_1_4: 8,
         SpiNorFlashOpCodes.READ_1_4_4: 6,
     }
 
@@ -8501,8 +8501,8 @@ class W25Q256JW(SpiNorFlashModule):
         SpiNorFlashOpCodes.READ_1_1_2_4B: 8,
         SpiNorFlashOpCodes.READ_1_2_2: 4,
         SpiNorFlashOpCodes.READ_1_2_2_4B: 4,
-        SpiNorFlashOpCodes.READ_1_1_4: 32,
-        SpiNorFlashOpCodes.READ_1_1_4_4B: 32,
+        SpiNorFlashOpCodes.READ_1_1_4: 8,
+        SpiNorFlashOpCodes.READ_1_1_4_4B: 8,
         SpiNorFlashOpCodes.READ_1_4_4: 6,
         SpiNorFlashOpCodes.READ_1_4_4_4B: 6,
     }

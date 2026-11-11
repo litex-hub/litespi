@@ -163,6 +163,17 @@ class TestFlashModule(unittest.TestCase):
             with self.subTest(module=name):
                 self.assertEqual(getattr(modules, name).quad_enable, "wrsr_sr1_bit6")
 
+    def test_winbond_jw_quad_output_dummy_cycles(self):
+        # Fast Read Quad Output (6Bh/6Ch) uses 8 dummy cycles on W25Q128JW and W25Q256JW.
+        cases = [
+            (modules.W25Q128JW, Codes.READ_1_1_4),
+            (modules.W25Q256JW, Codes.READ_1_1_4),
+            (modules.W25Q256JW, Codes.READ_1_1_4_4B),
+        ]
+        for module, opcode in cases:
+            with self.subTest(module=module.__name__, opcode=opcode.desc):
+                self.assertEqual(module(opcode).dummy_cycles, 8)
+
     def test_meta_sizes(self):
         with self.assertRaises(AssertionError):
             class BadSizesChip(SpiNorFlashModule):
