@@ -53,8 +53,7 @@ builds it from the registers in the following order:
 4. The PHY clocks `len / width` SCK cycles. It sends the low `len` bits of the data, most
    significant first, and shifts in the same number of bits.
 5. `status.rx_ready` rises. Reading `rxtx` returns the bits shifted in, the last one in bit 0,
-   and pops them. Only the low `len` bits are meaningful: the 1:2 PHY leaves bits of earlier
-   transfers above them.
+   and pops them. The bits above the low `len` bits read 0.
 6. Repeat from step 1 or 3 for the next phase; write `cs` with 0 to end the command.
 
 Every transfer returns a word, even when nothing is read: software pops it. With the default
