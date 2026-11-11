@@ -23,13 +23,9 @@ from litex.build.io import SDROutput, SDRInput, SDRTristate
 class LiteSPISDRPHYCore(LiteXModule):
     """LiteSPI PHY instantiator
 
-    The ``LiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
+    The ``LiteSPISDRPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
     It supports single/dual/quad/octal output reads from the flash chips.
-
-    The following diagram shows how each clock configuration option relates to outputs and input sampling in DDR mode:
-
-    .. wavedrom:: ../../doc/ddr-timing-diagram.json
 
     Parameters
     ----------
@@ -76,7 +72,7 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         self.clk_divisor      = clk_divisor = CSRStorage(len(sink.clk_div), reset=self._default_divisor)
 
-        self.mode = mode = CSRStorage(2, reset=0, description="SPI mode (CPOL/CPHA). Curently only mode 0 and 3 are supported.") 
+        self.mode = mode = CSRStorage(2, reset=0, description="SPI mode (CPOL/CPHA). Currently only mode 0 and 3 are supported.")
 
         # # #
 

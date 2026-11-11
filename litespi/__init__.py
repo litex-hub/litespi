@@ -25,20 +25,16 @@ class LiteSPICore(Module):
 
 
 class LiteSPI(LiteXModule):
-    autocsr_exclude = {"ev"}
     """SPI Controller wrapper.
 
     The ``LiteSPI`` class provides a wrapper that can instantiate both ``LiteSPIMMAP`` and ``LiteSPIMaster`` and connect them to the PHY.
 
-    Both options can be used at the same time with help of ``mux_sel`` register which allows to share access to PHY via crossbar.
+    Both can be used at the same time: the crossbar arbitrates the PHY between them.
 
     Parameters
     ----------
     phy : Module
         Module or object that contains PHY stream interfaces and a cs signal to connect the ``LiteSPICore`` to.
-
-    clk_freq : int
-        Frequency of a clock connected to LiteSPI.
 
     clock_domain : str
         Name of LiteSPI clock domain.
@@ -50,10 +46,10 @@ class LiteSPI(LiteXModule):
         Enables register-operated SPI master controller.
 
     mmap_endianness : string
-        If endianness is set to ``small`` then byte order of each 32-bit word comming MMAP core will be reversed.
+        If endianness is set to ``little`` then byte order of each 32-bit word coming from the MMAP core will be reversed.
 
     with_csr : bool
-        The number of dummy bits can be configure when set to True.
+        The number of dummy bits can be configured when set to True.
 
     with_mmap_write : bool or string
         MMAP writes are supported when set to True or "csr". When set to "csr", they are disabled by default but
@@ -69,6 +65,7 @@ class LiteSPI(LiteXModule):
     bus : Interface(), out
         Wishbone interface for memory-mapped flash access.
     """
+    autocsr_exclude = {"ev"}
 
     def __init__(self, phy, clock_domain="sys",
         with_mmap=True, mmap_endianness="big",
