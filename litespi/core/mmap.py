@@ -105,6 +105,18 @@ class LiteSPIMMAP(LiteXModule):
 
         self._spi_dummy_bits = spi_dummy_bits = Signal(8)
 
+        # The dummy phase is one transfer, whose length field is narrower than the register: limit
+        # it to the largest whole number of dummy cycles that fits (instead of a silent modulo).
+        max_dummy_bits  = ((2**len(source.len) - 1)//flash.addr_width)*flash.addr_width
+        spi_dummy_len   = Signal(len(source.len))
+        if self._default_dummy_bits > max_dummy_bits:
+            raise ValueError(f"MMAP dummy bits ({self._default_dummy_bits}) above the transfer length limit ({max_dummy_bits}).")
+        self.comb += If(spi_dummy_bits > max_dummy_bits,
+            spi_dummy_len.eq(max_dummy_bits),
+        ).Else(
+            spi_dummy_len.eq(spi_dummy_bits),
+        )
+
         if with_csr:
             self.dummy_bits = dummy_bits = CSRStorage(8, reset=self._default_dummy_bits)
             if clock_domain != "sys":
@@ -299,7 +311,7 @@ class LiteSPIMMAP(LiteXModule):
             source.width.eq(flash.addr_width),
             source.mask.eq(0),
             source.data.eq(dummy),
-            source.len.eq(spi_dummy_bits),
+            source.len.eq(spi_dummy_len),
             If(source.ready,
                 NextState("DUMMY-RET"),
             )

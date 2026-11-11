@@ -456,6 +456,36 @@ class TestSPIMMAP(unittest.TestCase):
                     {"data" : 0,           "len" : 32,         "width" : data_width, "mask" : 0b0000},
                 ])
 
+    def test_spi_mmap_dummy_bits_above_transfer_length(self):
+        # mmap_dummy_bits is 8-bit, the transfer length 6-bit: limit to whole cycles, no modulo.
+        for opcode, addr_width, dummy_bits, dummy_len in [
+            (Codes.READ_1_1_1_FAST, 1,  80, 63),
+            (Codes.READ_1_1_1_FAST, 1,  64, 63),
+            (Codes.READ_1_4_4,      4, 255, 60),
+            (Codes.READ_1_4_4,      4,  40, 40),
+        ]:
+            with self.subTest(opcode=opcode.desc, dummy_bits=dummy_bits):
+                dut       = LiteSPIMMAP(flash=self.WideReadDummyChip(opcode, []))
+                transfers = []
+
+                def wb_gen():
+                    yield dut.dummy_bits.storage.eq(dummy_bits)
+                    yield
+                    yield from dut.bus.read(0xcafe)
+
+                run_simulation(dut, [
+                    wb_gen(),
+                    self._record_spi_transfers(dut, transfers, transfer_count=4),
+                ])
+
+                self.assertEqual(transfers[2], {"data" : 0xdead, "len" : dummy_len, "width" : addr_width, "mask" : 0b0000})
+
+    def test_spi_mmap_default_dummy_bits_above_transfer_length(self):
+        class LongDummyChip(self.WideReadDummyChip):
+            dummy_bits = 64
+        with self.assertRaises(ValueError):
+            LiteSPIMMAP(flash=LongDummyChip(Codes.READ_1_1_1_FAST, []))
+
     def test_spi_mmap_4byte_address_phases(self):
         addr = 0x12345678
 
