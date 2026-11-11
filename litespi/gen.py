@@ -74,7 +74,7 @@ _io = [
 # LiteSPI Core -------------------------------------------------------------------------------------
 
 class LiteSPICore(SoCMini):
-    def __init__(self, platform, module, mode="x4", rate="1:1", divisor="1",
+    def __init__(self, platform, module, mode="x4", rate="1:1", divisor=None,
         clk_freq       = 100e6,
         bus_standard   = "wishbone",
         bus_endianness = "big",
@@ -116,7 +116,21 @@ class LiteSPICore(SoCMini):
           "x4" : 4,
         }[mode]
         spiflash_module_cls = modules[module]
-        spiflash_module     = spiflash_module_cls(getattr(Codes, f"READ_1_1_{module_width}"))
+        read_cmd            = getattr(Codes, f"READ_1_1_{module_width}")
+        # Use the 4-byte address read on chips larger than 16 MiB (when the module lists it).
+        if spiflash_module_cls.total_size > 2**24:
+            read_cmd_4b = getattr(Codes, f"READ_1_1_{module_width}_4B")
+            if read_cmd_4b in spiflash_module_cls.supported_opcodes:
+                read_cmd = read_cmd_4b
+            else:
+                print(f"WARNING: {module} has no READ_1_1_{module_width}_4B read, only the first 16 MiB can be read.")
+        spiflash_module = spiflash_module_cls(read_cmd)
+
+        # SPI Flash PHY Divisor --------------------------------------------------------------------
+
+        # Default: system clock / 2 (SDR PHY, which rounds odd divisors up) or system clock (1:2 PHY).
+        if divisor is None:
+            divisor = {"1:1": 2, "1:2": 1}[rate]
 
         # SPI Flash PHY ----------------------------------------------------------------------------
 
@@ -182,7 +196,7 @@ def main():
     parser.add_argument("--module",         default="S25FL128L",  help="SPI Flash Module.")
     parser.add_argument("--mode",           default="x1",         help="SPI Mode (x1, x4).")
     parser.add_argument("--rate",           default="1:1",        help="SPI Flash Core rate (1:1, 1:2).")
-    parser.add_argument("--divisor",        default="1",          help="SPI PHY Clk Divisor.")
+    parser.add_argument("--divisor",        default=None,         help="SPI PHY Clk Divisor (default: 2 at 1:1, 1 at 1:2; the 1:1 PHY rounds odd divisors up).")
     parser.add_argument("--bus-standard",   default="wishbone",   help="Bus Standard (wishbone, axi-lite).")
     parser.add_argument("--bus-endianness", default="big",        help="Bus Endianness (big, little).")
     parser.add_argument("--with-master",    action='store_true',  help="Enable Master (For Control & Writes).")
