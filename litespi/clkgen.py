@@ -89,10 +89,10 @@ class LiteSPIClkGen(LiteXModule):
         self.en         = en         = Signal()
         self.start      = start      = Signal()
         self.ready      = ready      = Signal()
-        cnt             = Signal(div_width - 1)
+        cnt             = Signal(div_width)
         en_int          = Signal()
         clk             = Signal()
-        half            = Signal(div_width - 1)
+        half            = Signal(div_width)
 
         self.comb += half.eq((div + 1) >> 1)
 

@@ -77,6 +77,29 @@ class TestLiteSPISDRPHY(unittest.TestCase):
                     special_overrides = {Instance : _IgnoreInstance},
                 )
 
+    def test_clock_period_up_to_max_divisor(self):
+        for div in [2, 8, 1022, 1023]:
+            with self.subTest(div=div):
+                dut = Module()
+                dut.submodules.clkgen = clkgen = LiteSPIClkGen(
+                    pads      = _ClockPads(),
+                    device    = None,
+                    div_width = 10,
+                )
+                posedges = []
+
+                def generator():
+                    yield clkgen.div.eq(div)
+                    yield clkgen.en.eq(1)
+                    for cycle in range(4*1024):
+                        if (yield clkgen.posedge):
+                            posedges.append(cycle)
+                        yield
+
+                run_simulation(dut, generator())
+                periods = {b - a for a, b in zip(posedges, posedges[1:])}
+                self.assertEqual(periods, {2*((div + 1)//2)})
+
     def test_ecp5_clock_backend_selection(self):
         dut = Module()
         dut.submodules.phy = LiteSPISDRPHYCore(
