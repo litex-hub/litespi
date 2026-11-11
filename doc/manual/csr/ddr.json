@@ -1,0 +1,193 @@
+{
+ "argv": [
+  "rate=\"1:2\"",
+  "mode=\"4x\"",
+  "S25FL128L(READ_1_1_4)",
+  "clk_freq=25e6",
+  "with_mmap_write=\"csr\"",
+  "master_with_irq=True"
+ ],
+ "banks": {
+  "spiflash": [
+   {
+    "access": "rw",
+    "description": "Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY.",
+    "fields": [],
+    "name": "mmap_clk_divisor",
+    "offset": 0,
+    "reset": 0,
+    "size": 10
+   },
+   {
+    "access": "rw",
+    "description": "Dummy phase of the MMAP read command, in bits at the address width (dummy cycles x address lines). The reset value is `dummy_cycles` x `addr_width` of the module for a fast read, else 0. Present with `with_csr=True` (default).",
+    "fields": [],
+    "name": "mmap_dummy_bits",
+    "offset": 4,
+    "reset": 8,
+    "size": 8
+   },
+   {
+    "access": "rw",
+    "description": "Bit 0 `write_enable`: 1 sends the Wishbone writes to the chip as page programs (`program_cmd` of the module), 0 acknowledges and drops them. The MMAP sends no write enable (WREN) itself. Present with `with_mmap_write=\"csr\"`.",
+    "fields": [
+     {
+      "description": "MMAP write enable",
+      "name": "write_enable",
+      "offset": 0,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     }
+    ],
+    "name": "mmap_write_config",
+    "offset": 8,
+    "reset": 0,
+    "size": 1
+   },
+   {
+    "access": "rw",
+    "description": "Chip select of the master, one bit per CS line: 1 selects the chip (CS low) and holds the PHY through the crossbar, 0 ends the command.",
+    "fields": [],
+    "name": "master_cs",
+    "offset": 12,
+    "reset": 0,
+    "size": 1
+   },
+   {
+    "access": "rw",
+    "description": "SPI PHY settings.",
+    "fields": [
+     {
+      "description": "SPI Xfer length (in bits).",
+      "name": "len",
+      "offset": 0,
+      "reset": 0,
+      "size": 6,
+      "values": []
+     },
+     {
+      "description": "SPI Xfer width (1/2/4/8).",
+      "name": "width",
+      "offset": 8,
+      "reset": 0,
+      "size": 4,
+      "values": []
+     },
+     {
+      "description": "SPI DQ output enable mask (set bits to ``1`` to enable output drivers on DQ lines).",
+      "name": "mask",
+      "offset": 16,
+      "reset": 0,
+      "size": 8,
+      "values": []
+     }
+    ],
+    "name": "master_phyconfig",
+    "offset": 16,
+    "reset": 0,
+    "size": 24
+   },
+   {
+    "access": "wo",
+    "description": "Write: push one transfer of `phyconfig.len` bits, right aligned, to the TX FIFO. Read: pop the 32-bit word shifted in during one transfer from the RX FIFO.",
+    "fields": [],
+    "name": "master_rxtx",
+    "offset": 20,
+    "reset": null,
+    "size": 32
+   },
+   {
+    "access": "ro",
+    "description": "",
+    "fields": [
+     {
+      "description": "TX FIFO is not full.",
+      "name": "tx_ready",
+      "offset": 0,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     },
+     {
+      "description": "RX FIFO is not empty.",
+      "name": "rx_ready",
+      "offset": 1,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     }
+    ],
+    "name": "master_status",
+    "offset": 24,
+    "reset": null,
+    "size": 2
+   },
+   {
+    "access": "rw",
+    "description": "Divisor of the master transfers, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY.",
+    "fields": [],
+    "name": "master_clk_divisor",
+    "offset": 28,
+    "reset": 0,
+    "size": 10
+   },
+   {
+    "access": "ro",
+    "description": "This register contains the current raw level of the event trigger. Writes to this register have no effect.",
+    "fields": [
+     {
+      "description": "Level of the ``rx_ready`` event.",
+      "name": "rx_ready",
+      "offset": 0,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     }
+    ],
+    "name": "master_ev_status",
+    "offset": 32,
+    "reset": null,
+    "size": 1
+   },
+   {
+    "access": "rw",
+    "description": "When an event occurs, the corresponding bit will be set in this register. To clear the Event, set the corresponding bit in this register.",
+    "fields": [
+     {
+      "description": "`1` if a `rx_ready` event occurred. This Event is triggered on **rising** edge.",
+      "name": "rx_ready",
+      "offset": 0,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     }
+    ],
+    "name": "master_ev_pending",
+    "offset": 36,
+    "reset": null,
+    "size": 1
+   },
+   {
+    "access": "rw",
+    "description": "This register enables the corresponding events. Write a ``0`` to this register to disable individual events.",
+    "fields": [
+     {
+      "description": "Write a ``1`` to enable the ``rx_ready`` Event.",
+      "name": "rx_ready",
+      "offset": 0,
+      "reset": 0,
+      "size": 1,
+      "values": []
+     }
+    ],
+    "name": "master_ev_enable",
+    "offset": 40,
+    "reset": 0,
+    "size": 1
+   }
+  ]
+ },
+ "config": "ddr",
+ "target": "digilent_arty"
+}
