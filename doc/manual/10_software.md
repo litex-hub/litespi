@@ -73,11 +73,11 @@ each line are in [A SoC with the BIOS: litex_sim](#sim-litex-sim).
 ## Clock calibration {#sw-calibration}
 
 The calibration finds the fastest SCK that still reads the flash correctly. It runs only when the
-PHY has a `clk_divisor` register, that is with the SDR PHY. With the 1:2 PHY or the model PHY, the
+PHY has a `clk_divisor` register, that is with the SDR PHY and the 1:2 PHY. With the model PHY, the
 BIOS only prints `SPIFLASH_PHY_FREQUENCY` in whole MHz.
 
 The algorithm reads the first 256 bytes of the flash through the MMAP and keeps their CRC32 as the
-reference. It then lowers the divisor step by step (by 2 for the SDR PHY), flushes the caches and
+reference. It then lowers the divisor step by step (by 2 for the SDR PHY, by 1 for the 1:2 PHY), flushes the caches and
 reads the block again, until the CRC changes or the divisor reaches its minimum. It steps back to
 the last divisor that matched, writes it into the PHY and MMAP divisor registers, and prints:
 

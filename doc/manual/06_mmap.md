@@ -157,14 +157,13 @@ match its bus masters.
 
 ## Clock divisor {#mmap-divisor}
 
-Every transfer carries a divisor for the SDR PHY. The MMAP sends the value of its register
+Every transfer carries a divisor for the PHY. The MMAP sends the value of its register
 `mmap_clk_divisor`; 0, the reset value, tells the PHY to use its own register `phy_clk_divisor`.
 The MMAP and the master can therefore read at different SCK frequencies. The divisor formula is in
 [PHYs](#phys).
 
 The BIOS frequency calibration writes both the PHY and the MMAP divisors
-([BIOS, boot and flash update](#software)). The 1:2 PHY ignores the divisor: SCK runs at the PHY
-clock, and the register exists but has no effect.
+([BIOS, boot and flash update](#software)).
 
 ## Writes {#mmap-write}
 

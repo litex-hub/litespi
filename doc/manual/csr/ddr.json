@@ -11,10 +11,19 @@
   "spiflash": [
    {
     "access": "rw",
-    "description": "Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY.",
+    "description": "SPI clock divisor.",
+    "fields": [],
+    "name": "phy_clk_divisor",
+    "offset": 0,
+    "reset": 4,
+    "size": 10
+   },
+   {
+    "access": "rw",
+    "description": "Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`.",
     "fields": [],
     "name": "mmap_clk_divisor",
-    "offset": 0,
+    "offset": 4,
     "reset": 0,
     "size": 10
    },
@@ -23,7 +32,7 @@
     "description": "Dummy phase of the MMAP read command, in bits at the address width (dummy cycles x address lines). The reset value is `dummy_cycles` x `addr_width` of the module for a fast read, else 0. Present with `with_csr=True` (default).",
     "fields": [],
     "name": "mmap_dummy_bits",
-    "offset": 4,
+    "offset": 8,
     "reset": 8,
     "size": 8
    },
@@ -41,7 +50,7 @@
      }
     ],
     "name": "mmap_write_config",
-    "offset": 8,
+    "offset": 12,
     "reset": 0,
     "size": 1
    },
@@ -50,7 +59,7 @@
     "description": "Chip select of the master, one bit per CS line: 1 selects the chip (CS low) and holds the PHY through the crossbar, 0 ends the command.",
     "fields": [],
     "name": "master_cs",
-    "offset": 12,
+    "offset": 16,
     "reset": 0,
     "size": 1
    },
@@ -84,7 +93,7 @@
      }
     ],
     "name": "master_phyconfig",
-    "offset": 16,
+    "offset": 20,
     "reset": 0,
     "size": 24
    },
@@ -93,7 +102,7 @@
     "description": "Write: push one transfer of `phyconfig.len` bits, right aligned, to the TX FIFO. Read: pop the 32-bit word shifted in during one transfer from the RX FIFO.",
     "fields": [],
     "name": "master_rxtx",
-    "offset": 20,
+    "offset": 24,
     "reset": null,
     "size": 32
    },
@@ -119,16 +128,16 @@
      }
     ],
     "name": "master_status",
-    "offset": 24,
+    "offset": 28,
     "reset": null,
     "size": 2
    },
    {
     "access": "rw",
-    "description": "Divisor of the master transfers, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY.",
+    "description": "Divisor of the master transfers, sent with each transfer. 0: use `phy_clk_divisor`.",
     "fields": [],
     "name": "master_clk_divisor",
-    "offset": 28,
+    "offset": 32,
     "reset": 0,
     "size": 10
    },
@@ -146,7 +155,7 @@
      }
     ],
     "name": "master_ev_status",
-    "offset": 32,
+    "offset": 36,
     "reset": null,
     "size": 1
    },
@@ -164,7 +173,7 @@
      }
     ],
     "name": "master_ev_pending",
-    "offset": 36,
+    "offset": 40,
     "reset": null,
     "size": 1
    },
@@ -182,7 +191,7 @@
      }
     ],
     "name": "master_ev_enable",
-    "offset": 40,
+    "offset": 44,
     "reset": 0,
     "size": 1
    }

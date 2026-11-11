@@ -13,7 +13,7 @@ the 1:2 PHY, the vendor backends for configuration flash pins and the notes per 
 | SDR + STARTUPE2, 7-Series | `LiteSPISDRPHYCore` | PHY clock / divisor | 1 to 8 | CCLK pin |
 | SDR + USRMCLK, ECP5 | `LiteSPISDRPHYCore` | PHY clock / divisor | 1 to 8 | MCLK pin |
 | SDR + STARTUPE3, UltraScale | `LiteSPIXilinxUSPHY` | PHY clock / divisor | 1 or 4 | CCLK pin |
-| 1:2, families with DDR I/O | `LiteSPIDDRPHYCore` | PHY clock | 1 to 8 | SCK pin |
+| 1:2, families with DDR I/O | `LiteSPIDDRPHYCore` | PHY clock / divisor | 1 to 8 | SCK pin |
 
 Designs instantiate `LiteSPIPHY`, which builds the SDR PHY for `rate="1:1"` and the 1:2 PHY for
 `rate="1:2"`; the UltraScale PHY is its own class. Which paths are validated on hardware is stated
@@ -142,80 +142,79 @@ descriptions are in the [Register reference](#registers). Both cross into the PH
 
 ## The 1:2 PHY {#phys-ddr}
 
-The 1:2 PHY runs SCK at the clock of its domain. It drives SCK and DQ through DDR output registers
-and reads DQ through DDR input registers, two half cycles per clock. At a 100 MHz system clock, SCK
-runs at 100 MHz, twice the fastest SCK of the SDR PHY.
+The 1:2 PHY drives SCK and DQ through DDR output registers and reads DQ through DDR input
+registers, two half cycles per clock. SCK is the clock of its domain divided by any integer: at a
+100 MHz system clock, a divisor of 1 gives 100 MHz, twice the fastest SCK of the SDR PHY.
+
+### Divisor {#phys-ddr-divisor}
+
+The clock generator counts SCK half periods in half cycles of the PHY clock (`DDRLiteSPIClkGen`).
+Each half period lasts `divisor` half cycles, so SCK keeps a 50 % duty cycle for odd divisors too:
+
+```text
+SCK = f_PHY / divisor,   divisor >= 1
+SCK = f_PHY,             divisor = 0
+```
+
+The divisor comes from the `clk_divisor` register of the PHY, or from the `clk_div` field of a
+transfer when it is not 0, as on the SDR PHY. The PHY latches it when a transfer starts. Its reset
+value is the `default_divisor` that `add_spi_flash` computes from `clk_freq`.
+
+| Divisor | SCK at 50 MHz | SCK at 100 MHz |
+|---------|---------------|----------------|
+| 0 or 1 | 50 MHz | 100 MHz |
+| 2 | 25 MHz | 50 MHz |
+| 3 | 16.7 MHz | 33.3 MHz |
+| 5 | 10 MHz | 20 MHz |
 
 ### Datapath and lanes {#phys-ddr-lanes}
 
-SCK is a DDR output whose first half follows the enable of the transfer and whose second half is
-always low (`DDRLiteSPIClkGen`). SCK is therefore high during the first half of each clock cycle of
-the transfer. Its rising edges follow the rising edges of the PHY clock.
+SCK is a DDR output: lane 0 gives its level in the first half of a PHY clock cycle, lane 1 in the
+second half. Its rising edges always fall on the rising edges of the PHY clock, at the start of
+lane 0. Its falling edges fall between the two lanes for odd divisors and at the start of lane 0
+for even ones.
 
-The data uses the two lanes of a DDR tristate (`DDRTristate`). Lane 1 (`o2`, the second half of the
-cycle) carries the new bit. Lane 0 (`o1`, the first half) repeats the bit of lane 1 from the
-previous cycle.
+The data uses the two lanes of a DDR tristate (`DDRTristate`). The PHY changes the bit on the lane
+of each falling edge of SCK and holds it until the next one, so the bit is stable around the rising
+edge, where the flash samples it. The figure below shows divisor 1.
 
-In the figure below, the bit at the pin changes on the falling edges of SCK and
-is stable around each rising edge, where the flash samples it.
-
-![1:2 PHY lanes in mode 0: SCK is the clock gated by the transfer; lane 1 carries each new bit in
-the second half of a cycle and lane 0 repeats it in the first half of the next one, so each bit at
-the pin is centred on a rising edge of SCK (dotted lines).](phy_ddr_lanes.svg)
+![1:2 PHY lanes in mode 0 at divisor 1: SCK is the clock gated by the transfer; lane 1 carries each
+new bit in the second half of a cycle and lane 0 repeats it in the first half of the next one, so
+each bit at the pin is centred on a rising edge of SCK (dotted lines).](phy_ddr_lanes.svg)
 
 The output enable uses a single lane: the direction of a line does not change within an SCK
 period. For x1, the PHY drives MOSI and reads MISO through the same DDR tristate.
 
-On the input side, the PHY takes the first-half lane (`i1`) of each line once per cycle. After the
-last SCK edge, it keeps shifting for `3 + 2 * extra_latency` cycles to drain the DDR input
-register and the fabric pipeline. The returned word then holds the bits of the last SCK cycles of
-the transfer.
+On the input side, the PHY takes the first-half lane (`i1`) of each line once per SCK rising edge,
+`2 + 2 * extra_latency` PHY clock cycles after it, the delay of the DDR input register and the
+fabric pipeline. It shifts in exactly `len` bits and clears the word when the transfer starts.
 
-Unlike the SDR PHY, the 1:2 PHY accepts the transfer only at its end. It reads the width and the
-mask of the transfer during the shifts, so the transfer has to stay at its input until then.
+The PHY accepts a transfer when it starts and latches its width and mask. A transfer that only
+drives its lines returns without waiting for the input pipeline.
 
 ### What the 1:2 PHY does not have {#phys-ddr-limits}
 
 | Feature | SDR PHY | 1:2 PHY |
 |---------------------------|------------------------|------------------------------------|
-| SCK divisor | `clk_divisor`, `clk_div` | None: SCK is the PHY clock |
-| Registers | `clk_divisor`, `mode` | None |
+| SCK divisor | `clk_divisor`, `clk_div`; even values | `clk_divisor`, `clk_div`; any value |
+| Registers | `clk_divisor`, `mode` | `clk_divisor` |
 | SPI mode 3 | Yes | No: SCK idles low |
 | Clock backends | STARTUPE2, USRMCLK | None: needs a `clk` pad |
-| `extra_latency` | Integer part | Integer only |
+| `extra_latency` | Integer part | Steps of 0.5 |
 
-A fractional `extra_latency` such as 0.5 makes the drain count a float, and the PHY fails at
-elaboration with a Migen type error. The two Efinix targets of LiteX-Boards that set 0.5 with
-their default 1:2 rate, the Ti375 C529 kit (Titanium) and the Tz170 J484 kit (Topaz), are in this
-case.
-
-To run SCK below the system clock, give the PHY and `LiteSPI` a slower clock domain
-([Clock domains](#arch-cdc)). The flash must accept SCK at the PHY clock for the read command in
-use.
+Each 0.5 of `extra_latency` delays the input sampling by one PHY clock cycle. Other values raise a
+`ValueError` at elaboration.
 
 ### The reported frequency {#phys-ddr-frequency}
 
-`add_spi_flash` computes the divisor and the frequency constant the same way for both rates, except
-the rounding to an even divisor, which it skips at 1:2. The 1:2 PHY receives the divisor as
-`default_divisor` among its keyword arguments and ignores it. The table compares what the SoC
-reports with what the pins see.
-
-| Item | Value at 1:2 |
-|------------------------------------|----------------------------------------------------|
-| Divisor | `ceil(sys_clk_freq / clk_freq)`, not used by the PHY |
-| `SPIFLASH_PHY_FREQUENCY` | `int(sys_clk_freq / divisor)` |
-| `SPIFLASH_PHY_MIN_DIVISOR` | 1 |
-| SCK at the pins | The PHY clock |
-| MMAP and master `clk_divisor` | Present; their `clk_div` field is ignored |
-
-The BIOS has no PHY divisor register to calibrate at 1:2. It prints the frequency constant
-instead, in MHz, through `printf("SPI Flash clk configured to %d MHz\n", ...)`. The minimum
-divisor constant only serves that calibration, so it has no effect here.
+`add_spi_flash` computes the divisor as `ceil(sys_clk_freq / clk_freq)`, without the rounding to
+an even value of the SDR PHY. The PHY uses it as the reset value of its divisor, and the frequency
+constant `SPIFLASH_PHY_FREQUENCY` is the system clock divided by it, so the constant is the SCK of
+the PHY. The minimum divisor constant is 1.
 
 On the Arty A7 target (100 MHz system clock, `add_spi_flash` default `clk_freq` of 20 MHz), the
-divisor is 5 and the constant is 20000000. The BIOS prints "SPI Flash clk configured to 20 MHz"
-while SCK runs at 100 MHz. The frequency printed at 1:2 is the requested `clk_freq` rounded to a
-divisor of the system clock, not SCK.
+divisor is 5 and SCK runs at 20 MHz. The BIOS calibration may then lower the divisor one step at a
+time ([BIOS, boot and flash update](#software)).
 
 ## Vendor clock and I/O backends {#phys-backends}
 
