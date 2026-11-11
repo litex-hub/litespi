@@ -102,7 +102,7 @@
     "description": "",
     "fields": [
      {
-      "description": "TX FIFO is not full.",
+      "description": "TX FIFO is not full. Write rxtx only when set: a write to a full TX FIFO is dropped.",
       "name": "tx_ready",
       "offset": 0,
       "reset": 0,

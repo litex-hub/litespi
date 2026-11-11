@@ -56,7 +56,7 @@ class LiteSPIMaster(LiteXModule):
         ], description="SPI PHY settings.")
         self._rxtx = CSR(self.source.data.nbits)
         self._status = CSRStatus(fields=[
-            CSRField("tx_ready", size=1, offset=0, description="TX FIFO is not full."),
+            CSRField("tx_ready", size=1, offset=0, description="TX FIFO is not full. Write rxtx only when set: a write to a full TX FIFO is dropped."),
             CSRField("rx_ready", size=1, offset=1, description="RX FIFO is not empty."),
         ])
 

@@ -64,7 +64,7 @@ Bank `spiflash`.
 | Register | Offset | Bits | Access | Description |
 |----------------------------|-------------|--------|---------|----------------------------------------|
 | `phy_clk_divisor` | `0x0000` | 10 | rw | SCK divisor of the SDR PHY: SCK = sys / (2 x ceil(div / 2)), sys / 2 for div 0 to 2. The reset value is the `default_divisor` of the PHY, computed by `add_spi_flash` from `clk_freq`. Used when a transfer carries a 0 divisor. Reset `0x4`. |
-| `phy_mode` | `0x0004` | 2 | rw | SPI mode (CPOL/CPHA). Curently only mode 0 and 3 are supported. Reset `0x0`. |
+| `phy_mode` | `0x0004` | 2 | rw | SPI mode: write 0 (mode 0) or 3 (mode 3). Only bit 1 is used, as the SCK idle level (CPOL); bit 0 (CPHA) is ignored: the PHY always shifts out on the falling edge and samples on the rising edge of SCK. Reset `0x0`. |
 | `mmap_clk_` `divisor` | `0x0008` | 10 | rw | Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY. Reset `0x0`. |
 | `mmap_dummy_bits` | `0x000c` | 8 | rw | Dummy phase of the MMAP read command, in bits at the address width (dummy cycles x address lines). The reset value is `dummy_cycles` x `addr_width` of the module for a fast read, else 0. Present with `with_csr=True` (default). Reset `0x8`. |
 | `mmap_write_` `config` | `0x0010` | 1 | rw | Bit 0 `write_enable`: 1 sends the Wishbone writes to the chip as page programs (`program_cmd` of the module), 0 acknowledges and drops them. The MMAP sends no write enable (WREN) itself. Present with `with_mmap_write="csr"`. Reset `0x0`. |
@@ -89,5 +89,5 @@ Fields of `master_status`:
 
 | Field | Bits | Description |
 |------------------------|---------|------------------------------------------------------|
-| `tx_ready` | 0 | TX FIFO is not full. |
+| `tx_ready` | 0 | TX FIFO is not full. Write rxtx only when set: a write to a full TX FIFO is dropped. |
 | `rx_ready` | 1 | RX FIFO is not empty. |
