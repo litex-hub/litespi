@@ -71,7 +71,8 @@ class SpiNorFlashModule(metaclass=MetaSizes):
         list of supported opcodes (READ/PP)
 
     dummy_bits : int
-        number of dummy bits to send needed for a correct transfer
+        number of dummy cycles needed for a correct transfer (in SCK cycles, despite the name),
+        used when ``dummy_cycles`` is not given
 
     fast_mode : bool
         chip configured in fast mode
@@ -103,7 +104,7 @@ class SpiNorFlashModule(metaclass=MetaSizes):
         expected number of data lines
 
     ddr : bool
-        setup module to run in DDR mode
+        read opcode is a DTR (double transfer rate) opcode; the generic PHYs do not support it
 
     Properties
     ----------
@@ -227,7 +228,7 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
 
         # Check if program command is supported
         if program_cmd not in self.supported_opcodes:
-            raise ValueError("Programm command (%s) not supported in chip %s!" % (str(program_cmd), self.name))
+            raise ValueError("Program command (%s) not supported in chip %s!" % (str(program_cmd), self.name))
 
         # Set commands
         self.read_opcode = default_read_cmd

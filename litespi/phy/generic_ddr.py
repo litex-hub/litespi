@@ -23,15 +23,14 @@ from litex.build.io import DDRTristate
 class LiteSPIDDRPHYCore(LiteXModule):
     """LiteSPI PHY DDR instantiator
 
-    The ``DDRLiteSPIPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
+    The ``LiteSPIDDRPHYCore`` class provides a generic PHY that can be connected to the ``LiteSPICore``.
 
     It supports single/dual/quad/octal output reads from the flash chips.
 
     You can use this class only with devices that supports the DDR primitives.
 
-    The following diagram shows how each clock configuration option relates to outputs and input sampling in DDR mode:
-
-    .. wavedrom:: ../../doc/ddr-timing-diagram.json
+    SCK runs at the sys clock frequency (one data bit per line and per sys cycle): the PHY has no
+    clock divisor.
 
     Parameters
     ----------

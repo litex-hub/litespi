@@ -60,7 +60,7 @@ class LiteSPIClkGen(LiteXModule):
 
     Attributes
     ----------
-    div : Signal(8), in
+    div : Signal(div_width), in
         Clock divisor, output clock frequency will be equal to ``sys_clk_freq/(2*((div + 1)//2))``.
         It's ``sys_clk_freq/div``, but div is rounded up to the nearest even number.
 
