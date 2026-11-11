@@ -50,8 +50,8 @@ class _SimDDRTristateImpl(Module):
         oe1 = Signal.like(dr.oe1)
         oe2 = Signal.like(dr.oe1)
         # Match the registered DDR input path and model optional platform I/O latency.
-        i1_pipeline = [Signal.like(dr.i1) for _ in range(1 + 2*bus.input_latency)]
-        i2_pipeline = [Signal.like(dr.i2) for _ in range(1 + 2*bus.input_latency)]
+        i1_pipeline = [Signal.like(dr.i1) for _ in range(1 + int(2*bus.input_latency))]
+        i2_pipeline = [Signal.like(dr.i2) for _ in range(1 + int(2*bus.input_latency))]
 
         self.sync += [
             o1.eq(dr.o1),
@@ -236,7 +236,7 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
 
     def test_input_data_with_extra_latency(self):
         for width in [1, 2, 4, 8]:
-            for extra_latency in [0, 1]:
+            for extra_latency in [0, 0.5, 1]:
                 with self.subTest(width=width, extra_latency=extra_latency):
                     dut      = _LiteSPIDDRPHYDUT(width=width, extra_latency=extra_latency)
                     phy      = dut.phy
@@ -282,6 +282,12 @@ class TestLiteSPIDDRPHY(unittest.TestCase):
                         "sys_n" : flash_model(),
                     })
                     self.assertEqual(len(edges), 32//width)
+
+    def test_extra_latency_rejects_non_half_cycle_steps(self):
+        for extra_latency in [0.25, -0.5]:
+            with self.subTest(extra_latency=extra_latency):
+                with self.assertRaises(ValueError):
+                    _LiteSPIDDRPHYDUT(width=4, extra_latency=extra_latency)
 
     def test_command_address_read_turnaround(self):
         dut          = _LiteSPIDDRPHYDUT(width=4, extra_latency=1)
