@@ -174,6 +174,10 @@ class LiteSPIMMAP(LiteXModule):
         )
 
         if with_write:
+            # Bytes are programmed from the lowest flash address up: with big endianness the lowest
+            # address is the MSB of the bus word (as on reads), so reverse the data and select bytes.
+            write_dat = {"big": reverse_bytes(bus.dat_w), "little": bus.dat_w}[endianness]
+            write_sel = {"big": Cat(*reversed(list(bus.sel))), "little": bus.sel}[endianness]
             fsm.act("IDLE",
                 If(bus.cyc & bus.stb,
                     # On Bus Read access...
@@ -183,9 +187,9 @@ class LiteSPIMMAP(LiteXModule):
                     ).Elif(write_enabled,
                         # If CS is still active, Bus address matches previous Burst address and previous access was writing:
                         # Just continue the current Burst.
-                        NextValue(write_mask, bus.sel),
-                        NextValue(self.data_write, bus.dat_w),
-                        If(burst_cs & (bus.adr == burst_adr) & bus.sel[0] & write & ~write_page_boundary,
+                        NextValue(write_mask, write_sel),
+                        NextValue(self.data_write, write_dat),
+                        If(burst_cs & (bus.adr == burst_adr) & write_sel[0] & write & ~write_page_boundary,
                             NextState("WRITE")
                         # Otherwise initialize a new Burst.
                         ).Else(

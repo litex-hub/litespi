@@ -116,7 +116,7 @@ class TestSPIMMAP(unittest.TestCase):
 
     def test_spi_mmap_write_test(self):
         opcode = Codes.PP_1_1_1
-        dut = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode), with_write=True)
+        dut = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode), with_write=True, endianness="little")
 
         def wb_gen(dut, addr, data):
             dut.done = 0
@@ -178,6 +178,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.WideProgramDummyChip(Codes.READ_1_1_1, [], program_cmd=opcode),
             with_write = True,
+            endianness = "little",
         )
         addr      = 0xcafe
         data      = 0xdeadbeef
@@ -201,6 +202,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=Codes.PP_1_1_1),
             with_write = "csr",
+            endianness = "little",
         )
         transfers = []
         acked, wb_gen = self._write_with_timeout(dut, addr=0xcafe, data=0xdeadbeef)
@@ -218,6 +220,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode),
             with_write = True,
+            endianness = "little",
         )
         addr      = 0xcafe
         data      = 0xaabbccdd
@@ -246,6 +249,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.DummyChip(read_opcode, [], program_cmd=write_opcode),
             with_write = "csr",
+            endianness = "little",
         )
         addr      = 0xcafe
         data      = 0x44332211
@@ -282,6 +286,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.DummyChip(read_opcode, [], program_cmd=write_opcode),
             with_write = True,
+            endianness = "little",
         )
         addr       = 0xcafe
         first_data = 0x44332211
@@ -319,6 +324,7 @@ class TestSPIMMAP(unittest.TestCase):
         dut = LiteSPIMMAP(
             flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=write_opcode),
             with_write = "csr",
+            endianness = "little",
         )
         page_words = self.DummyChip.page_size // 4
         addr       = 0x1000 + page_words - 1
@@ -478,6 +484,7 @@ class TestSPIMMAP(unittest.TestCase):
                 program_cmd = Codes.PP_1_1_1_4B,
             ),
             with_write = True,
+            endianness = "little",
         )
         write_transfers = []
         data            = 0xdeadbeef
@@ -494,6 +501,31 @@ class TestSPIMMAP(unittest.TestCase):
             {"data" : Codes.PP_1_1_1_4B.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : addr << 2,              "len" : 32, "width" : 1, "mask" : 0b0001},
             {"data" : data,                   "len" : 8,  "width" : 1, "mask" : 0b0001},
+        ])
+
+    def test_spi_mmap_big_endian_write_matches_read_byte_order(self):
+        opcode = Codes.PP_1_1_1
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=opcode),
+            with_write = True,
+            endianness = "big",
+        )
+        addr      = 0xcafe
+        data      = 0x11223344
+        transfers = []
+
+        def wb_gen():
+            # Big endian: sel[3]/dat_w[31:24] is the lowest flash address (as dat_r on reads).
+            yield from dut.bus.write(addr, data, sel=0b1101)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=7),
+        ])
+
+        self.assertEqual([(t["data"] & 0xff) if t["len"] == 8 else t["data"] for t in transfers], [
+            opcode.code, (addr << 2) | 0, 0x11, 0x22,
+            opcode.code, (addr << 2) | 3, 0x44,
         ])
 
     def test_spi_mmap_little_endian_read_reverses_bytes(self):
