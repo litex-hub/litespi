@@ -430,7 +430,7 @@ class TestSPIMMAP(unittest.TestCase):
         ]
 
         for opcode, cmd_width, addr_width, data_width, dummy_bits in cases:
-            with self.subTest(opcode=opcode):
+            with self.subTest(opcode=opcode.desc):
                 dut = LiteSPIMMAP(flash=self.WideReadDummyChip(opcode, []))
                 addr      = 0xcafe
                 transfers = []
