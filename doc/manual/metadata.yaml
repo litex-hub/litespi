@@ -1,0 +1,16 @@
+---
+# Project metadata of the manual (title page, headers, document properties). The theme (colours,
+# fonts, LaTeX options) is in theme.yaml; build.py merges both and replaces @DATE@.
+title: "SPI Flash & SPI Memory Core"
+project: "LiteSPI"
+subtitle: "Reference manual of the LiteX SPI flash and SPI memory core: PHYs, memory-mapped and register access, module database and boot"
+author: [Enjoy-Digital]
+date: "@DATE@"
+license: "Copyright © 2020-2026 Enjoy-Digital. Licensed under the BSD-2-Clause license."
+license-short: "BSD-2-Clause"
+contact: "hello@enjoy-digital.fr"
+website: "enjoy-digital.fr"
+subject: "LiteSPI"
+lang: en-US
+header-right: "SPI Flash \\& SPI Memory Core · BSD-2-Clause · \\href{mailto:hello@enjoy-digital.fr}{hello@enjoy-digital.fr}"
+---
