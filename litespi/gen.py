@@ -17,13 +17,11 @@ for some use cases it could be interesting to generate a standalone verilog file
 - avoid Migen/LiteX dependencies.
 - etc...
 
-The standalone core is generated from a YAML configuration file that allows the user to generate
-easily a custom configuration of the core.
+The standalone core is configured from the command line options (see --help).
 
 """
 
 import os
-import yaml
 import argparse
 import inspect
 
@@ -77,6 +75,7 @@ _io = [
 
 class LiteSPICore(SoCMini):
     def __init__(self, platform, module, mode="x4", rate="1:1", divisor="1",
+        clk_freq       = 100e6,
         bus_standard   = "wishbone",
         bus_endianness = "big",
         with_master    = False,
@@ -86,7 +85,7 @@ class LiteSPICore(SoCMini):
         self.crg = CRG(platform.request("clk"), platform.request("rst"))
 
         # SoCMini ----------------------------------------------------------------------------------
-        SoCMini.__init__(self, platform, clk_freq=int(1e6))
+        SoCMini.__init__(self, platform, clk_freq=int(float(clk_freq)))
 
         # SPI Flash Module -------------------------------------------------------------------------
 
@@ -203,6 +202,7 @@ def main():
         mode           = args.mode,
         rate           = args.rate,
         divisor        = args.divisor,
+        clk_freq       = args.clk_freq,
         bus_standard   = args.bus_standard,
         bus_endianness = args.bus_endianness,
         with_master    = args.with_master,
