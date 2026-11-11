@@ -41,8 +41,9 @@ class LiteSPIDDRPHYCore(LiteXModule):
     flash : SpiNorFlashModule
         SpiNorFlashModule configuration object.
 
-    extra_latency : int
-        Additional input pipeline latency. Each unit extends the pipeline drain by two sys cycles.
+    extra_latency : int or float
+        Additional input pipeline latency, in steps of 0.5. Each 0.5 extends the pipeline drain by
+        one sys cycle.
 
     Attributes
     ----------
@@ -99,7 +100,9 @@ class LiteSPIDDRPHYCore(LiteXModule):
         sr_out       = Signal(len(sink.data), reset_less=True)
         sr_in_shift  = Signal()
         sr_in        = Signal(len(sink.data), reset_less=True)
-        input_pipeline = 2 + 2*extra_latency
+        if (2*extra_latency) != int(2*extra_latency) or extra_latency < 0:
+            raise ValueError("SPI DDR PHY extra_latency must be a non-negative multiple of 0.5")
+        input_pipeline = 2 + int(2*extra_latency)
 
         # Data Out Shift.
         self.comb += [
