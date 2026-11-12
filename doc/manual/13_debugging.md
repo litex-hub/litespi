@@ -161,7 +161,7 @@ is in [the introduction](#intro-status).
 | CS with `clock_domain` | CS reaches the PHY domain without a synchronizer, and the MMAP releases it for one `sys` cycle between two commands: a slower PHY clock can miss that release | Keep the PHY clock at least as fast as `sys`; test in simulation first |
 | `S25FL128L`, `MX25L12833F` 1-4-4 | The modules give 8 cycles, which depend on a latency setting of the chip ([Dummy cycles](#mod-dummy)) | Check the setting, then `mmap_dummy_bits` |
 | BIOS dummy bits constant | `add_spi_flash` never defines this constant ([BIOS constants](#opt-bios)), so the BIOS keeps the reset value of `mmap_dummy_bits` | Change the module default, or add the constant in the target |
-| MMAP writes (in development) | The MMAP sends the program opcode without WREN and without status polling; a page boundary starts a new program command without WREN, ignored by a flash | Send WREN with the master before each page |
+| MMAP writes (in development) | With `"csr"`, the WREN and WIP polling around each program command are validated in simulation only | Verify a written range with the master or by reading it back |
 | MMAP writes, `endianness="big"` | Bytes are programmed in the reverse order of a read: a word reads back byte-reversed | Little endian MMAP (`mmap_endianness`), or swap in software |
 | Master `rxtx` write | A write while the TX FIFO is full (`status.tx_ready` at 0) is dropped | Poll `tx_ready` before each write |
 | Modules above 16 MiB without `erase_commands` | The erase falls back to SE `0xd8`, 64 KiB, 24-bit address; the BIOS refuses an erase above 16 MiB ([Erase commands](#mod-erase)) | Select the `SE_4B` erase with the `erase_cmd` argument of the module |

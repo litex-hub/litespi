@@ -10,6 +10,18 @@ from migen.fhdl.specials import Tristate
 from litex.gen import *
 
 
+# Helpers ------------------------------------------------------------------------------------------
+
+def _opcode_name(opcode):
+    from litespi.opcodes import SpiNorFlashOpCodes
+    return SpiNorFlashOpCodes.name_from_value(SpiNorFlashOpCodes, opcode)
+
+def _opcode_widths(opcode):
+    from litespi.opcodes import SpiNorFlashOpCodes
+    cfg      = SpiNorFlashOpCodes()
+    cfg.name = _opcode_name(opcode)
+    return int(cfg.cmd_width), int(cfg.addr_width), int(cfg.data_width)
+
 # SPI NOR Flash Model ------------------------------------------------------------------------------
 
 class LiteSPINORFlashModel(LiteXModule):
@@ -23,12 +35,21 @@ class LiteSPINORFlashModel(LiteXModule):
     ``init`` contains byte values starting at flash address zero. Uninitialized locations read as
     the erased NOR value, ``0xff``.
 
+    With ``with_program=True`` (x1 commands only), the model also implements the write sequence of
+    a NOR flash: WREN (``0x06``) and WRDI (``0x04``) set and clear the write enable latch (WEL) at
+    the CS release, the program command of ``flash.program_opcode`` is ignored unless WEL is set
+    and programs its bytes (a NOR program clears bits only, the address wraps inside the page),
+    and its CS release starts a busy period of ``program_cycles`` model cycles. While busy, the
+    write in progress bit (WIP) is set and every command but RDSR (``0x05``) is ignored; WIP and
+    WEL clear at the end. RDSR returns the status register (WIP bit 0, WEL bit 1) on DQ1 for as
+    long as CS stays low. The memory then covers the whole flash (``total_size`` up to 64 KiB).
+
     The model accepts regular LiteSPI pads (``clk``, ``cs_n`` and either ``mosi``/``miso`` or
     ``dq``). Simulations can instead provide split ``dq_i``, ``dq_o`` and ``dq_oe`` signals to
     avoid resolving bidirectional signals in the simulator.
     """
 
-    def __init__(self, pads, flash, init=None):
+    def __init__(self, pads, flash, init=None, with_program=False, program_cycles=64):
         if flash.ddr:
             raise ValueError("LiteSPINORFlashModel only supports SDR read commands")
         if len(pads.cs_n) != 1:
@@ -45,6 +66,16 @@ class LiteSPINORFlashModel(LiteXModule):
         data_width   = flash.bus_width
         addr_bits    = flash.addr_bits
         dummy_cycles = flash.dummy_cycles if flash.fast_mode else 0
+
+        if with_program:
+            pp_cmd_width, pp_addr_width, pp_data_width = _opcode_widths(flash.program_opcode)
+            pp_addr_bits = 32 if "4B" in _opcode_name(flash.program_opcode) else 24
+            if cmd_width != 1 or pp_cmd_width != 1:
+                raise ValueError("SPI NOR model programming only supports x1 commands")
+            if flash.total_size > 2**16:
+                raise ValueError("SPI NOR model programming only supports flashes up to 64 KiB")
+            if pp_data_width not in [1, 2, 4, 8] or pp_addr_bits % pp_addr_width:
+                raise ValueError("SPI NOR model program phase widths must be 1, 2, 4, or 8")
 
         if any(width not in [1, 2, 4, 8] for width in [cmd_width, addr_width, data_width]):
             raise ValueError("SPI NOR model phase widths must be 1, 2, 4, or 8")
@@ -92,7 +123,9 @@ class LiteSPINORFlashModel(LiteXModule):
         self.dq_oe = dq_oe
 
         # Store only initialized bytes; the remainder of the modeled flash reads as erased. This
-        # keeps simulations of large flash modules lightweight.
+        # keeps simulations of large flash modules lightweight. Programming needs the whole flash.
+        if with_program:
+            init = init + [0xff]*(flash.total_size - len(init))
         mem = Memory(8, max(2, len(init)), init=init or [0xff, 0xff])
         read_port      = mem.get_port(async_read=True)
         read_next_port = mem.get_port(async_read=True)
@@ -138,7 +171,7 @@ class LiteSPINORFlashModel(LiteXModule):
         command_next  = Signal(8)
         address       = Signal(addr_bits)
         address_next  = Signal(addr_bits)
-        phase_count   = Signal(max=max(addr_bits, 8) + 1)
+        phase_count   = Signal(max=max(addr_bits, 32 if with_program else 0, 8) + 1)
         dummy_count   = Signal(max=max(dummy_cycles, 1) + 1)
         data_count    = Signal(max=8)
         data_shift    = Signal(8)
@@ -166,6 +199,56 @@ class LiteSPINORFlashModel(LiteXModule):
         self.submodules.fsm = fsm = ResetInserter()(FSM(reset_state="COMMAND"))
         self.comb += fsm.reset.eq(pads.cs_n)
 
+        # Write Sequence (WREN/WEL, program, WIP).
+        if with_program:
+            cs_n_d       = Signal(reset=1)
+            wel          = Signal()
+            wip          = Signal()
+            wip_count    = Signal(max=max(program_cycles, 1) + 1)
+            cmd_wren     = Signal()
+            cmd_wrdi     = Signal()
+            programmed   = Signal()
+            pp_address   = Signal(max=flash.total_size)
+            pp_shift     = Signal(8)
+            pp_count     = Signal(max=8 + 1)
+            status       = Signal(8)
+            self.wel     = wel
+            self.wip     = wip
+            self.comb += status.eq(Cat(wip, wel))
+            self.sync += [
+                cs_n_d.eq(pads.cs_n),
+                # Commands take effect at the CS release.
+                If(pads.cs_n & ~cs_n_d,
+                    If(cmd_wren, wel.eq(1)),
+                    If(cmd_wrdi, wel.eq(0)),
+                    If(programmed,
+                        wip.eq(1),
+                        wip_count.eq(program_cycles),
+                    ),
+                    cmd_wren.eq(0),
+                    cmd_wrdi.eq(0),
+                    programmed.eq(0),
+                ).Elif(wip,
+                    If(wip_count == 0,
+                        wip.eq(0),
+                        wel.eq(0),
+                    ).Else(
+                        wip_count.eq(wip_count - 1),
+                    ),
+                ),
+            ]
+
+            # Program: NOR programming clears bits (AND), the address wraps inside the page.
+            write_port = mem.get_port(write_capable=True, async_read=True)
+            self.specials += write_port
+            pp_byte = Signal(8)
+            self.comb += [
+                pp_byte.eq(Cat(dq_i[:pp_data_width], pp_shift)[:8]),
+                write_port.adr.eq(pp_address),
+                write_port.dat_w.eq(write_port.dat_r & pp_byte),
+            ]
+            pp_page_mask = flash.page_size - 1
+
         if dummy_cycles:
             after_address = [
                 NextValue(dummy_count, 0),
@@ -174,16 +257,33 @@ class LiteSPINORFlashModel(LiteXModule):
         else:
             after_address = [NextState("DATA-LOAD")]
 
+        decode = [If(command_next == flash.read_opcode.code,
+            NextState("ADDRESS"),
+        ).Else(
+            NextState("IGNORE"),
+        )]
+        if with_program:
+            # Every command but RDSR is ignored while busy.
+            decode = [If(command_next == 0x05,
+                NextState("STATUS-LOAD"),
+            ).Elif(wip,
+                NextState("IGNORE"),
+            ).Elif(command_next == 0x06,
+                NextValue(cmd_wren, 1),
+                NextState("IGNORE"),
+            ).Elif(command_next == 0x04,
+                NextValue(cmd_wrdi, 1),
+                NextState("IGNORE"),
+            ).Elif((command_next == flash.program_opcode.code) & wel,
+                NextState("PP-ADDRESS"),
+            ).Else(*decode)]
+
         fsm.act("COMMAND",
             If(clk_posedge,
                 NextValue(command, command_next),
                 If(phase_count == (8 - cmd_width),
                     NextValue(phase_count, 0),
-                    If(command_next == flash.read_opcode.code,
-                        NextState("ADDRESS"),
-                    ).Else(
-                        NextState("IGNORE"),
-                    ),
+                    *decode,
                 ).Else(
                     NextValue(phase_count, phase_count + cmd_width),
                 ),
@@ -242,6 +342,62 @@ class LiteSPINORFlashModel(LiteXModule):
                 ),
             ),
         )
+
+        if with_program:
+            pp_address_shift = Signal(pp_addr_bits)
+            pp_address_next  = Signal(pp_addr_bits)
+            self.comb += pp_address_next.eq(Cat(dq_i[:pp_addr_width], pp_address_shift)[:pp_addr_bits])
+            fsm.act("PP-ADDRESS",
+                If(clk_posedge,
+                    NextValue(pp_address_shift, pp_address_next),
+                    If(phase_count == (pp_addr_bits - pp_addr_width),
+                        NextValue(phase_count, 0),
+                        NextValue(pp_address, pp_address_next),
+                        NextValue(pp_count, 0),
+                        NextState("PP-DATA"),
+                    ).Else(
+                        NextValue(phase_count, phase_count + pp_addr_width),
+                    ),
+                ),
+            )
+            fsm.act("PP-DATA",
+                If(clk_posedge,
+                    NextValue(pp_shift, pp_byte),
+                    If(pp_count == (8 - pp_data_width),
+                        NextValue(pp_count, 0),
+                        write_port.we.eq(1),
+                        NextValue(programmed, 1),
+                        NextValue(pp_address, (pp_address & ~pp_page_mask) | ((pp_address + 1) & pp_page_mask)),
+                    ).Else(
+                        NextValue(pp_count, pp_count + pp_data_width),
+                    ),
+                ),
+            )
+
+            # RDSR: status register on DQ1, MSB first, read again for as long as CS stays low.
+            fsm.act("STATUS-LOAD",
+                NextValue(data_shift, status),
+                NextValue(data_count, 0),
+                NextValue(data_sampled, 0),
+                NextState("STATUS"),
+            )
+            fsm.act("STATUS",
+                dq_oe.eq(0b10),
+                dq_o.eq(data_shift[7] << 1),
+                If(clk_posedge,
+                    NextValue(data_sampled, 1),
+                ),
+                If(clk_negedge & data_sampled,
+                    NextValue(data_sampled, 0),
+                    If(data_count == 7,
+                        NextValue(data_shift, status),
+                        NextValue(data_count, 0),
+                    ).Else(
+                        NextValue(data_count, data_count + 1),
+                        NextValue(data_shift, data_shift << 1),
+                    ),
+                ),
+            )
 
         # Unknown commands are ignored until the controller releases chip select.
         fsm.act("IGNORE")

@@ -75,9 +75,9 @@ the bit returns to 0, as the figure below shows.
 is sent again and again until WIP reads 0. Each command is framed by its own CS low
 period.](flash_program.svg)
 
-In LiteSPI, the core does not sequence these commands: software does, through the master
-([The register master](#master)). The BIOS sends WREN before each erase and program, and polls WIP
-with RDSR after it.
+In LiteSPI, software sequences these commands through the master ([The register master](#master)):
+the BIOS sends WREN before each erase and program, and polls WIP with RDSR after it. MMAP flash
+writes sequence them in the core ([Writes](#mmap-write)).
 
 ## Status registers and quad enable {#flash-qe}
 
