@@ -15,7 +15,7 @@ keeps one level where the real PHY talks to a model of the chip pin by pin.
 | Level | What runs | Flash side | Files |
 |---------------|-----------------------|-----------------|------------------------------------------|
 | Frontend | MMAP and master alone, in Migen | Generator answering the transfers | `test_spi_mmap.py`, `test_spi_master.py` |
-| Pin level, SDR | Wishbone reads through `LiteSPI` and the real SDR PHY | Pin-level flash model | `test_flash_model.py` |
+| Pin level, SDR | Wishbone reads, and MMAP flash writes, through `LiteSPI` and the real SDR PHY | Pin-level flash model | `test_flash_model.py`, `test_mmap_write.py` |
 | Pin level, 1:2 | 1:2 PHY with simulated DDR I/O | Checks on the pins | `test_phy_ddr.py` |
 | PHY details | Startup cycles, CS control, vendor clock backends | Checks on the pins | `test_phy_sdr.py`, `test_cscontrol.py`, `test_phy_xilinx.py` |
 | Elaboration | Verilog of the 1:2 PHY and of STARTUPE2/E3 for vendor platforms | None | `test_phy_ddr.py`, `test_phy_xilinx.py` |
@@ -56,7 +56,8 @@ sampling delay are exercised exactly as on a board.
 
 | Feature | Model behaviour |
 |-------------------------|-------------------------------------------------------------|
-| Commands | The read opcode of the module only (`flash.read_opcode`); other opcodes are ignored |
+| Commands | The read opcode of the module (`flash.read_opcode`); other opcodes are ignored |
+| Programming | With `with_program=True` (x1 commands, up to 64 KiB): WREN/WRDI set and clear WEL, the program opcode of the module programs (bits only cleared) when WEL is set, then WIP for `program_cycles` model cycles; RDSR returns WIP and WEL; other commands are ignored while busy |
 | Phases | Command, address and data on 1, 2, 4 or 8 lines, SDR only |
 | Address | 24 or 32 bits, from the opcode name (`_4B`) |
 | Dummy | `dummy_cycles` of the module for a fast read |

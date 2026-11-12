@@ -179,7 +179,8 @@ as program commands. The `with_mmap_write` parameter of `LiteSPI` selects them:
 
 The code reserves `True` for RAM: a flash must be erased before it is programmed, and only
 software can decide when. With `"csr"`, software erases the area through the master, sets the
-`write_enable` bit of `mmap_write_config`, writes, then clears the bit.
+`write_enable` bit of `mmap_write_config`, writes, then clears the bit. `"csr"` also adds the write
+enable and the status polling that a flash needs around each program command.
 
 ### What a write sends {#mmap-write-command}
 
@@ -195,27 +196,29 @@ the following cases:
 - the word is the first word of a page (page size a power of two and a multiple of 4 bytes);
 - the previous access was a read, or the burst timed out.
 
-The figure below shows the page case: the last word of a page completes its command, and the first
-word of the next page starts a new one.
+With `"csr"`, each program command is its own CS low period, preceded by a write enable command
+(WREN, `0x06`) in its own CS low period. The figure below shows the page case: the last word of a
+page completes its command, and the first word of the next page starts a new one, after the status
+polling of the first command and a new write enable.
 
-![A write across a page boundary. Look at CS: it rises between the two words, and the second word
-starts with its own program opcode and address, without a write enable: on a flash, software must
-send one before each command.](mmap_write.svg)
+![A flash write across a page boundary with `"csr"`. Look at CS: WREN, the program command, the
+RDSR polling and the next WREN each have their own CS low period.](mmap_write.svg)
 
 Unselected bytes are skipped. Leading unselected bytes only advance the address; an unselected byte
 after a selected one ends the command, and the next selected byte of the word starts a new command
 at its own address.
 
-### What a write does not do {#mmap-write-limits}
+### Write enable and status polling {#mmap-write-limits}
 
-The MMAP sends neither the write enable command nor the status polling that a flash needs around
-each program command, and it never erases. With a flash, software provides them through the master:
-write enable, MMAP writes within one page, then status polling once the MMAP has released CS. A
-SPI RAM needs none of them.
+A flash clears its write enable latch at the end of each program command, and ignores commands
+while it programs ([Write enable and busy polling](#flash-wip)). With `"csr"`, the MMAP therefore
+sends WREN before each program command. Once the command ends, it reads the status register
+(RDSR, `0x05`) in one CS low period until WIP (bit 0) reads 0.
 
-The page restart above therefore only works on a SPI RAM. A flash clears its write enable latch at
-the end of each program command, so on a flash the second command of the figure is ignored unless
-software sends a new write enable first.
+The polling runs before the next MMAP command, read or write, and when a write burst ends at the
+timeout, so the master finds the flash idle. With `True`, the MMAP sends the program commands
+alone, since a SPI RAM needs neither. The MMAP never erases: software erases through the master
+first. This sequence is checked in simulation against the flash model, not yet on hardware.
 
 Writes always send byte lane 0 to the lowest address. This matches the read order of
 `endianness="little"` only: with `"big"`, a word read back has its bytes in the reverse order of the

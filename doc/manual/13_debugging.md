@@ -162,7 +162,7 @@ is in [the introduction](#intro-status).
 | `W25Q128JV` 1-4-4 and 1-2-2 | The module gives 4 and 0 dummy cycles, which leave out the mode-bit cycles (datasheet 6 and 4); no LiteX-Boards target uses these reads | Check the dummy cycles against the datasheet; `W25Q512JV`, `S25FL128L` and `MX25L12833F` are to check too |
 | `W25Q128JW`, `W25Q256JW` 1-1-4 | The modules give 32 dummy cycles where the chip needs 8 | Set `mmap_dummy_bits` to 8, or use another read |
 | BIOS dummy bits constant | `add_spi_flash` never defines this constant ([BIOS constants](#opt-bios)), so the BIOS keeps the reset value of `mmap_dummy_bits` | Change the module default, or add the constant in the target |
-| MMAP writes (in development) | The MMAP sends the program opcode without WREN and without status polling; a page boundary starts a new program command without WREN, ignored by a flash | Send WREN with the master before each page |
+| MMAP writes (in development) | With `"csr"`, the WREN and WIP polling around each program command are validated in simulation only | Verify a written range with the master or by reading it back |
 | MMAP writes, `endianness="big"` | Bytes are programmed in the reverse order of a read: a word reads back byte-reversed | Little endian MMAP (`mmap_endianness`), or swap in software |
 | Master `rxtx` write | A write while the TX FIFO is full (`status.tx_ready` at 0) is dropped | Poll `tx_ready` before each write |
 | No module defines `erase_commands` | By default erases use SE `0xd8`, 64 KiB, 24-bit address | Erase in 64 KiB units; for a chip above 16 MiB, select the `SE_4B` erase with the `erase_cmd` argument of the module |

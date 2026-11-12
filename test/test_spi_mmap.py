@@ -297,16 +297,21 @@ class TestSPIMMAP(unittest.TestCase):
 
         run_simulation(dut, [
             wb_gen(),
-            self._record_spi_transfers(dut, transfers, transfer_count=9, cycles=512),
+            self._record_spi_transfers(dut, transfers, transfer_count=12, cycles=512),
         ])
 
+        # Flash write ("csr"): WREN before the program command, WIP polled (RDSR, status 0 here)
+        # before the next command.
         self.assertEqual(transfers, [
+            {"data" : Codes.WREN.code,   "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : write_opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : addr << 2,         "len" : 24, "width" : 1, "mask" : 0b0001},
             {"data" : data,              "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : data >> 8,         "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : data >> 16,        "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : data >> 24,        "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : Codes.RDSR.code,   "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : 0,                 "len" : 8,  "width" : 1, "mask" : 0b0000},
             {"data" : read_opcode.code,  "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : (addr + 1) << 2,   "len" : 24, "width" : 1, "mask" : 0b0001},
             {"data" : 0,                 "len" : 32, "width" : 1, "mask" : 0b0000},
@@ -351,6 +356,34 @@ class TestSPIMMAP(unittest.TestCase):
             {"data" : 0,                 "len" : 32, "width" : 1, "mask" : 0b0000},
         ])
 
+    def test_spi_mmap_csr_write_polls_wip_at_burst_timeout(self):
+        # Flash write ("csr") followed by no access: WIP is polled once the burst times out.
+        write_opcode = Codes.PP_1_1_1
+        dut = LiteSPIMMAP(
+            flash      = self.DummyChip(Codes.READ_1_1_1, [], program_cmd=write_opcode),
+            with_write = "csr",
+            endianness = "little",
+        )
+        addr      = 0x100
+        data      = 0x44332211
+        transfers = []
+
+        def wb_gen():
+            yield dut.write_config.fields.write_enable.eq(1)
+            yield
+            yield from dut.bus.write(addr, data)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=9, cycles=1024),
+        ])
+
+        self.assertEqual([t["data"] for t in transfers], [
+            Codes.WREN.code, write_opcode.code, addr << 2,
+            data, data >> 8, data >> 16, data >> 24,
+            Codes.RDSR.code, 0,
+        ])
+
     def test_spi_mmap_write_restarts_at_page_boundary(self):
         write_opcode = Codes.PP_1_1_1
         dut = LiteSPIMMAP(
@@ -372,16 +405,20 @@ class TestSPIMMAP(unittest.TestCase):
 
         run_simulation(dut, [
             wb_gen(),
-            self._record_spi_transfers(dut, transfers, transfer_count=12, cycles=768),
+            self._record_spi_transfers(dut, transfers, transfer_count=16, cycles=768),
         ])
 
         self.assertEqual(transfers, [
+            {"data" : Codes.WREN.code,   "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : write_opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : addr << 2,         "len" : 24, "width" : 1, "mask" : 0b0001},
             {"data" : first_data,        "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : first_data >> 8,   "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : first_data >> 16,  "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : first_data >> 24,  "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : Codes.RDSR.code,   "len" : 8,  "width" : 1, "mask" : 0b0001},
+            {"data" : 0,                 "len" : 8,  "width" : 1, "mask" : 0b0000},
+            {"data" : Codes.WREN.code,   "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : write_opcode.code, "len" : 8,  "width" : 1, "mask" : 0b0001},
             {"data" : (addr + 1) << 2,   "len" : 24, "width" : 1, "mask" : 0b0001},
             {"data" : next_data,         "len" : 8,  "width" : 1, "mask" : 0b0001},

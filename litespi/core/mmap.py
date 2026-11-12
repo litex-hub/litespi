@@ -62,6 +62,10 @@ class LiteSPIMMAP(LiteXModule):
         When using "csr" with a flash chip, make sure to erase the corresponding pages of the flash beforehand
         using the LiteSPI master. It is also recommended to disable mmap writing once it is not required anymore.
 
+        With "csr" (flash), each program command is preceded by a write enable command (WREN, 0x06),
+        and the status register is polled (RDSR, 0x05, until WIP reads 0) after it, before the next
+        MMAP command and when the write burst ends. True (RAM) sends the program commands alone.
+
     Attributes
     ----------
     source : Endpoint(spi_core2phy_layout), out
@@ -156,6 +160,12 @@ class LiteSPIMMAP(LiteXModule):
         else:
             write = Constant(0)
 
+        # Flash writes: WREN before each program command, WIP polling after it.
+        flash_write = (with_write == "csr")
+        if flash_write:
+            wip_poll        = Signal() # A program command was sent: poll WIP before the next command.
+            wip_poll_return = Signal() # Continue with a program command after the poll.
+
         self.byte_count = byte_count = Signal(2, reset_less=True)
 
         self.comb += If(self.request, self.cs.eq(cs_mask))
@@ -184,6 +194,17 @@ class LiteSPIMMAP(LiteXModule):
                 )
             )
         )
+
+        if flash_write:
+            # Poll WIP once the write burst ends (timeout) or before a read; a write that starts a
+            # new program command polls from PRE-BURST-CMD-WRITE.
+            fsm.act("IDLE",
+                If(wip_poll & (~burst_cs | (bus.cyc & bus.stb & ~bus.we)),
+                    cs.eq(0),
+                    NextValue(wip_poll_return, 0),
+                    NextState("WIP-CMD"),
+                )
+            )
 
         if not with_write:
             # Read-only: end bus writes at once with an error (instead of a bus timeout).
@@ -224,10 +245,19 @@ class LiteSPIMMAP(LiteXModule):
                 )
             )
 
+            if flash_write:
+                write_cmd = If(wip_poll,
+                    NextValue(wip_poll_return, 1),
+                    NextState("WIP-CMD"),
+                ).Else(
+                    NextState("WREN"),
+                )
+            else:
+                write_cmd = NextState("BURST-CMD")
             fsm.act("PRE-BURST-CMD-WRITE",
                 cs.eq(0),
                 If(write_mask[0],
-                    NextState("BURST-CMD"),
+                    write_cmd,
                     NextValue(write, 1)
                 ).Elif(byte_count == 3,
                     bus.ack.eq(1),
@@ -367,6 +397,83 @@ class LiteSPIMMAP(LiteXModule):
                     NextState("WRITE-RET"),
                 )
             )
+
+            if flash_write:
+                # Write Enable (WREN): own command, before each program command.
+                fsm.act("WREN",
+                    cs.eq(1),
+                    source.valid.eq(1),
+                    source.data.eq(SpiNorFlashOpCodes.WREN.code),
+                    source.len.eq(cmd_bits),
+                    source.width.eq(program_cmd_width),
+                    source.mask.eq(cmd_oe_mask[program_cmd_width]),
+                    If(source.ready,
+                        NextState("WREN-RET"),
+                    )
+                )
+                fsm.act("WREN-RET",
+                    cs.eq(1),
+                    sink.ready.eq(1),
+                    If(sink.valid,
+                        NextState("WREN-END"),
+                    )
+                )
+                fsm.act("WREN-END",
+                    cs.eq(0),
+                    NextValue(wip_poll, 1),
+                    NextState("BURST-CMD"),
+                )
+
+                # WIP Polling (RDSR): read the status register until WIP (bit 0) reads 0, CS low.
+                fsm.act("WIP-CMD",
+                    cs.eq(1),
+                    NextValue(burst_cs, 0),
+                    source.valid.eq(1),
+                    source.data.eq(SpiNorFlashOpCodes.RDSR.code),
+                    source.len.eq(cmd_bits),
+                    source.width.eq(program_cmd_width),
+                    source.mask.eq(cmd_oe_mask[program_cmd_width]),
+                    If(source.ready,
+                        NextState("WIP-CMD-RET"),
+                    )
+                )
+                fsm.act("WIP-CMD-RET",
+                    cs.eq(1),
+                    sink.ready.eq(1),
+                    If(sink.valid,
+                        NextState("WIP-REQ"),
+                    )
+                )
+                fsm.act("WIP-REQ",
+                    cs.eq(1),
+                    source.valid.eq(1),
+                    source.len.eq(8),
+                    source.width.eq(program_cmd_width),
+                    source.mask.eq(0),
+                    If(source.ready,
+                        NextState("WIP-DAT"),
+                    )
+                )
+                fsm.act("WIP-DAT",
+                    cs.eq(1),
+                    sink.ready.eq(1),
+                    If(sink.valid,
+                        If(sink.data[0],
+                            NextState("WIP-REQ"),
+                        ).Else(
+                            NextValue(wip_poll, 0),
+                            NextState("WIP-END"),
+                        )
+                    )
+                )
+                fsm.act("WIP-END",
+                    cs.eq(0),
+                    If(wip_poll_return,
+                        NextState("WREN"),
+                    ).Else(
+                        NextState("IDLE"),
+                    )
+                )
 
             fsm.act("WRITE-RET",
                 cs.eq(1),
