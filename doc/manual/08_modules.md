@@ -165,11 +165,11 @@ print(flash.fast_mode, flash.dummy_cycles, hex(flash.erase_opcode.code), flash.e
 EOF
 w25q128jv 16777216 256
 1 4 4 24
-True 4 0xd8 65536
+True 6 0xd8 65536
 ```
 
-The 4 dummy cycles printed are the value of the database, which leaves out the mode-bit cycles of
-this read ([Dummy cycles](#mod-dummy)).
+The 6 dummy cycles printed are the whole gap between the address and the data of this read, 2
+mode-bit cycles plus 4 dummy cycles ([Dummy cycles](#mod-dummy)).
 
 ## Dummy cycles {#mod-dummy}
 
@@ -178,13 +178,14 @@ all 481 flash modules set it to 8, which the code uses as a number of SCK cycles
 is a dictionary from read command to cycles, for chips whose commands need different counts.
 
 The constructor resolves the dictionary for the chosen read command. A command missing from the
-dictionary falls back to `dummy_bits`, or to 0 when the class has none. Six modules carry a
+dictionary falls back to `dummy_bits`, or to 0 when the class has none. Seven modules carry a
 dictionary:
 
 | Module | Commands in the dictionary (cycles) |
 |---------------|------------------------------------------------------------------------|
-| `W25Q128JV` | 1-2-2 (0), 1-4-4 (4) |
-| `W25Q128JW` | 1-1-2 (8), 1-2-2 (4), 1-1-4 (32), 1-4-4 (6) |
+| `W25Q128JV` | 1-2-2 (4), 1-4-4 (6) |
+| `W25Q512JV` | as `W25Q128JV`, plus the `_4B` variants |
+| `W25Q128JW` | 1-1-2 (8), 1-2-2 (4), 1-1-4 (8), 1-4-4 (6) |
 | `W25Q256JW` | as `W25Q128JW`, plus the `_4B` variants |
 | `MX25L12833F` | 1-1-1 fast (8), 1-2-2 (8), 1-4-4 (8), 4-4-4 (6) |
 | `MX25U25645G` | 1-1-1 fast (8), 1-1-2 (8), 1-2-2 (4), 1-1-4 (8), 1-4-4 (6), 4-4-4 (6), and `_4B` variants |
@@ -197,18 +198,16 @@ nutshell](#spi-primer)). On 1-2-2 and 1-4-4 reads, the module count is therefore
 the mode-bit cycles plus the dummy cycles of the datasheet. The MMAP turns the count into its
 `mmap_dummy_bits` register, which software can still change ([Dummy cycles](#mmap-dummy)).
 
-Some values of the database do not follow this rule, as listed below; no LiteX-Boards target uses
-these read commands.
+The Winbond JV modules follow the datasheet: Fast Read Dual I/O (`0xbb`) sends the mode bits M7-0
+in 4 cycles at x2 with no dummy cycle, and Fast Read Quad I/O (`0xeb`) sends them in 2 cycles at
+x4 followed by 4 dummy cycles. No LiteX-Boards target uses these reads yet. Two modules depend on a
+latency setting of the chip, listed below.
 
-- `W25Q128JV`: 1-4-4 (4) and 1-2-2 (0) leave out the mode-bit cycles. The datasheet gap is 2
-  mode-bit cycles plus 4 dummy cycles on 1-4-4, and 4 mode-bit cycles on 1-2-2, that is 6 and 4:
-  with the module values, these reads would return shifted data.
-- `W25Q128JW` and `W25Q256JW`: 1-1-4 (32, and its `_4B` variant on `W25Q256JW`) is four times the
-  8 dummy cycles of the Winbond quad output read, as if counted in bits on four lines. The MMAP
-  sends 32 SCK cycles, and the data comes out shifted.
-- `W25Q512JV`, `S25FL128L` and `MX25L12833F`: their 1-4-4 (and 1-2-2 on `W25Q512JV` and
-  `MX25L12833F`) reads use 8 cycles, from `dummy_bits` or the dictionary. These values are to
-  check against the latency table of each datasheet and the latency setting of the chip.
+- `S25FL128L`: its 1-4-4 read uses 8 cycles from `dummy_bits`. The chip has a programmable
+  latency; check the datasheet table and the setting of the chip.
+- `MX25L12833F`: its 1-2-2 and 1-4-4 reads use 8 cycles. The datasheet default gap is 4 (1-2-2)
+  and 6 (1-4-4); 8 matches another setting of the dummy cycle bits of the configuration
+  register.
 
 ## Quad enable {#mod-quad-enable}
 

@@ -8213,9 +8213,10 @@ class W25Q128JV(SpiNorFlashModule):
     ]
     dummy_bits = 8
 
+    # Address to data gap, mode bits M7-0 included: BBh 4 (M7-0 at x2), EBh 6 (M7-0 + 4 dummy).
     dummy_cycles = {
-        SpiNorFlashOpCodes.READ_1_2_2: 0,
-        SpiNorFlashOpCodes.READ_1_4_4: 4,
+        SpiNorFlashOpCodes.READ_1_2_2: 4,
+        SpiNorFlashOpCodes.READ_1_4_4: 6,
     }
 
 
@@ -9084,6 +9085,14 @@ class W25Q512JV(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_4_4B,
     ]
     dummy_bits = 8
+
+    # Address to data gap, mode bits M7-0 included: BBh/BCh 4 (M7-0 at x2), EBh/ECh 6 (M7-0 + 4 dummy).
+    dummy_cycles = {
+        SpiNorFlashOpCodes.READ_1_2_2    : 4,
+        SpiNorFlashOpCodes.READ_1_2_2_4B : 4,
+        SpiNorFlashOpCodes.READ_1_4_4    : 6,
+        SpiNorFlashOpCodes.READ_1_4_4_4B : 6,
+    }
 
 
 class W74M64FV(SpiNorFlashModule):

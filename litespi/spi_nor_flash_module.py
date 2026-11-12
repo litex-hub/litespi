@@ -74,6 +74,13 @@ class SpiNorFlashModule(metaclass=MetaSizes):
         number of dummy cycles needed for a correct transfer (in SCK cycles, despite the name),
         used when ``dummy_cycles`` is not given
 
+    dummy_cycles : dict of SpiNorFlashOpCode to int
+        per read opcode number of SCK cycles between the last address cycle and the first data
+        cycle. The MMAP sends this whole gap as one dummy phase (outputs disabled), so for reads
+        with mode (continuous read) bits, such as 1-2-2 and 1-4-4, it includes the mode-bit
+        cycles: for example 4 for Winbond BBh (M7-0 at x2) and 6 for Winbond EBh (M7-0 at x4,
+        then 4 dummy cycles)
+
     fast_mode : bool
         chip configured in fast mode
         True -> dummy_bits used

@@ -174,6 +174,27 @@ class TestFlashModule(unittest.TestCase):
             with self.subTest(module=module.__name__, opcode=opcode.desc):
                 self.assertEqual(module(opcode).dummy_cycles, 8)
 
+    def test_winbond_jv_io_read_gap_cycles(self):
+        # The MMAP sends the whole address to data gap as one dummy phase: mode bits M7-0 included.
+        # Winbond JV: Fast Read Dual I/O (BBh/BCh) M7-0 at x2 (4 clocks), Fast Read Quad I/O
+        # (EBh/ECh) M7-0 at x4 (2 clocks) + 4 dummy clocks.
+        from litespi.core.mmap import LiteSPIMMAP
+        cases = [
+            (modules.W25Q128JV, Codes.READ_1_2_2,    4),
+            (modules.W25Q128JV, Codes.READ_1_4_4,    6),
+            (modules.W25Q512JV, Codes.READ_1_2_2,    4),
+            (modules.W25Q512JV, Codes.READ_1_2_2_4B, 4),
+            (modules.W25Q512JV, Codes.READ_1_4_4,    6),
+            (modules.W25Q512JV, Codes.READ_1_4_4_4B, 6),
+        ]
+        for module, opcode, cycles in cases:
+            with self.subTest(module=module.__name__, opcode=opcode.desc):
+                flash = module(opcode)
+                self.assertEqual(flash.dummy_cycles, cycles)
+                # MMAP dummy phase in SCK cycles (bits at the address width).
+                mmap = LiteSPIMMAP(flash=flash)
+                self.assertEqual(mmap._default_dummy_bits, cycles*flash.addr_width)
+
     def test_meta_sizes(self):
         with self.assertRaises(AssertionError):
             class BadSizesChip(SpiNorFlashModule):
