@@ -234,9 +234,21 @@ The erase geometry tells software which erase command to use and how much it era
 of `SpiNorFlashEraseCommand(opcode, size, addr_bits)`, the first entry being the default; an
 address length of 0 is for a chip erase without address.
 
-None of the 481 flash modules defines `erase_commands`. They all fall back to the sector erase
-`SE` (`0xd8`): 64 KiB with a 24-bit address. `erase_cmd` selects another erase command, which the
-constructor translates when its geometry is unambiguous:
+The modules above 16 MiB whose datasheet gives 4-byte erase commands define `erase_commands`, the
+4-byte sector erase first, as the table below shows. Each list ends with the 3-byte versions, so
+that `erase_cmd=Codes.SE` still selects the 3-byte erase.
+
+| Modules | Erase commands, in order |
+|----------------------------------------------|------------------------------------------------|
+| `MT25QL256`, `MT25QL512`, `MT25QU256`, `MT25QU512` and their `A` variants | `SE_4B`, `BE_4K_4B`, `SE`, `BE_4K` (64 and 4 KiB) |
+| `W25Q256`, `W25Q256FV`, `W25Q256JV`, `W25Q256JVM`, `W25Q256JW`, `W25Q512JV` | as above |
+| `IS25LP256`, `IS25LP256D`, `IS25LP512M`, `IS25WP256`, `IS25WP256D`, `IS25WP512M` | as above |
+| `MX25L25645G`, `MX25L51245G`, `MX25U25645G`, `MX25U51245G` | as above |
+| `S25FL512S`, `S70FL01GS` | `SE_4B`, `SE` (256 KiB sectors) |
+
+The other modules fall back to the sector erase `SE` (`0xd8`): 64 KiB with a 24-bit address.
+`erase_cmd` selects another erase command, which the constructor translates when its geometry is
+unambiguous:
 
 | Opcode name | Code | Size | Address bits |
 |----------------------|--------|-----------:|-------------:|
@@ -253,9 +265,9 @@ constructor translates when its geometry is unambiguous:
 | `CHIP_ERASE_ATMEL` | `0x62` | whole chip | 0 |
 
 `add_spi_flash` exports the selected command as `SPIFLASH_MODULE_ERASE_OPCODE`, `_SIZE` and
-`_ADDR_BITS`, which the BIOS erase routine uses. On a chip larger than 16 MiB, the 24-bit default
-erases only the first 16 MiB: such a chip needs a 4-byte erase command, given with `erase_cmd` or
-`erase_commands`.
+`_ADDR_BITS`, which the BIOS erase routine uses. On a chip larger than 16 MiB without a list, the
+24-bit default reaches only the first 16 MiB, and the BIOS refuses an erase above it: such a chip
+needs a 4-byte erase command, given with `erase_cmd` or `erase_commands`.
 
 ## Opcodes {#mod-opcodes}
 

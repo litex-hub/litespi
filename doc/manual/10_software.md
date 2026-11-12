@@ -168,13 +168,14 @@ The last address assumes the flash region at `0x01000000`; check it with `mem_li
 CRC with the one of the source data, from `crc 0x40000000 0x10000` or the host.
 
 `flash_erase_range` sends one erase command per block, with the opcode, size and address width
-of the module: 64 KiB `0xd8` with a 24-bit address by default, since no module of the database
-defines its erase commands ([The SPI memory database](#modules)), or the `erase_cmd` given to the
-module. It prints `Erase SPI Flash @<address>`, polls WIP, then reads the block back
+of the module: the first erase command of the module, `0xdc` with a 4-byte address on the modules
+above 16 MiB that list it ([The SPI memory database](#modules)), 64 KiB `0xd8` with a 24-bit
+address on the others, or the `erase_cmd` given to the module. It prints `Erase SPI Flash @<address>`, polls WIP, then reads the block back
 through the MMAP and reports every byte that is not `0xff`.
 
-`flash_write` programs pages of up to 256 bytes with Page Program (`0x02`) and a 3-byte address,
-polls WIP, then reads each page back and compares it. On a mismatch it prints `Error: verify
+`flash_write` programs pages of up to 256 bytes with Page Program, `0x12` with a 4-byte address on
+a module above 16 MiB that lists `PP_1_1_1_4B`, `0x02` with a 3-byte address otherwise. It polls
+WIP, then reads each page back and compares it. On a mismatch it prints `Error: verify
 failed at <address>`, and finally a reminder that the region may not be erased. It does not erase
 by itself: program only erased blocks.
 
@@ -183,14 +184,11 @@ does not split them at page boundaries: from an unaligned offset, each chunk cro
 wraps inside it ([Erase and program](#flash-erase)), and the verify reports errors.
 `flash_from_sdcard` starts at offset 0 and is not affected.
 
-The BIOS sends Page Program with a 3-byte address, and the erase with the address width of the
-module, 24 bits by default, and it assumes the chip in its default 3-byte address mode. On a flash
-larger than 16 MiB, a program or erase above 16 MiB therefore acts at the address modulo 16 MiB,
-in the first 16 MiB of the chip, which usually holds the bitstream; only the read-back reports the
-error. On a chip switched to 4-byte address mode, these commands send one address byte too few and
-do not work. For the erase, a module built with `erase_cmd=Codes.SE_4B` sends `0xdc` with a 4-byte
-address; program the upper part through the master with a 4-byte opcode. Reads through a `_4B`
-opcode cover the whole chip.
+With 3-byte commands, the BIOS assumes the chip in its default 3-byte address mode and refuses a
+program or erase above 16 MiB, with an error message. The 4-byte erase of the module list and the
+4-byte Page Program reach the whole chip, in either address mode. On a module without them,
+program and erase the upper part through the master with 4-byte opcodes, or build the module with
+`erase_cmd=Codes.SE_4B`. Reads through a `_4B` opcode cover the whole chip.
 
 ## Booting from an image in the flash {#sw-flashboot}
 

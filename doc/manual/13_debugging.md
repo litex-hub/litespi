@@ -165,8 +165,7 @@ is in [the introduction](#intro-status).
 | MMAP writes (in development) | The MMAP sends the program opcode without WREN and without status polling; a page boundary starts a new program command without WREN, ignored by a flash | Send WREN with the master before each page |
 | MMAP writes, `endianness="big"` | Bytes are programmed in the reverse order of a read: a word reads back byte-reversed | Little endian MMAP (`mmap_endianness`), or swap in software |
 | Master `rxtx` write | A write while the TX FIFO is full (`status.tx_ready` at 0) is dropped | Poll `tx_ready` before each write |
-| No module defines `erase_commands` | By default erases use SE `0xd8`, 64 KiB, 24-bit address | Erase in 64 KiB units; for a chip above 16 MiB, select the `SE_4B` erase with the `erase_cmd` argument of the module |
-| BIOS program and erase above 16 MiB | `0x02` and the default erase send a 3-byte address: above 16 MiB they act at the address modulo 16 MiB, usually the bitstream; on a chip in 4-byte address mode the commands are misread | Program and erase large parts with the master and 4-byte opcodes |
+| Modules above 16 MiB without `erase_commands` | The erase falls back to SE `0xd8`, 64 KiB, 24-bit address; the BIOS refuses an erase above 16 MiB ([Erase commands](#mod-erase)) | Select the `SE_4B` erase with the `erase_cmd` argument of the module |
 | BIOS `flash_write` at an unaligned offset | Each 256-byte page program starts at the offset and wraps inside its page: verify errors | Write from a 256-byte aligned offset |
 | Generic quad enable | Modules without `quad_enable`: WREN, then `01 43 07`, with no read-back; it also clears the block protection bits of SR1 | Check the status registers from the host |
 | QPI entry | The BIOS sends `0x35` only; the master stays on one line afterwards | Check the QPI entry opcode of the chip |

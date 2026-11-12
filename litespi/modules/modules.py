@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # SPI NOR module database. Add new devices here with a datasheet reference.
-from litespi.spi_nor_flash_module import SpiNorFlashModule
+from litespi.spi_nor_flash_module import SpiNorFlashModule, SpiNorFlashEraseCommand
 from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.ids import SpiNorFlashManufacturerIDs
 
@@ -2646,6 +2646,14 @@ class IS25LP256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -2675,6 +2683,14 @@ class IS25LP256D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -2691,6 +2707,14 @@ class IS25LP512M(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -2823,6 +2847,14 @@ class IS25WP256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -2852,6 +2884,14 @@ class IS25WP256D(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -2868,6 +2908,14 @@ class IS25WP512M(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: ISSI IS25LP/WP256/512 datasheets, 4BER64K (DCh, 64 KiB) and 4SER (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -4011,6 +4059,14 @@ class MT25QL256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -4031,6 +4087,14 @@ class MT25QL256A(SpiNorFlashModule):
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
     total_pages =     131072
+
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -4060,6 +4124,14 @@ class MT25QL512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -4080,6 +4152,14 @@ class MT25QL512A(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -4171,6 +4251,14 @@ class MT25QU256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -4191,6 +4279,14 @@ class MT25QU256A(SpiNorFlashModule):
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
     total_pages =     131072
+
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -4220,6 +4316,14 @@ class MT25QU512(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -4240,6 +4344,14 @@ class MT25QU512A(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Micron MT25Q datasheet, 4-byte sector (DCh, 64 KiB) and subsector (21h, 4 KiB) erase.
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -4792,6 +4904,14 @@ class MX25L25645G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Macronix MX25L/U25645G/51245G datasheets, BE4B (DCh, 64 KiB) and SE4B (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -5020,6 +5140,14 @@ class MX25L51245G(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Macronix MX25L/U25645G/51245G datasheets, BE4B (DCh, 64 KiB) and SE4B (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -5582,6 +5710,14 @@ class MX25U51245G(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Macronix MX25L/U25645G/51245G datasheets, BE4B (DCh, 64 KiB) and SE4B (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -7352,6 +7488,12 @@ class S25FL512S(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     262144
 
+    # Erase commands: Infineon S25FL512S datasheet (uniform 256 KiB sectors, no 4 KiB sectors), 4SE (DCh) and SE (D8h).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,    256*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,       256*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -7567,6 +7709,12 @@ class S70FL01GS(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Infineon S25FL512S datasheet (uniform 256 KiB sectors, no 4 KiB sectors), 4SE (DCh) and SE (D8h).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,    256*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,       256*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -8396,6 +8544,14 @@ class W25Q256(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -8424,6 +8580,14 @@ class W25Q256FV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -8441,6 +8605,14 @@ class W25Q256JV(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.PP_1_1_1,
@@ -8457,6 +8629,14 @@ class W25Q256JVM(SpiNorFlashModule):
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
     total_pages =     131072
+
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -8479,6 +8659,14 @@ class W25Q256JW(SpiNorFlashModule):
     total_size  =   33554432   # bytes
     page_size   =        256   # bytes
     total_pages =     131072
+
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
@@ -9012,6 +9200,14 @@ class MX25U25645G(SpiNorFlashModule):
     page_size   =        256   # bytes
     total_pages =     131072
 
+    # Erase commands: Macronix MX25L/U25645G/51245G datasheets, BE4B (DCh, 64 KiB) and SE4B (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
+
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
         SpiNorFlashOpCodes.READ_1_1_1_FAST,
@@ -9064,6 +9260,14 @@ class W25Q512JV(SpiNorFlashModule):
     total_size  =   67108864   # bytes
     page_size   =        256   # bytes
     total_pages =     262144
+
+    # Erase commands: Winbond W25Q256/W25Q512 datasheets, block erase with 4-byte address (DCh, 64 KiB), sector erase with 4-byte address (21h, 4 KiB).
+    erase_commands = [
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE_4B,     64*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K_4B,   4*1024, 32),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.SE,        64*1024, 24),
+        SpiNorFlashEraseCommand(SpiNorFlashOpCodes.BE_4K,      4*1024, 24),
+    ]
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
