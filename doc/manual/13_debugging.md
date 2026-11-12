@@ -157,7 +157,6 @@ is in [the introduction](#intro-status).
 | `extra_latency` of 0.5 | 1:2 PHY: `TypeError` at elaboration, so the Efinix Ti375 and Tz170 targets fail at their default rate, 1:2; SDR PHY: `int()` drops the 0.5 | Rate 1:1, or an integer value |
 | Divisor 1023 | The half period, 512, wraps to 0 in its 9-bit counter: SCK runs at system clock / 2 | Use divisors up to 1022 |
 | CS with `clock_domain` | CS reaches the PHY domain without a synchronizer, and the MMAP releases it for one `sys` cycle between two commands: a slower PHY clock can miss that release | Keep the PHY clock at least as fast as `sys`; test in simulation first |
-| `mmap_dummy_bits` | The 8-bit register goes to the 6-bit `len` field of the dummy transfer: values above 63 are truncated | Keep it at 63 or less |
 | `W25Q128JV` 1-4-4 and 1-2-2 | The module gives 4 and 0 dummy cycles, which leave out the mode-bit cycles (datasheet 6 and 4); no LiteX-Boards target uses these reads | Check the dummy cycles against the datasheet; `W25Q512JV`, `S25FL128L` and `MX25L12833F` are to check too |
 | `W25Q128JW`, `W25Q256JW` 1-1-4 | The modules give 32 dummy cycles where the chip needs 8 | Set `mmap_dummy_bits` to 8, or use another read |
 | BIOS dummy bits constant | `add_spi_flash` never defines this constant ([BIOS constants](#opt-bios)), so the BIOS keeps the reset value of `mmap_dummy_bits` | Change the module default, or add the constant in the target |

@@ -129,8 +129,9 @@ cycles](#mod-dummy)).
 
 With `with_csr=True` (the default), the 8-bit register `mmap_dummy_bits` holds the value and
 software can change it, for instance after it changes the latency setting of the flash. The dummy
-transfer copies it into the 6-bit length field of the transfer, so only values up to 63 are sent as
-such; larger ones are truncated (the largest module default is 32). With
+transfer copies it into the 6-bit length field of the transfer. A larger value is limited to the
+largest whole number of cycles that fits, 63 bits at the address width 1 and 60 at 4, and a module
+default above it fails at elaboration (the largest module default is 32). With
 `with_csr=False`, the value is a constant of the gateware. The LiteX BIOS writes the register only
 when a `SPIFLASH_MODULE_DUMMY_BITS` constant is defined, which `add_spi_flash` does not do.
 
