@@ -148,11 +148,10 @@ cycles: a W25Q128JV 1-4-4 read (`0xeb`), for example, needs 2 mode cycles plus 4
 is 6. The module stores the number of cycles, per read opcode when it differs: the `APS6404L` SPI
 RAM, which has no mode bits, uses 6 cycles for its 1-4-4 read and 8 for its 1-1-1 fast read.
 
-This is a limitation of the database as it is. The `W25Q128JV` module gives 4 cycles for its 1-4-4
-read and 0 for its 1-2-2 read, the dummy counts of the datasheet without the mode-bit cycles (6 and
-4 in total). With these values the MMAP would start the data phase too early and return shifted
-data. No LiteX-Boards target uses these two reads. The 1-4-4 and 1-2-2 counts of the `W25Q512JV`,
-`S25FL128L` and `MX25L12833F` modules (8 cycles) are to be checked against their datasheets
+The Winbond modules follow this rule: the `W25Q128JV` module gives 6 cycles for its 1-4-4 read
+and 4 for its 1-2-2 read (4 mode-bit cycles at x2, no dummy cycle). A count without the mode-bit
+cycles would make the MMAP start the data phase too early and return shifted data. The 1-4-4
+counts of the `S25FL128L` and `MX25L12833F` modules depend on a latency setting of the chip
 ([Dummy cycles](#mod-dummy)).
 
 ## Speed limits {#primer-speed}

@@ -91,11 +91,11 @@ lengths of the code; they leave out the per-transfer handshakes of the PHY and t
 | `READ_1_1_2` | 8 | 24 | 8 | 16 | 56 | 16 |
 | `READ_1_1_4` | 8 | 24 | 8 | 8 | 48 | 8 |
 | `READ_1_1_4_4B` | 8 | 32 | 8 | 8 | 56 | 8 |
-| `READ_1_4_4` | 8 | 6 | 4 | 8 | 26 | 8 |
+| `READ_1_4_4` | 8 | 6 | 6 | 8 | 28 | 8 |
 | `READ_4_4_4` | 2 | 6 | 6 | 8 | 22 | 8 |
 
-The rows use 8 dummy cycles, the value of most modules, except the 1-4-4 row (4 cycles, the
-database value of `W25Q128JV`, see [Dummy cycles](#mmap-dummy)) and the 4-4-4 row (6 cycles of
+The rows use 8 dummy cycles, the value of most modules, except the 1-4-4 row (6 cycles of
+`W25Q128JV`, mode bits included, see [Dummy cycles](#mmap-dummy)) and the 4-4-4 row (6 cycles of
 `MX25L12833F`).
 
 A wide data path pays off on sequential reads, where the next word costs 8 SCK cycles at x4
@@ -118,14 +118,12 @@ line. The table below gives the defaults that `LiteSPIMMAP` computes for `W25Q12
 | `READ_1_1_1` | none | 1 | 0 |
 | `READ_1_1_1_FAST` | 8 | 1 | 8 |
 | `READ_1_1_4` | 8 | 1 | 8 |
-| `READ_1_4_4` | 4 | 4 | 16 |
+| `READ_1_4_4` | 6 | 4 | 24 |
 
-These are the values of the database. The datasheet of the W25Q128JV counts 2 mode-bit cycles plus
-4 dummy cycles between the address and the data of a 1-4-4 read, and 4 mode-bit cycles of a 1-2-2
-read, 6 and 4 cycles in total. Since the MMAP sends the whole gap as one dummy phase, the module
-values of 4 and 0 would make the data phase start early and the words read shifted. No LiteX-Boards
-target uses these two reads; check the module against the datasheet before using them ([Dummy
-cycles](#mod-dummy)).
+The datasheet of the W25Q128JV counts 2 mode-bit cycles plus 4 dummy cycles between the address
+and the data of a 1-4-4 read, and 4 mode-bit cycles of a 1-2-2 read. Since the MMAP sends the whole
+gap as one dummy phase, the module counts the mode-bit cycles too: 6 and 4 cycles. These two reads
+are not validated on hardware yet ([Dummy cycles](#mod-dummy)).
 
 With `with_csr=True` (the default), the 8-bit register `mmap_dummy_bits` holds the value and
 software can change it, for instance after it changes the latency setting of the flash. The dummy
