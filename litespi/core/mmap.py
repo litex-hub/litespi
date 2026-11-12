@@ -185,6 +185,14 @@ class LiteSPIMMAP(LiteXModule):
             )
         )
 
+        if not with_write:
+            # Read-only: end bus writes at once with an error (instead of a bus timeout).
+            fsm.act("IDLE",
+                If(bus.cyc & bus.stb & bus.we,
+                    bus.err.eq(1),
+                )
+            )
+
         if with_write:
             # Bytes are programmed from the lowest flash address up: with big endianness the lowest
             # address is the MSB of the bus word (as on reads), so reverse the data and select bytes.

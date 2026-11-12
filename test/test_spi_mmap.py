@@ -215,6 +215,38 @@ class TestSPIMMAP(unittest.TestCase):
         self.assertEqual(acked, [True])
         self.assertEqual(transfers, [])
 
+    def test_spi_mmap_read_only_write_returns_error(self):
+        dut       = LiteSPIMMAP(flash=self.DummyChip(Codes.READ_1_1_1, []))
+        transfers = []
+        result    = {}
+
+        def wb_gen():
+            yield dut.bus.adr.eq(0xcafe)
+            yield dut.bus.we.eq(1)
+            yield dut.bus.cyc.eq(1)
+            yield dut.bus.stb.eq(1)
+            yield
+            for _ in range(64):
+                if (yield dut.bus.err) or (yield dut.bus.ack):
+                    result["err"] = (yield dut.bus.err)
+                    result["ack"] = (yield dut.bus.ack)
+                    break
+                yield
+            yield dut.bus.cyc.eq(0)
+            yield dut.bus.stb.eq(0)
+            yield dut.bus.we.eq(0)
+            yield
+            # The next read still works.
+            yield from dut.bus.read(0x10)
+
+        run_simulation(dut, [
+            wb_gen(),
+            self._record_spi_transfers(dut, transfers, transfer_count=3, cycles=256),
+        ])
+
+        self.assertEqual(result, {"err" : 1, "ack" : 0})
+        self.assertEqual([t["data"] for t in transfers], [Codes.READ_1_1_1.code, 0x10 << 2, 0])
+
     def test_spi_mmap_write_sel_skips_unselected_bytes(self):
         opcode = Codes.PP_1_1_1
         dut = LiteSPIMMAP(

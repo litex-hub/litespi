@@ -51,7 +51,7 @@ sequence, waits for the ready status, and prints nothing more than `Enabling Qua
 | Calibration message about an erased block | Nothing programmed at offset 0 | Program the bitstream or data first, or build with `SPIFLASH_SKIP_FREQ_INIT` |
 | x1 reads correct, quad reads wrong | QE bit not set, wrong dummy cycles, pads not x4 | Status register through the master; `dummy_cycles` of the module against the datasheet; `mode="4x"` and `spiflash4x` pads |
 | Correct at a high divisor only | Sampling delay of the board, SCK above the chip limit for the opcode | Raise `mmap_clk_divisor` and `phy_clk_divisor` from the host; `extra_latency` of the PHY; the fast read opcode |
-| CPU hangs when running from flash | Dummy bits wrong for the read opcode, the master holding CS, a write to a read-only MMAP | `mmap_dummy_bits`; `master_cs` back to 0; the known issues below |
+| CPU hangs when running from flash | Dummy bits wrong for the read opcode, the master holding CS | `mmap_dummy_bits`; `master_cs` back to 0; the known issues below |
 | Erase or program verify errors | Block protection bits set, region not erased, address above 16 MiB | Status register bits; `flash_erase_range` first; the known issues below |
 
 LiteSPI never drives WP# and HOLD#: in x1 mode they rely on the board. A flash pauses its output
@@ -160,7 +160,6 @@ is in [the introduction](#intro-status).
 | `W25Q128JV` 1-4-4 and 1-2-2 | The module gives 4 and 0 dummy cycles, which leave out the mode-bit cycles (datasheet 6 and 4); no LiteX-Boards target uses these reads | Check the dummy cycles against the datasheet; `W25Q512JV`, `S25FL128L` and `MX25L12833F` are to check too |
 | `W25Q128JW`, `W25Q256JW` 1-1-4 | The modules give 32 dummy cycles where the chip needs 8 | Set `mmap_dummy_bits` to 8, or use another read |
 | BIOS dummy bits constant | `add_spi_flash` never defines this constant ([BIOS constants](#opt-bios)), so the BIOS keeps the reset value of `mmap_dummy_bits` | Change the module default, or add the constant in the target |
-| Read-only MMAP | A bus write is never acknowledged: the access ends with the bus timeout error of the SoC | Write through the master |
 | MMAP writes (in development) | The MMAP sends the program opcode without WREN and without status polling; a page boundary starts a new program command without WREN, ignored by a flash | Send WREN with the master before each page |
 | MMAP writes, `endianness="big"` | Bytes are programmed in the reverse order of a read: a word reads back byte-reversed | Little endian MMAP (`mmap_endianness`), or swap in software |
 | Master `rxtx` write | A write while the TX FIFO is full (`status.tx_ready` at 0) is dropped | Poll `tx_ready` before each write |

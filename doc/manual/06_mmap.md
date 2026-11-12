@@ -173,7 +173,7 @@ as program commands. The `with_mmap_write` parameter of `LiteSPI` selects them:
 
 | `with_mmap_write` | Bus | Writes |
 |----------------------|------------|-----------------------------------------------|
-| `False` (default) | Read-only | Not acknowledged: the bus timeout of the SoC ends the access with an error |
+| `False` (default) | Read-only | Ended at once with a bus error (`err`), no SPI transfer |
 | `True` | Read-write | Always sent: meant for SPI RAM, used by `add_spi_ram` |
 | `"csr"` | Read-write | Sent while `write_enable` is 1, otherwise acknowledged and dropped |
 
