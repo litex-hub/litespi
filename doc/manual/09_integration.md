@@ -132,8 +132,8 @@ pins:
 ),
 ```
 
-The PHY does not use `wp` and `hold`. In x1 mode the board must keep them high, with pull-ups or
-through other logic of the target. A `dq` of 2 or 8 lines gives a x2 or x8 PHY when a target
+The PHY holds `wp` and `hold` high in x1 mode when the pads have them: write protect and hold stay
+released without pull-ups on the board. A `dq` of 2 or 8 lines gives a x2 or x8 PHY when a target
 builds the PHY itself; `add_spi_flash` only knows the `1x` and `4x` pad names.
 
 When the pads have no `clk`, the flash clock leaves through a dedicated configuration pin. The PHY
@@ -169,8 +169,10 @@ memory database](#modules)).
 Mode `"4x"` with a 1-1-1 read is valid: the PHY then uses DQ0 and DQ1 only. Several Artix-7 and
 Kintex-7 targets do this, such as `qmtech_xc7a35t` and `qmtech_kintex7_devboard`, which read their
 MT25QL128 in 1-1-1. The read does not use four data lines, so `QUAD_CAPABLE` is not defined and
-the BIOS does not set the QE bit. As in x1 mode, DQ2 and DQ3 are then not driven: the board must
-hold WP# and HOLD# high.
+the BIOS does not set the QE bit. As in x1 mode, the PHY then holds DQ2 and DQ3 high as WP# and
+HOLD#: it does so when neither the read nor the program command of the module uses more than two
+lines. In this configuration, master commands on four lines are not possible: DQ2 and DQ3 always
+drive a high level.
 
 A quad read needs the QE bit of the flash set ([Status registers and quad enable](#flash-qe)). The
 BIOS sets it at boot when the master is present and the read uses four data lines. Without the

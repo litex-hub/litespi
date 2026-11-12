@@ -68,9 +68,9 @@ starts to answer.
 
 In LiteSPI, a PHY handles 1, 2, 4 or 8 data lines. With the x1 pad set, the SDR PHY uses the
 separate `mosi` and `miso` pins; with the x4 pad set, single-line transfers drive DQ0 and read DQ1.
-In both cases it does not drive WP# and HOLD# during single-line transfers, so the board must keep
-them inactive with pull-ups. With more lines, it drives the `dq` pins through tristate buffers and
-sets the output enable of each line for each part of a command.
+With the x1 pad set, it holds the `wp` and `hold` pins high when the pads have them. With more
+lines, it drives the `dq` pins through tristate buffers and sets the output enable of each line for
+each part of a command.
 
 ## The x-y-z notation {#primer-notation}
 

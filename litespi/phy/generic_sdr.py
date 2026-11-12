@@ -158,14 +158,18 @@ class LiteSPISDRPHYCore(LiteXModule):
                 i = pads.miso,
                 o = dq_i[1]
             )
+            # WP#/HOLD# high.
+            self.comb += spi_wp_hold_x1(pads)
         else:
             dq_o  = Signal().like(pads.dq)
             dq_i  = Signal().like(pads.dq)
             dq_oe = Signal().like(pads.dq)
+            # WP#/HOLD# (DQ2/DQ3) high when the module never uses them for data.
+            wp_hold_mask = spi_wp_hold_x4_mask(bus_width, flash)
             self.specials += SDRTristate(
                     io = pads.dq,
-                    o  = dq_o,
-                    oe = dq_oe,
+                    o  = dq_o  | wp_hold_mask,
+                    oe = dq_oe | wp_hold_mask,
                     i  = dq_i,
                 )
 

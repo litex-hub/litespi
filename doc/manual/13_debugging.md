@@ -47,16 +47,18 @@ sequence, waits for the ready status, and prints nothing more than `Enabling Qua
 
 | Symptom | Likely causes | What to check |
 |---------------------------|-------------------------------------|-------------------------------------------|
-| Identifier or status reads `0xff` or `0x00` | Wrong pins, CS not toggling, no SCK on the clock path, HOLD# low in x1 mode | Pins of the target; CCLK targets use STARTUPE2 and ECP5 MCLK targets USRMCLK; WP# and HOLD# pulled up on the board |
+| Identifier or status reads `0xff` or `0x00` | Wrong pins, CS not toggling, no SCK on the clock path, HOLD# low | Pins of the target; CCLK targets use STARTUPE2 and ECP5 MCLK targets USRMCLK; WP# and HOLD# pulled up on the board |
 | Calibration message about an erased block | Nothing programmed at offset 0 | Program the bitstream or data first, or build with `SPIFLASH_SKIP_FREQ_INIT` |
 | x1 reads correct, quad reads wrong | QE bit not set, wrong dummy cycles, pads not x4 | Status register through the master; `dummy_cycles` of the module against the datasheet; `mode="4x"` and `spiflash4x` pads |
 | Correct at a high divisor only | Sampling delay of the board, SCK above the chip limit for the opcode | Raise `mmap_clk_divisor` and `phy_clk_divisor` from the host; `extra_latency` of the PHY; the fast read opcode |
 | CPU hangs when running from flash | Dummy bits wrong for the read opcode, the master holding CS | `mmap_dummy_bits`; `master_cs` back to 0; the known issues below |
 | Erase or program verify errors | Block protection bits set, region not erased, address above 16 MiB | Status register bits; `flash_erase_range` first; the known issues below |
 
-LiteSPI never drives WP# and HOLD#: in x1 mode they rely on the board. A flash pauses its output
-while HOLD# is low, so a floating HOLD# gives reads of a constant value. In x4 mode the same pins
-are DQ2 and DQ3 and the PHY drives or reads them ([SPI memories in a nutshell](#spi-primer)).
+A flash pauses its output while HOLD# is low, so a floating HOLD# gives reads of a constant value.
+The PHY holds WP# and HOLD# high in x1 mode, and DQ2 and DQ3 of x4 pads when the module commands
+use at most two lines. With a quad read, DQ2 and DQ3 are data lines that the PHY drives or reads
+([SPI memories in a nutshell](#spi-primer)); a board without pull-ups can then see HOLD# low
+before the BIOS sets the QE bit.
 
 The 1-1-4 and 1-4-4 modes depend on the QE bit, whose place differs between vendors
 ([Inside a SPI NOR flash](#flash-primer)). Read the status and configuration registers from the

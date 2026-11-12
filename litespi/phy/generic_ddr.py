@@ -113,10 +113,14 @@ class LiteSPIDDRPHYCore(LiteXModule):
         dq_i  = Array([Signal(len(dq)) for _ in range(2)])
         dq_oe = Signal(len(dq))
 
+        # WP#/HOLD# high: x1 pads, or DQ2/DQ3 of x4 pads when the module never uses them for data.
+        wp_hold_mask = spi_wp_hold_x4_mask(bus_width, flash)
+        if hasattr(pads, "miso"):
+            self.comb += spi_wp_hold_x1(pads)
         self.specials += DDRTristate(
             io  = dq,
-            o1  =  dq_o[0],  o2 =  dq_o[1],
-            oe1 = dq_oe,
+            o1  =  dq_o[0] | wp_hold_mask,  o2 =  dq_o[1] | wp_hold_mask,
+            oe1 = dq_oe    | wp_hold_mask,
             i1  =  dq_i[0],  i2 =  dq_i[1]
         )
 
