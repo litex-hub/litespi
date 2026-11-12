@@ -36,16 +36,18 @@ LiteX, and no simulator besides the Migen one.
 ```sh
 # Whole suite, as the CI runs it
 python3 -m pytest -v
+# Same, in parallel on every CPU core (needs pytest-xdist)
+python3 -m pytest -v -n auto
 # One file, or one test
 python3 -m pytest -v test/test_flash_model.py
 python3 -m pytest -v test/test_spi_mmap.py -k little_endian
 ```
 
-The suite collects 47 tests; many loop over opcodes, widths or idle times as subtests. The end
+The suite collects 74 tests; many loop over opcodes, widths or idle times as subtests. The end
 of a run of `python3 -m pytest -q` from the repository root reads:
 
 ```console
-47 passed, 647 subtests passed in 18.89s
+74 passed, 754 subtests passed in 46.22s
 ```
 
 ## The pin-level flash model {#sim-flash-model}
@@ -139,19 +141,19 @@ FLASH:		16.0MiB
 
 Initializing s25fl128l SPI Flash @0x01000000...
 Enabling Quad mode...
-SPI Flash clk configured to 0 MHz
+SPI Flash clk configured to 500 kHz
 Memspeed at 0x1000000 (Sequential, 4.0KiB)...
-   Read speed: 236.7KiB/s
+   Read speed: 236.6KiB/s
 Memspeed at 0x1000000 (Random, 4.0KiB)...
-   Read speed: 76.3KiB/s
+   Read speed: 76.2KiB/s
 [...]
 litex>
 ```
 
 Each line reflects the model, not a chip. The quad enable runs the generic sequence of the BIOS,
 since the S25FL128L module names no quad enable method, and the model reports a ready status. The
-clock line prints `SPIFLASH_PHY_FREQUENCY`, 500 kHz at a 1 MHz system clock, in whole MHz, because
-the model has no divisor register to calibrate. The read speeds measure the CPU, the bus and the
+clock line prints `SPIFLASH_PHY_FREQUENCY`, 500 kHz at a 1 MHz system clock (in kHz, below
+1 MHz), because the model has no divisor register to calibrate. The read speeds measure the CPU, the bus and the
 fixed latency of the model, and say nothing about a real flash; [Performance and
 resources](#performance) gives the cycle counts of the real PHYs.
 

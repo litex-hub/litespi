@@ -130,8 +130,10 @@ software can change it, for instance after it changes the latency setting of the
 transfer copies it into the 6-bit length field of the transfer. A larger value is limited to the
 largest whole number of cycles that fits, 63 bits at the address width 1 and 60 at 4, and a module
 default above it fails at elaboration (the largest module default is 32). With
-`with_csr=False`, the value is a constant of the gateware. The LiteX BIOS writes the register only
-when a `SPIFLASH_MODULE_DUMMY_BITS` constant is defined, which `add_spi_flash` does not do.
+`with_csr=False`, the value is a constant of the gateware. The LiteX BIOS writes the register at
+boot only when the target defines a `SPIFLASH_MODULE_DUMMY_BITS` constant (`soc.add_constant`), an
+optional override: `add_spi_flash` does not define it, since the reset value already holds the
+dummy cycles of the read opcode.
 
 The dummy phase drives no line. On a 1-2-2 or 1-4-4 read, the cycles that the flash uses for mode
 bits are therefore left undriven: the flash reads whatever level the lines float to or the pull-ups
@@ -184,13 +186,15 @@ enable and the status polling that a flash needs around each program command.
 
 A write uses the program command of the module (`program_cmd`, `PP_1_1_1` by default) with the
 widths and the address length of its name. Each selected byte of the word is one 8-bit transfer,
-byte lane 0 (bits 7:0) first, at the byte address of the word.
+at the byte address of the word, in the read order of the MMAP ([Byte order](#mmap-endianness)):
+byte lane 0 (bits 7:0) first with `endianness="little"`, bits 31:24 first with `"big"`. A word
+therefore reads back as it was written.
 
 Sequential full-word writes continue the same command, like read bursts. A new command starts in
 the following cases:
 
 - the write is not at the address that follows the previous write;
-- byte lane 0 of the word is not selected;
+- the first byte of the word in this order is not selected;
 - the word is the first word of a page (page size a power of two and a multiple of 4 bytes);
 - the previous access was a read, or the burst timed out.
 
@@ -217,11 +221,6 @@ The polling runs before the next MMAP command, read or write, and when a write b
 timeout, so the master finds the flash idle. With `True`, the MMAP sends the program commands
 alone, since a SPI RAM needs neither. The MMAP never erases: software erases through the master
 first. This sequence is checked in simulation against the flash model, not yet on hardware.
-
-Writes always send byte lane 0 to the lowest address. This matches the read order of
-`endianness="little"` only: with `"big"`, a word read back has its bytes in the reverse order of the
-word written. This also applies to `add_spi_ram`, which passes the endianness of the CPU, on a
-big-endian CPU.
 
 ## Caches in front of the MMAP {#mmap-cache}
 

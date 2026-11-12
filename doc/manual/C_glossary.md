@@ -18,7 +18,7 @@ points to the chapter that explains it.
 | Crossbar | `LiteSPICrossbar`: shares the PHY between the MMAP and the master, one command at a time. See [Architecture](#architecture) |
 | CS | Chip select, active low (`cs_n`): selects the flash and frames a command. See [SPI memories in a nutshell](#spi-primer) |
 | CS control | `LiteSPICSControl`: drives `cs_n` and keeps CS high for `cs_delay` cycles between commands. See [Architecture](#architecture) |
-| Divisor | Value that sets SCK of the SDR PHY from the system clock (`clk_divisor`). See [PHYs](#phys) |
+| Divisor | Value that sets SCK of the PHY from its clock (`clk_divisor`, or the `clk_div` of a transfer). See [PHYs](#phys) |
 | DQ0 to DQ7 | Data lines of the flash; in x1 mode DQ0 is MOSI and DQ1 is MISO. See [SPI memories in a nutshell](#spi-primer) |
 | DTR | Double transfer rate: data on both SCK edges on the flash side. Not supported by the PHYs. See [SPI memories in a nutshell](#spi-primer) |
 | Dummy cycles | SCK cycles between the address and the data of a fast read, while the flash prepares the data. The MMAP sends the whole gap as one dummy phase, so the count of a module must include the mode-bit cycles. See [SPI memories in a nutshell](#spi-primer) |

@@ -74,7 +74,7 @@ each line are in [A SoC with the BIOS: litex_sim](#sim-litex-sim).
 
 The calibration finds the fastest SCK that still reads the flash correctly. It runs only when the
 PHY has a `clk_divisor` register, that is with the SDR PHY and the 1:2 PHY. With the model PHY, the
-BIOS only prints `SPIFLASH_PHY_FREQUENCY` in whole MHz.
+BIOS only prints `SPIFLASH_PHY_FREQUENCY`.
 
 The algorithm reads the first 256 bytes of the flash through the MMAP and keeps their CRC32 as the
 reference. It then lowers the divisor step by step (by 2 for the SDR PHY, by 1 for the 1:2 PHY), flushes the caches and
@@ -82,8 +82,11 @@ reads the block again, until the CRC changes or the divisor reaches its minimum.
 the last divisor that matched, writes it into the PHY and MMAP divisor registers, and prints:
 
 ```console
-SPI Flash clk configured to <MHz> MHz (div: <divisor>)
+SPI Flash clk configured to <frequency> (div: <divisor>)
 ```
+
+`<frequency>` is the system clock divided by the divisor, printed in whole MHz (`20 MHz`), or in
+whole kHz below 1 MHz (`500 kHz`).
 
 The reference must come from a programmed flash. An erased block, all `0xff`, gives the CRC32
 `0xfea8a821` and the BIOS refuses to calibrate:
@@ -140,12 +143,12 @@ uses, and the same check verifies a flash written from the host.
 
 ## Erasing and writing from the BIOS {#sw-commands}
 
-Three BIOS commands change the flash. They exist only when the SoC has the master, and `help` lists
-them in their own group; the lines below are from the same simulated SoC:
+Three BIOS commands change the flash. They exist only when the SoC has the master, and
+`flash_from_sdcard` only when it also has an SD card (`sdcard` or `spisdcard`). `help` lists them
+in their own group; the lines below are from the same simulated SoC, which has no SD card:
 
 ```console
 flash_erase_range        - Erase flash range
-flash_from_sdcard        - Write file from SD card to flash
 flash_write              - Write to flash
 ```
 
@@ -173,19 +176,20 @@ above 16 MiB that list it ([The SPI memory database](#modules)), 64 KiB `0xd8` w
 address on the others, or the `erase_cmd` given to the module. It prints `Erase SPI Flash @<address>`, polls WIP, then reads the block back
 through the MMAP and reports every byte that is not `0xff`.
 
-`flash_write` programs pages of up to 256 bytes with Page Program, `0x12` with a 4-byte address on
+`flash_write` programs pages of up to 256 bytes (the page size of the module when it is smaller)
+with Page Program, `0x12` with a 4-byte address on
 a module above 16 MiB that lists `PP_1_1_1_4B`, `0x02` with a 3-byte address otherwise. It polls
 WIP, then reads each page back and compares it. On a mismatch it prints `Error: verify
 failed at <address>`, and finally a reminder that the region may not be erased. It does not erase
 by itself: program only erased blocks.
 
-Start `flash_write` at a multiple of 256 bytes. It programs 256-byte chunks from the offset and
-does not split them at page boundaries: from an unaligned offset, each chunk crosses a page and
-wraps inside it ([Erase and program](#flash-erase)), and the verify reports errors.
-`flash_from_sdcard` starts at offset 0 and is not affected.
+Each program stays inside one flash page ([Erase and program](#flash-erase)): from an unaligned
+offset, the first one stops at the end of its page and the next ones start on page boundaries. An
+offset that is not a multiple of 256 bytes is therefore safe.
 
 With 3-byte commands, the BIOS assumes the chip in its default 3-byte address mode and refuses a
-program or erase above 16 MiB, with an error message. The 4-byte erase of the module list and the
+program or an erase whose range reaches 16 MiB, with an error message and without sending a
+command; `flash_write` then programs nothing. The 4-byte erase of the module list and the
 4-byte Page Program reach the whole chip, in either address mode. On a module without them,
 program and erase the upper part through the master with 4-byte opcodes, or build the module with
 `erase_cmd=Codes.SE_4B`. Reads through a `_4B` opcode cover the whole chip.

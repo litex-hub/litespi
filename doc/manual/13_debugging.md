@@ -76,8 +76,9 @@ litex_cli --ident
 litex_cli --regs --filter spiflash
 ```
 
-`--regs` reads every matching register, `master_rxtx` included: run it only between commands,
-since that read pops a word of the RX FIFO.
+`--regs` does not read `master_rxtx`, since a read of it pops a word of the RX FIFO: it lists the
+register as `(not read: read side effect, use --filter=spiflash_master_rxtx)`. It reads it only
+when `--filter` names it exactly, as `--filter spiflash_master_rxtx`.
 
 A command is a sequence of transfers while `master_cs` is 1. `master_phyconfig` gives the length
 in bits (bits 5:0), the width (bits 11:8) and the output enable mask (bits 23:16); `0x00010108` is
@@ -108,7 +109,7 @@ was programmed.
 
 The settings of the PHY and of the MMAP can be changed in the same way while the SoC runs. Each
 transfer carries the divisor of its frontend (`mmap_clk_divisor`, `master_clk_divisor`), and the
-SDR PHY uses its own `phy_clk_divisor` only when that divisor is 0. The BIOS calibration writes
+PHY uses its own `phy_clk_divisor` only when that divisor is 0. The BIOS calibration writes
 both `phy_clk_divisor` and `mmap_clk_divisor`, so to lower SCK for the MMAP after boot, raise
 `mmap_clk_divisor` (or set it to 0 and raise `phy_clk_divisor`). `mmap_dummy_bits` changes the
 dummy phase of the next MMAP command. [Register reference](#registers) lists them.
@@ -156,16 +157,13 @@ is in [the introduction](#intro-status).
 
 | Issue | Effect | Workaround |
 |--------------------------------|--------------------------------------------|----------------------------------------|
-| `extra_latency` of 0.5 | 1:2 PHY: `TypeError` at elaboration, so the Efinix Ti375 and Tz170 targets fail at their default rate, 1:2; SDR PHY: `int()` drops the 0.5 | Rate 1:1, or an integer value |
-| Divisor 1023 | The half period, 512, wraps to 0 in its 9-bit counter: SCK runs at system clock / 2 | Use divisors up to 1022 |
+| `extra_latency` of 0.5 on the SDR PHY | `int()` drops the 0.5: the SDR PHY delays its sampling by whole cycles only (the 1:2 PHY takes steps of 0.5) | An integer value, or the 1:2 PHY |
 | `S25FL128L`, `MX25L12833F` 1-4-4 | The modules give 8 cycles, which depend on a latency setting of the chip ([Dummy cycles](#mod-dummy)) | Check the setting, then `mmap_dummy_bits` |
-| BIOS dummy bits constant | `add_spi_flash` never defines this constant ([BIOS constants](#opt-bios)), so the BIOS keeps the reset value of `mmap_dummy_bits` | Change the module default, or add the constant in the target |
 | MMAP writes (in development) | With `"csr"`, the WREN and WIP polling around each program command are validated in simulation only | Verify a written range with the master or by reading it back |
-| MMAP writes, `endianness="big"` | Bytes are programmed in the reverse order of a read: a word reads back byte-reversed | Little endian MMAP (`mmap_endianness`), or swap in software |
 | Master `rxtx` write | A write while the TX FIFO is full (`status.tx_ready` at 0) is dropped | Poll `tx_ready` before each write |
 | Modules above 16 MiB without `erase_commands` | The erase falls back to SE `0xd8`, 64 KiB, 24-bit address; the BIOS refuses an erase above 16 MiB ([Erase commands](#mod-erase)) | Select the `SE_4B` erase with the `erase_cmd` argument of the module |
-| BIOS `flash_write` at an unaligned offset | Each 256-byte page program starts at the offset and wraps inside its page: verify errors | Write from a 256-byte aligned offset |
 | Generic quad enable | Modules without `quad_enable`: WREN, then `01 43 07`, with no read-back; it also clears the block protection bits of SR1 | Check the status registers from the host |
+| BIOS with `add_spi_ram` | The SPI RAM calibration of `spiram.c` uses `SPIRAM_BLOCK_SIZE`, which LiteX does not define: the BIOS does not build | Define it in the target ([SPI RAM](#integ-spi-ram)) |
 | QPI entry | The BIOS sends `0x35` only; the master stays on one line afterwards | Check the QPI entry opcode of the chip |
 | `phy_mode` | Only bit 1 (SCK idle level) is used: modes 1 and 2 behave as modes 0 and 3 with the other idle level | Write 0 or 3 |
 
