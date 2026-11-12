@@ -172,7 +172,7 @@ is in [the introduction](#intro-status).
 | BIOS `flash_write` at an unaligned offset | Each 256-byte page program starts at the offset and wraps inside its page: verify errors | Write from a 256-byte aligned offset |
 | Generic quad enable | Modules without `quad_enable`: WREN, then `01 43 07`, with no read-back; it also clears the block protection bits of SR1 | Check the status registers from the host |
 | QPI entry | The BIOS sends `0x35` only; the master stays on one line afterwards | Check the QPI entry opcode of the chip |
-| `phy_mode` | Only bit 1 (SCK idle level) is used; the register description names CPOL and CPHA | Write 0 or 3 |
+| `phy_mode` | Only bit 1 (SCK idle level) is used: modes 1 and 2 behave as modes 0 and 3 with the other idle level | Write 0 or 3 |
 
 ## Where to go next {#debug-next}
 

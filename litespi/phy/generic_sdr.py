@@ -72,7 +72,7 @@ class LiteSPISDRPHYCore(LiteXModule):
 
         self.clk_divisor      = clk_divisor = CSRStorage(len(sink.clk_div), reset=self._default_divisor)
 
-        self.mode = mode = CSRStorage(2, reset=0, description="SPI mode (CPOL/CPHA). Currently only mode 0 and 3 are supported.")
+        self.mode = mode = CSRStorage(2, reset=0, description="SPI mode: write 0 (mode 0) or 3 (mode 3). Only bit 1 is used, as the SCK idle level (CPOL); bit 0 (CPHA) is ignored: the PHY always shifts out on the falling edge and samples on the rising edge of SCK.")
 
         # # #
 
