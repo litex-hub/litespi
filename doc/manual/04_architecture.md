@@ -58,8 +58,8 @@ meanwhile. The table below lists its fields (`spi_core2phy_layout`).
 | `clk_div` | 10 | SCK divisor for this transfer; 0 uses the PHY register |
 
 For each transfer, the PHY returns one 32-bit word (`spi_phy2core_layout`) holding the bits it
-shifted in, the last one in bit 0. Only the low `len` bits are meaningful: the SDR PHY clears the
-other ones, the 1:2 PHY leaves bits of earlier transfers above them. Every transfer returns a word,
+shifted in, the last one in bit 0. Only the low `len` bits are meaningful; both PHYs return the
+other ones at 0. Every transfer returns a word,
 even a pure write, and the frontend drops the words it does not need. One transfer lasts
 `len / width` SCK cycles.
 
