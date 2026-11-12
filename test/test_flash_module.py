@@ -163,6 +163,34 @@ class TestFlashModule(unittest.TestCase):
             with self.subTest(module=name):
                 self.assertEqual(getattr(modules, name).quad_enable, "wrsr_sr1_bit6")
 
+    def test_4byte_erase_commands_above_16mib(self):
+        # Modules above 16 MiB with a datasheet 4-byte erase default to it (32-bit address), and
+        # still accept the 3-byte erase with erase_cmd.
+        sizes_64k = [
+            "MT25QL256", "MT25QL256A", "MT25QL512", "MT25QL512A",
+            "MT25QU256", "MT25QU256A", "MT25QU512", "MT25QU512A",
+            "W25Q256", "W25Q256FV", "W25Q256JV", "W25Q256JVM", "W25Q256JW", "W25Q512JV",
+            "IS25LP256", "IS25LP256D", "IS25LP512M", "IS25WP256", "IS25WP256D", "IS25WP512M",
+            "MX25L25645G", "MX25L51245G", "MX25U25645G", "MX25U51245G",
+        ]
+        sizes_256k = ["S25FL512S", "S70FL01GS"]
+        for name in sizes_64k + sizes_256k:
+            with self.subTest(module=name):
+                module = getattr(modules, name)
+                size   = 256*1024 if name in sizes_256k else 64*1024
+                self.assertGreater(module.total_size, 2**24)
+                chip = module(Codes.READ_1_1_1)
+                self.assertEqual(chip.erase_opcode,    Codes.SE_4B)
+                self.assertEqual(chip.erase_size,      size)
+                self.assertEqual(chip.erase_addr_bits, 32)
+                chip = module(Codes.READ_1_1_1, erase_cmd=Codes.SE)
+                self.assertEqual(chip.erase_size,      size)
+                self.assertEqual(chip.erase_addr_bits, 24)
+                if name in sizes_64k:
+                    chip = module(Codes.READ_1_1_1, erase_cmd=Codes.BE_4K_4B)
+                    self.assertEqual(chip.erase_size,      4*1024)
+                    self.assertEqual(chip.erase_addr_bits, 32)
+
     def test_winbond_jw_quad_output_dummy_cycles(self):
         # Fast Read Quad Output (6Bh/6Ch) uses 8 dummy cycles on W25Q128JW and W25Q256JW.
         cases = [

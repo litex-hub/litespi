@@ -55,10 +55,10 @@ Erasing and programming wear the cells: each sector supports a limited number of
 given by the datasheet. Both operations also take far longer than a read. A page program keeps the
 chip busy much longer than reading a page, a sector erase longer again, and a chip erase longest.
 
-In LiteSPI, a module may list its erase commands with their sizes. A module that lists none uses
-the 64 KiB `SE` command with a 3-byte address, or the command given by `erase_cmd` when the design
-instantiates it, such as `SE_4B`; no module of the database lists its own. The
-BIOS erases and programs through the master, then reads the result back through the MMAP to
+In LiteSPI, a module may list its erase commands with their sizes. The modules above 16 MiB with
+4-byte erase commands list them, 4-byte sector erase `SE_4B` first ([Erase commands](#mod-erase)).
+A module that lists none uses the 64 KiB `SE` command with a 3-byte address, or the command given
+by `erase_cmd` when the design instantiates it. The BIOS erases and programs through the master, then reads the result back through the MMAP to
 verify it ([BIOS, boot and flash update](#software)).
 
 ## Write enable and busy polling {#flash-wip}
@@ -162,10 +162,10 @@ the fourth byte, A31-A24, to reach the second half, above `0x1000000`.](flash_4b
 
 In LiteSPI, a read opcode whose name ends with `_4B`, such as `READ_1_1_4_4B`, makes the MMAP send
 4-byte addresses. Nothing in the core enters 4-byte mode or writes the extended address register.
-The BIOS programs, and by default erases, with 3-byte addresses. Above 16 MiB these commands do not
-fail: they act at the address modulo 16 MiB, in the first 16 MiB of the chip, which usually holds
-the bitstream. On a chip switched to 4-byte mode they break, since the chip then expects a fourth
-address byte.
+The BIOS erases with the erase command of the module, a 4-byte opcode on the modules above 16 MiB
+that list one. It programs with the 4-byte Page Program (`0x12`) when the module is above 16 MiB
+and lists `PP_1_1_1_4B`, and with 3-byte addresses otherwise; it then refuses the addresses above
+16 MiB. The 4-byte opcodes work whatever the address mode of the chip.
 
 ## Write protection {#flash-protect}
 
