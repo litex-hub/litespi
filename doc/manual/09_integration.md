@@ -304,9 +304,9 @@ vendor tool. Its options are below.
 | Option | Default | Meaning |
 |------------------------|--------------|---------------------------------------------------|
 | `--module` | `S25FL128L` | Module class name from the database |
-| `--mode` | `x1` | `x1` or `x4`; the read is `READ_1_1_1` or `READ_1_1_4`, 3-byte addresses |
+| `--mode` | `x1` | `x1` or `x4`; the read is `READ_1_1_1` or `READ_1_1_4`, its `_4B` variant above 16 MiB |
 | `--rate` | `1:1` | `1:1` SDR PHY or `1:2` 1:2 PHY |
-| `--divisor` | `1` | Reset divisor of the SDR PHY (1 and 2 both give SCK = system clock / 2) |
+| `--divisor` | `2` at 1:1, `1` at 1:2 | Reset divisor of the PHY; the SDR PHY rounds an odd divisor up |
 | `--bus-standard` | `wishbone` | `wishbone` or `axi-lite` (through a converter) |
 | `--bus-endianness` | `big` | Byte order of the MMAP words |
 | `--with-master` | off | Adds a second bus port, for the registers |
@@ -318,9 +318,10 @@ command does not read. The MMAP of this core has no dummy bits register (`with_c
 dummy cycles of the module are fixed.
 
 The command below generates a x4 Wishbone core. It writes `build/gateware/litespi_core.v` and the
-register map in `build/csr.csv`. The generator always uses 3-byte reads, so the core reads only
-the first 16 MiB of the 32 MiB `S25FL256L` of this example; the upper half of its region aliases
-the lower one.
+register map in `build/csr.csv`. On a chip larger than 16 MiB, such as the 32 MiB `S25FL256L` of
+this example, the generator selects the 4-byte address read (`READ_1_1_4_4B` here) when the module
+lists it, so the core reads the whole chip. Otherwise it prints a warning and keeps the 3-byte
+read, which reaches the first 16 MiB only.
 
 ```sh
 litespi_gen --module=S25FL256L --mode=x4 --bus-standard=wishbone

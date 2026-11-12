@@ -110,9 +110,9 @@ non-LiteX design, in `build/gateware/` of the working directory.
 | Option | Default | Meaning |
 |----------------------------------|--------------------|--------------------------------------------|
 | `--module` | `S25FL128L` | Module class name; an unknown name lists the database |
-| `--mode` | `x1` | `x1` (READ_1_1_1) or `x4` (READ_1_1_4); 3-byte addresses, so only the first 16 MiB of a larger chip |
+| `--mode` | `x1` | `x1` (READ_1_1_1) or `x4` (READ_1_1_4); the `_4B` read on a chip above 16 MiB when the module lists it |
 | `--rate` | `1:1` | `1:1` SDR PHY or `1:2` PHY |
-| `--divisor` | `1` | Reset value of the divisor of the SDR PHY (1 and 2 both give SCK = system clock / 2) |
+| `--divisor` | `2` at 1:1, `1` at 1:2 | Reset value of the divisor of the PHY; the SDR PHY rounds an odd divisor up (1 and 2 both give SCK = system clock / 2) |
 | `--bus-standard` | `wishbone` | `wishbone` or `axi-lite` |
 | `--bus-endianness` | `big` | Byte order of the memory bus |
 | `--with-master` | off | Exposes a second bus to the master registers |
