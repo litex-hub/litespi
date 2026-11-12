@@ -97,9 +97,8 @@ clock gives divisor 4 (12.5 MHz) and a 100 MHz system clock divisor 6 (16.67 MHz
 At boot, the BIOS lowers the divisor while the flash reads back the same data
 ([BIOS, boot and flash update](#software)).
 
-The top value does not follow the formula. At divisor 1023, the half period `(divisor + 1) / 2`
-is 512 and does not fit the 9-bit counter of the clock generator: it wraps to 0, and SCK runs at
-half the PHY clock. Divisors up to 1022 behave as the formula says.
+Every divisor up to 1023, the largest value of the 10-bit field, follows the formula: the half
+period counter of the clock generator is as wide as the divisor.
 
 ### Sampling and extra latency {#phys-sdr-sampling}
 
@@ -343,10 +342,10 @@ SoC](#integration)). On the CrossLink-NX EVN and Certus-NX Versa targets, the mo
 
 - No DTR: both PHYs refuse DTR opcodes, and no PHY clocks data on both SCK edges at the flash.
 - No data strobe input and no per-line input delay or calibration: the only timing knobs are the
-  divisor and `extra_latency`, in whole cycles.
+  divisor and `extra_latency`, in whole cycles of the PHY clock (steps of 0.5 on the 1:2 PHY).
 - SPI modes 0 and 3 only on the SDR PHY, mode 0 only on the 1:2 PHY.
-- The 1:2 PHY has no divisor, no mode register and no clock backend, and accepts only an integer
-  `extra_latency`.
+- The 1:2 PHY has no mode register and no clock backend: it needs a `clk` pad and keeps SCK low
+  between transfers.
 - The STARTUPE3 path always has four data lines and no x8.
 - `add_spi_flash` requests only `spiflash` (x1) or `spiflash4x` pads; x2 and x8 pad sets need a
   direct instantiation of the PHY.

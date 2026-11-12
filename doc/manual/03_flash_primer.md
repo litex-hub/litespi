@@ -36,9 +36,8 @@ two values.
 A page program (PP, `0x02`) sends an address and up to one page of data. The chip programs the
 bytes into the page of that address. When the data runs past the end of the page, most chips wrap
 around to the start of the same page, so software must split its writes on page boundaries. The
-`flash_write` command of the BIOS does so only from a page-aligned offset: it programs 256-byte
-chunks from the given offset, so an unaligned write wraps inside each page
-([BIOS, boot and flash update](#software)).
+`flash_write` command of the BIOS does so: its first program stops at the end of the page of the
+start offset, and the next ones each cover one page ([BIOS, boot and flash update](#software)).
 
 The table below lists the usual erase commands, as named in the opcode table of LiteSPI.
 
@@ -164,8 +163,9 @@ In LiteSPI, a read opcode whose name ends with `_4B`, such as `READ_1_1_4_4B`, m
 4-byte addresses. Nothing in the core enters 4-byte mode or writes the extended address register.
 The BIOS erases with the erase command of the module, a 4-byte opcode on the modules above 16 MiB
 that list one. It programs with the 4-byte Page Program (`0x12`) when the module is above 16 MiB
-and lists `PP_1_1_1_4B`, and with 3-byte addresses otherwise; it then refuses the addresses above
-16 MiB. The 4-byte opcodes work whatever the address mode of the chip.
+and lists `PP_1_1_1_4B`, and with 3-byte addresses otherwise. With a 3-byte command, it refuses a
+program or an erase that reaches 16 MiB, with an error message, instead of letting the chip wrap
+the address into the first 16 MiB. The 4-byte opcodes work whatever the address mode of the chip.
 
 ## Write protection {#flash-protect}
 

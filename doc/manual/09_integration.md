@@ -91,12 +91,13 @@ The constants below go to the generated `soc.h` and drive the BIOS. Each one sta
 upper-case `name`, `SPIFLASH_` by default.
 
 | Constant | Value |
-|---------------------------|----------------------------------------------------------|
+|----------------------------------|---------------------------------------------------|
 | `PHY_FREQUENCY` | System clock divided by the divisor |
 | `PHY_MIN_DIVISOR` | 2 at 1:1, 1 at 1:2: the lowest divisor of the calibration |
 | `MODULE_NAME` | Name of the module, such as `s25fl128l` |
 | `MODULE_TOTAL_SIZE` | Size of the flash in bytes |
 | `MODULE_PAGE_SIZE` | Program page in bytes |
+| `MODULE_PROGRAM_ADDR_BITS` | 32 when the module is larger than 16 MiB and lists `PP_1_1_1_4B`, else 24: the address of the BIOS Page Program |
 | `MODULE_ERASE_*` | Opcode, size and address bits of the erase command |
 | `MODULE_QUAD_CAPABLE` | Mode `"4x"`, a read command with 4 data lines, and the module lists `READ_1_1_4` |
 | `MODULE_QUAD_ENABLE_*` | The quad enable method of the module, when it names one |
@@ -223,7 +224,10 @@ self.add_spi_ram(mode="4x", module=APS6404L(Codes.READ_1_1_4))
 ```
 
 Its name is `spiram` by default, and the BIOS calibrates and tests it at boot (`spiram.c` in the
-`liblitespi` library of LiteX). No LiteX-Boards target calls it, and it is in development (see the
+`liblitespi` library of LiteX), printing `SPI RAM clk configured to <frequency> (div: <divisor>)`.
+The calibration code uses a `SPIRAM_BLOCK_SIZE` constant that LiteX does not define: a target adds
+it (`self.add_constant("SPIRAM_BLOCK_SIZE", 256)`, for example) for the BIOS to build. No LiteX-Boards
+target calls `add_spi_ram`, and it is in development (see the
 [status table](#intro-status)): check the read and write commands of the module against your chip
 first.
 
@@ -265,7 +269,7 @@ command ([Bursts](#mmap-burst)).
 
 The `clock_domain` keyword runs the PHY in another clock domain. `add_spi_flash` passes it to
 both the PHY and `LiteSPI`: the crossbar then inserts asynchronous FIFOs between the frontends,
-which stay in `sys`, and the PHY. The divisor register of the SDR PHY is resynchronized to the new
+which stay in `sys`, and the PHY. The divisor register of the PHY is resynchronized to the new
 domain.
 
 The target must create the clock domain before the call. No LiteX-Boards target uses this option:
@@ -313,9 +317,9 @@ vendor tool. Its options are below.
 | `--with-master` | off | Adds a second bus port, for the registers |
 | `--vendor` | `xilinx` | `xilinx`, `altera`, `intel` or `lattice` primitives |
 | `--sim` | off | Uses `LiteSPIPHYModel` instead of the PHY |
+| `--clk-freq` | `100e6` | System clock frequency of the core, written as `CONFIG_CLOCK_FREQUENCY` |
 
-`--clk-freq` is accepted but not used, and the docstring of `gen.py` mentions a YAML file that the
-command does not read. The MMAP of this core has no dummy bits register (`with_csr=False`): the
+The MMAP of this core has no dummy bits register (`with_csr=False`): the
 dummy cycles of the module are fixed.
 
 The command below generates a x4 Wishbone core. It writes `build/gateware/litespi_core.v` and the

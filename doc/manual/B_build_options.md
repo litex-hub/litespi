@@ -42,7 +42,7 @@ front of the core:
 | `phy` | required | The PHY; its `cs` width sets the number of chip selects |
 | `clock_domain` | `"sys"` | Domain of the PHY; another domain adds two asynchronous FIFOs of 32 entries |
 | `with_mmap` | `True` | Adds the MMAP, when the PHY carries a module (`phy.flash`) |
-| `mmap_endianness` | `"big"` | `"little"` reverses the bytes of each word; `add_spi_flash` passes the CPU endianness; MMAP writes with `"big"` are byte-reversed ([Known issues](#debug-known)) |
+| `mmap_endianness` | `"big"` | `"little"` reverses the bytes of each word, for reads and writes; `add_spi_flash` passes the CPU endianness |
 | `with_master` | `True` | Adds the master |
 | `master_tx_fifo_depth` | `1` | Depth of the TX FIFO of the master |
 | `master_rx_fifo_depth` | `1` | Depth of the RX FIFO of the master |
@@ -61,8 +61,8 @@ platform.
 
 | Parameter | PHY | Default | Meaning |
 |------------------------------|---------|-------------|----------------------------------------------|
-| `default_divisor` | SDR | `9` | Reset value of `phy_clk_divisor`; `add_spi_flash` computes it from `clk_freq` |
-| `extra_latency` | SDR, 1:2 | `0` | Extra sampling delay in PHY clock cycles (SDR: `int()` of the value; 1:2: two pipeline stages per unit, integers only, 0.5 fails at elaboration) |
+| `default_divisor` | SDR, 1:2 | `9` (SDR), `1` (1:2) | Reset value of `phy_clk_divisor`; `add_spi_flash` computes it from `clk_freq` |
+| `extra_latency` | SDR, 1:2 | `0` | Extra sampling delay (SDR: `int()` of the value, in PHY clock cycles; 1:2: steps of 0.5, each one PHY clock cycle, other values raise a `ValueError`) |
 | `cs_delay` | SDR, 1:2 | `10` | System cycles with CS high between two commands to the same chip |
 | `with_sdr_cs` | SDR, 1:2 | `True` | Registers `cs_n` in an I/O register (`SDROutput`) |
 | `io` | SDR | `None` | Full I/O backend (`LiteSPISTARTUPE3`); exclusive with `clk_io` |
@@ -118,7 +118,7 @@ non-LiteX design, in `build/gateware/` of the working directory.
 | `--with-master` | off | Exposes a second bus to the master registers |
 | `--vendor` | `xilinx` | `xilinx`, `altera`, `intel` or `lattice`: the I/O primitives |
 | `--sim` | off | Replaces the PHY by `LiteSPIPHYModel` |
-| `--clk-freq` | `100e6` | Parsed but not used: the core is built at a fixed 1 MHz |
+| `--clk-freq` | `100e6` | System clock frequency of the generated core, written as `CONFIG_CLOCK_FREQUENCY` |
 
 ```sh
 litespi_gen --bus-standard=wishbone --module=S25FL256L --mode=x4 --rate=1:1
@@ -136,15 +136,15 @@ litespi_gen --bus-standard=wishbone --module=S25FL256L --mode=x4 --rate=1:1
 ## BIOS constants {#opt-bios}
 
 The BIOS reads these constants from the generated `soc.h`. `add_spi_flash` adds the
-`SPIFLASH_PHY_*` constants and the `SPIFLASH_MODULE_*` ones of the module (name, sizes, erase,
-quad and QPI capability); a target adds the others, including `SPIFLASH_MODULE_DUMMY_BITS`, with
-`self.add_constant()`.
+`SPIFLASH_PHY_*` constants and the `SPIFLASH_MODULE_*` ones of the module (name, sizes, program
+address width, erase, quad and QPI capability); a target adds the others, including the optional
+`SPIFLASH_MODULE_DUMMY_BITS`, with `self.add_constant()`.
 
 | Constant | Effect |
 |-------------------------------------------------|--------------------------------------------------|
 | `SPIFLASH_DEBUG` | Prints identifier and register reads, dummy bits and calibration steps (`software_debug=True`) |
 | `SPIFLASH_SKIP_FREQ_INIT` | Skips the frequency calibration at boot |
-| `SPIFLASH_MODULE_DUMMY_BITS` | Writes this value to `mmap_dummy_bits` at boot; never set by `add_spi_flash` |
+| `SPIFLASH_MODULE_DUMMY_BITS` | Optional override: writes this value to `mmap_dummy_bits` at boot; not set by `add_spi_flash`, whose reset value of the register already holds the dummy cycles of the read opcode |
 | `FLASH_BOOT_ADDRESS` | Enables the boot from flash: address of the boot image in the CPU address space |
 | `FLASH_BOOT_DISABLE` | Removes the flash from the automatic boot sequence; the `flashboot` command stays |
 | `FLASH_BOOT_PRIORITY` | Rank of the flash in the automatic boot sequence, 10 by default |

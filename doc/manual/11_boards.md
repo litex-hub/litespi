@@ -77,9 +77,9 @@ A few of these deserve a note:
   programmed flash. The BIOS sends the QPI entry command at boot ([BIOS
   initialization](#sw-init)).
 - **Ti375 C529 and Tz170 J484 kits.** The targets default to `--spi-flash-rate 1:2` with
-  `extra_latency=0.5`. On this revision the 1:2 PHY rejects the fractional value at build time
-  (`TypeError` in `generic_ddr.py`); `--spi-flash-rate 1:1` elaborates. The SDR PHY truncates
-  `extra_latency` to an integer, so 0.5 has no effect there.
+  `extra_latency=0.5`. The 1:2 PHY delays its input sampling by one PHY clock cycle for each 0.5
+  of `extra_latency`. The SDR PHY (`--spi-flash-rate 1:1`) truncates `extra_latency` to an
+  integer, so 0.5 has no effect there.
 - **TEL0025 and iCEBreaker.** Both read in 1-1-4 without the master, so the BIOS cannot set the QE
   bit: it must already be set in the chip.
 

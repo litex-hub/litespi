@@ -49,7 +49,7 @@ MMAP next to ROM, SRAM and main RAM; the registers of the PHY, the MMAP and the 
 CSR region.](intro_soc.svg)
 
 Software keeps full control of the chip. At boot, the LiteX BIOS enables the quad mode, tunes
-the SCK frequency of the SDR PHY and measures the read speed; its console offers
+the SCK frequency of the PHY and measures the read speed; its console offers
 commands to erase and program the flash ([BIOS, boot and flash update](#software)).
 
 The chips themselves are described once, in a database of 482 SPI memories: 481 NOR flashes and
