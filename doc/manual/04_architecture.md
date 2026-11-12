@@ -185,8 +185,8 @@ the crossbar drives the PHY directly.](arch_cdc.svg)
 | CS of the crossbar | None: wired to the PHY |
 
 The PHY and `LiteSPI` must receive the same domain name; `add_spi_flash` passes `clock_domain` to
-both. The design creates the clock domain itself. A separate domain is how the 1:2 PHY runs SCK
-at a clock other than `sys` ([The 1:2 PHY](#phys-ddr)).
+both. The design creates the clock domain itself. Both PHYs divide their clock, so a separate
+domain is only needed for an SCK that no divisor of `sys` gives ([The 1:2 PHY](#phys-ddr)).
 
 The CS of the crossbar reaches the PHY domain without a synchronizer. A frontend raises CS in the
 cycle it sends its first transfer, which then spends several cycles in the FIFO, and keeps CS until

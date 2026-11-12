@@ -36,7 +36,8 @@ Which registers a build has depends on its configuration:
 
 | Registers | Present when |
 |------------------------------------|----------------------------------------------------|
-| `phy_clk_divisor`, `phy_mode` | SDR PHY (`rate="1:1"`, also `LiteSPIXilinxUSPHY`); absent with the 1:2 PHY |
+| `phy_clk_divisor` | Both PHYs (also `LiteSPIXilinxUSPHY`) |
+| `phy_mode` | SDR PHY (`rate="1:1"`, also `LiteSPIXilinxUSPHY`); absent with the 1:2 PHY |
 | `mmap_clk_divisor` | MMAP present (`with_mmap=True` and a module given) |
 | `mmap_dummy_bits` | MMAP present and `with_csr=True` (default) |
 | `mmap_write_config` | MMAP present and `with_mmap_write="csr"` |
@@ -44,10 +45,8 @@ Which registers a build has depends on its configuration:
 | `master_ev_status`, `_pending`, `_enable` | `with_master=True` and `master_with_irq=True` (set by `add_spi_flash` when the CPU has an interrupt named after the core) |
 
 The table below gives the offsets of the `sdr` configuration. The 1:2 PHY of the `ddr`
-configuration has no `phy_` register, so the offsets of the other registers differ:
-software uses the names of the `csr.csv` of its own build, never these offsets. In the
-`ddr` configuration `mmap_clk_divisor` and `master_clk_divisor` exist but have no
-effect, since SCK is the PHY clock.
+configuration has no `phy_mode` register, so the offsets of the other registers differ:
+software uses the names of the `csr.csv` of its own build, never these offsets.
 
 `phy_mode`: the clock generator uses bit 1 only, as the idle level of SCK
 (`litespi/clkgen.py`); write 0 for mode 0 and 3 for mode 3. In both modes the PHY
@@ -63,16 +62,16 @@ Bank `spiflash`.
 
 | Register | Offset | Bits | Access | Description |
 |----------------------------|-------------|--------|---------|----------------------------------------|
-| `phy_clk_divisor` | `0x0000` | 10 | rw | SCK divisor of the SDR PHY: SCK = sys / (2 x ceil(div / 2)), sys / 2 for div 0 to 2. The reset value is the `default_divisor` of the PHY, computed by `add_spi_flash` from `clk_freq`. Used when a transfer carries a 0 divisor. Reset `0x4`. |
+| `phy_clk_divisor` | `0x0000` | 10 | rw | SCK divisor of the PHY. SDR PHY: SCK = sys / (2 x ceil(div / 2)), sys / 2 for div 0 to 2. 1:2 PHY: SCK = sys / div, sys for div 0 or 1. The reset value is the `default_divisor` of the PHY, computed by `add_spi_flash` from `clk_freq`. Used when a transfer carries a 0 divisor. Reset `0x4`. |
 | `phy_mode` | `0x0004` | 2 | rw | SPI mode: write 0 (mode 0) or 3 (mode 3). Only bit 1 is used, as the SCK idle level (CPOL); bit 0 (CPHA) is ignored: the PHY always shifts out on the falling edge and samples on the rising edge of SCK. Reset `0x0`. |
-| `mmap_clk_` `divisor` | `0x0008` | 10 | rw | Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY. Reset `0x0`. |
+| `mmap_clk_` `divisor` | `0x0008` | 10 | rw | Divisor of the MMAP commands, sent with each transfer. 0: use `phy_clk_divisor`. Reset `0x0`. |
 | `mmap_dummy_bits` | `0x000c` | 8 | rw | Dummy phase of the MMAP read command, in bits at the address width (dummy cycles x address lines). The reset value is `dummy_cycles` x `addr_width` of the module for a fast read, else 0. Present with `with_csr=True` (default). Reset `0x8`. |
 | `mmap_write_` `config` | `0x0010` | 1 | rw | Bit 0 `write_enable`: 1 sends the Wishbone writes to the chip as page programs (`program_cmd` of the module), 0 acknowledges and drops them. The MMAP sends no write enable (WREN) itself. Present with `with_mmap_write="csr"`. Reset `0x0`. |
 | `master_cs` | `0x0014` | 1 | rw | Chip select of the master, one bit per CS line: 1 selects the chip (CS low) and holds the PHY through the crossbar, 0 ends the command. Reset `0x0`. |
 | `master_` `phyconfig` | `0x0018` | 24 | rw | SPI PHY settings. Reset `0x0`. |
 | `master_rxtx` | `0x001c` | 32 | wo | Write: push one transfer of `phyconfig.len` bits, right aligned, to the TX FIFO. Read: pop the 32-bit word shifted in during one transfer from the RX FIFO. |
 | `master_status` | `0x0020` | 2 | ro | See the fields below. |
-| `master_clk_` `divisor` | `0x0024` | 10 | rw | Divisor of the master transfers, sent with each transfer. 0: use `phy_clk_divisor`. Ignored by the 1:2 PHY. Reset `0x0`. |
+| `master_clk_` `divisor` | `0x0024` | 10 | rw | Divisor of the master transfers, sent with each transfer. 0: use `phy_clk_divisor`. Reset `0x0`. |
 | `master_ev_` `status` | `0x0028` | 1 | ro | This register contains the current raw level of the event trigger. Writes to this register have no effect. |
 | `master_ev_` `pending` | `0x002c` | 1 | rw | When an event occurs, the corresponding bit will be set in this register. To clear the Event, set the corresponding bit in this register. |
 | `master_ev_` `enable` | `0x0030` | 1 | rw | This register enables the corresponding events. Write a ``0`` to this register to disable individual events. Reset `0x0`. |

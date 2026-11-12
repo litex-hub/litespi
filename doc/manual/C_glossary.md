@@ -5,7 +5,7 @@ points to the chapter that explains it.
 
 | Term | Meaning |
 |------------------|---------------------------------------------------------------------------------|
-| 1:2 PHY | The PHY built with `rate="1:2"` (`LiteSPIDDRPHYCore`): SCK runs at the PHY clock (the system clock unless `clock_domain` is set) through DDR I/O, with SDR data on the flash side. See [PHYs](#phys) |
+| 1:2 PHY | The PHY built with `rate="1:2"` (`LiteSPIDDRPHYCore`): SCK runs at the PHY clock (the system clock unless `clock_domain` is set) divided by any integer, through DDR I/O, with SDR data on the flash side. See [PHYs](#phys) |
 | 4-byte addressing | Addresses of 32 bits, needed above 16 MiB; opcodes whose name ends in `_4B`. See [Inside a SPI NOR flash](#flash-primer) |
 | BIOS | The LiteX BIOS and its `liblitespi` library, which initialize, calibrate, program and boot from the flash. See [BIOS, boot and flash update](#software) |
 | Block | Erase unit of 32 or 64 KiB of a NOR flash. See [Inside a SPI NOR flash](#flash-primer) |

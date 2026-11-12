@@ -10,8 +10,8 @@ measurement of its own.
 
 The clock generator of the SDR PHY toggles SCK every `ceil(div / 2)` system cycles, so SCK is
 `sys / (2 x ceil(div / 2))`, and `sys / 2` for a divisor of 0 to 2. An odd divisor gives the
-same SCK as the next even one. The 1:2 PHY has no divisor: its SCK is the PHY clock, the system
-clock unless `clock_domain` is set.
+same SCK as the next even one. The 1:2 PHY divides by any integer: its SCK is `sys / div`, `sys`
+for a divisor of 0 or 1 ([The 1:2 PHY](#phys-ddr)).
 
 | Divisor | SCK at 50 MHz | SCK at 100 MHz |
 |-----------------------|--------------------------------------|--------------------------------------|
@@ -35,7 +35,7 @@ any read, before the command, the address and the dummy cycles.
 |---------------------------------|-----------------|----------------|----------------|----------------|
 | SDR, divisor 4, 25 MHz | 3.1 MB/s | 6.3 MB/s | 12.5 MB/s | 25 MB/s |
 | SDR, divisor 2, 50 MHz | 6.3 MB/s | 12.5 MB/s | 25 MB/s | 50 MB/s |
-| 1:2, 100 MHz | 12.5 MB/s | 25 MB/s | 50 MB/s | 100 MB/s |
+| 1:2, divisor 1, 100 MHz | 12.5 MB/s | 25 MB/s | 50 MB/s | 100 MB/s |
 
 Computed. SCK must also stay under the limit of the chip for the opcode, given in its datasheet;
 the slow read (`0x03`) has a lower limit than the fast reads ([SPI memories in a
@@ -48,14 +48,14 @@ The MMAP reads one 32-bit word per bus access and holds CS between consecutive a
 burst, and only the data phase plus a few cycles of handshake when it continues one. The table
 gives both, in system cycles, from a Migen simulation of the test benches.
 
-| Opcode | SDR div 2, first | SDR div 2, next | SDR div 4, first | SDR div 4, next | 1:2, first | 1:2, next |
+| Opcode | SDR div 2, first | SDR div 2, next | SDR div 4, first | SDR div 4, next | 1:2 div 1, first | 1:2 div 1, next |
 |-----------------------------------|-----------|----------|-----------|----------|-----------|----------|
-| `READ_1_1_1` | 138 | 68 | 263 | 131 | 80 | 38 |
-| `READ_1_1_1_FAST` | 157 | 68 | 297 | 131 | 93 | 38 |
-| `READ_1_1_2` | 125 | 36 | 233 | 67 | 77 | 22 |
-| `READ_1_1_4` | 109 | 20 | 201 | 35 | 69 | 14 |
-| `READ_1_4_4` | 68 | 20 | 121 | 35 | 49 | 14 |
-| `READ_1_1_8` | 101 | 12 | 185 | 19 | 65 | 10 |
+| `READ_1_1_1` | 138 | 68 | 263 | 131 | 73 | 37 |
+| `READ_1_1_1_FAST` | 157 | 68 | 297 | 131 | 85 | 37 |
+| `READ_1_1_2` | 125 | 36 | 233 | 67 | 69 | 21 |
+| `READ_1_1_4` | 109 | 20 | 201 | 35 | 61 | 13 |
+| `READ_1_4_4` | 68 | 20 | 121 | 35 | 41 | 13 |
+| `READ_1_1_8` | 101 | 12 | 185 | 19 | 57 | 9 |
 
 Computed in simulation. "First" is the first read after reset, a new command; "next" is the
 average of reads 3 to 16 of a burst of 16 back-to-back Wishbone reads, handshake included. The
@@ -65,16 +65,16 @@ command](#perf-command) gives what the default adds.
 
 The same counts give the throughput of a long burst, 4 bytes per word:
 
-| Data lines | SDR div 2, 100 MHz | SDR div 4, 100 MHz | 1:2, 100 MHz |
+| Data lines | SDR div 2, 100 MHz | SDR div 4, 100 MHz | 1:2 div 1, 100 MHz |
 |----------------|----------------------------|----------------------------|--------------------------|
-| x1 | 5.9 MB/s | 3.1 MB/s | 10.5 MB/s |
-| x2 | 11.1 MB/s | 6.0 MB/s | 18.2 MB/s |
-| x4 | 20.0 MB/s | 11.4 MB/s | 28.6 MB/s |
-| x8 | 33.3 MB/s | 21.1 MB/s | 40.0 MB/s |
+| x1 | 5.9 MB/s | 3.1 MB/s | 10.8 MB/s |
+| x2 | 11.1 MB/s | 6.0 MB/s | 19.0 MB/s |
+| x4 | 20.0 MB/s | 11.4 MB/s | 30.8 MB/s |
+| x8 | 33.3 MB/s | 21.1 MB/s | 44.4 MB/s |
 
 Computed in simulation, at a 100 MHz system clock; the value scales with the system clock for a
 given divisor. A data word costs 32 bits of data phase plus a fixed overhead of 3 to 4 cycles
-with the SDR PHY and of 6 cycles with the 1:2 PHY, which is why the wide modes stay below their
+with the SDR PHY and of 5 cycles with the 1:2 PHY, which is why the wide modes stay below their
 raw bandwidth.
 
 ## Cost of a new command {#perf-command}

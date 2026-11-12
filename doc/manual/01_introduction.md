@@ -61,10 +61,10 @@ of one chip, so a design names its flash instead of configuring the core by hand
 
 | Area | Features |
 |--------------------|------------------------------------------------------------------------|
-| PHYs | SDR PHY on any FPGA with SCK divided from the system clock; 1:2 PHY with SCK at its own clock (the system clock by default) through DDR I/O registers; STARTUPE2 (Xilinx 7-Series) and USRMCLK (Lattice ECP5) clock paths; STARTUPE3 I/O path (Xilinx UltraScale+) |
+| PHYs | SDR PHY on any FPGA with SCK divided from the system clock; 1:2 PHY with SCK at its own clock (the system clock by default) or divided from it, through DDR I/O registers; STARTUPE2 (Xilinx 7-Series) and USRMCLK (Lattice ECP5) clock paths; STARTUPE3 I/O path (Xilinx UltraScale+) |
 | Widths | x1, x2, x4 and x8 data lines; command, address and data phases each at their own width |
 | SPI modes | SPI mode 0 and SPI mode 3, selected by a register of the SDR PHY |
-| Clock | SDR PHY: SCK divisor set at build time and changed at run time by a register; 1:2 PHY: SCK at the PHY clock, no divisor; separate SPI clock domain optional |
+| Clock | SDR PHY: SCK divisor set at build time and changed at run time by a register; 1:2 PHY: SCK at the PHY clock divided by any integer, set the same way; separate SPI clock domain optional |
 | MMAP | Wishbone slave for reads, bursts of sequential words under one command, programmable dummy cycles, writes for SPI RAM |
 | Master | Register access to any command: chip select, length, width and output enable of each transfer, FIFOs, optional interrupt |
 | Sharing | Crossbar between the MMAP and the master, several chip selects |
@@ -82,6 +82,7 @@ manual: the other chapters link to it.
 |-------------------------|--------------------------------------------|------------------------|
 | SDR PHY | `rate="1:1"`, any FPGA family | Validated on hardware |
 | 1:2 PHY | `rate="1:2"`, FPGA DDR I/O registers | Validated on hardware |
+| 1:2 PHY divisor | `rate="1:2"` with a divisor above 1 | In development |
 | x1 reads | Mode 1-1-1 | Validated on hardware |
 | x4 reads | Modes 1-1-4 and 1-4-4 | Validated on hardware |
 | MMAP reads | Memory-mapped reads and XIP | Validated on hardware |

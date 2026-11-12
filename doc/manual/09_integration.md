@@ -83,13 +83,9 @@ frequency it records is the system clock divided by this divisor.
 | 1 MHz | 20 MHz | 1:1 | 2 | 500000 |
 
 These rows are computed from the code of `add_spi_flash`; the last one is the `litex_sim` SoC.
-The divisor is the reset value of the `clk_divisor` register of the SDR PHY, which the BIOS can
-lower at boot ([BIOS initialization](#sw-init)).
-
-The 1:2 PHY has no divisor: its SCK is the clock of the PHY domain, the system clock unless
-`clock_domain` is set. LiteX still computes a divisor and records
-the frequency from it, so on the Arty A7 at 100 MHz the constant says 20 MHz while SCK runs at
-100 MHz. Read the 1:2 row of the table as the value of the constant, not as the SCK.
+The divisor is the reset value of the `clk_divisor` register of the PHY, which the BIOS can lower
+at boot ([BIOS initialization](#sw-init)). The 1:2 PHY divides by any integer, so it skips the
+rounding ([The 1:2 PHY](#phys-ddr)).
 
 The constants below go to the generated `soc.h` and drive the BIOS. Each one starts with the
 upper-case `name`, `SPIFLASH_` by default.
@@ -97,7 +93,7 @@ upper-case `name`, `SPIFLASH_` by default.
 | Constant | Value |
 |---------------------------|----------------------------------------------------------|
 | `PHY_FREQUENCY` | System clock divided by the divisor |
-| `PHY_MIN_DIVISOR` | 2 at 1:1, 1 at 1:2: the lowest divisor of the calibration, which runs only with the SDR PHY |
+| `PHY_MIN_DIVISOR` | 2 at 1:1, 1 at 1:2: the lowest divisor of the calibration |
 | `MODULE_NAME` | Name of the module, such as `s25fl128l` |
 | `MODULE_TOTAL_SIZE` | Size of the flash in bytes |
 | `MODULE_PAGE_SIZE` | Program page in bytes |
@@ -167,7 +163,7 @@ memory database](#modules)).
 | Pads (`mode`) | `"1x"`, `"4x"` | `"4x"` when the four DQ lines reach the FPGA |
 | Read command | `READ_1_1_1`, `READ_1_1_4` | The fastest read the module lists for those pads |
 | 4-byte opcodes | `_4B` variants | Required to read beyond 16 MiB |
-| Rate (`rate`) | `"1:1"`, `"1:2"` | `"1:1"` first; `"1:2"` for SCK at the system clock |
+| Rate (`rate`) | `"1:1"`, `"1:2"` | `"1:1"` first; `"1:2"` for SCK up to the system clock |
 | SCK (`clk_freq`) | Hz | Within the read limits of the datasheet |
 
 Mode `"4x"` with a 1-1-1 read is valid: the PHY then uses DQ0 and DQ1 only. Several Artix-7 and
@@ -181,7 +177,7 @@ BIOS sets it at boot when the master is present and the read uses four data line
 master, the bit must already be set in the chip: the iCEBreaker target, for example, has no master
 and reads in 1-1-4.
 
-The 1:2 PHY moves one bit per line per PHY clock cycle, twice the best SDR rate. Its input
+At divisor 1 the 1:2 PHY moves one bit per line per PHY clock cycle, twice the best SDR rate. Its input
 timing then depends on the board and the FPGA I/O, and `extra_latency` moves the sampling point.
 The status of each PHY is in the [status table](#intro-status); the cycle counts are in
 [Performance and resources](#performance).
