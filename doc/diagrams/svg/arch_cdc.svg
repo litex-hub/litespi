@@ -19,8 +19,6 @@
 <polyline points="445,85 495,85" fill="none" stroke="#2eaadc" stroke-width="2.0" marker-end="url(#arrow-accent)"/>
 <polyline points="495,155 445,155" fill="none" stroke="#606060" stroke-width="2.0" marker-end="url(#arrow-stream)"/>
 <polyline points="325,155 265,155" fill="none" stroke="#606060" stroke-width="2.0" marker-end="url(#arrow-stream)"/>
-<polyline points="265,200 495,200" fill="none" stroke="#5b5b5b" stroke-width="1.0" marker-end="url(#arrow-ctrl)"/>
-<text x="300" y="193" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="12" fill="#000000" text-anchor="middle" dominant-baseline="central"><tspan x="300" dy="0">CS</tspan></text>
 <polyline points="265,257 325,257" fill="none" stroke="#5b5b5b" stroke-width="1.0" marker-end="url(#arrow-ctrl)"/>
 <polyline points="445,257 495,257" fill="none" stroke="#5b5b5b" stroke-width="1.0" marker-end="url(#arrow-ctrl)"/>
 <polyline points="605,170 650,170" fill="none" stroke="#606060" stroke-width="2.0" marker-end="url(#arrow-stream)" marker-start="url(#arrow-stream-rev)"/>
@@ -66,7 +64,7 @@
 <g fill="#fafafa" stroke="#5b5b5b" stroke-width="0.9" stroke-linejoin="round">
 <path d="M325,60 L433,60 L445,72 L445,110 Q445,110 445,110 L337,110 L325,98 L325,60 Q325,60 325,60 Z"/>
 </g>
-<text x="385" y="76" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="15" fill="#000000" text-anchor="middle" dominant-baseline="central"><tspan x="385" dy="0">AsyncFIFO</tspan><tspan x="385" dy="18">TX</tspan></text>
+<text x="385" y="76" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="15" fill="#000000" text-anchor="middle" dominant-baseline="central"><tspan x="385" dy="0">AsyncFIFO</tspan><tspan x="385" dy="18">TX and CS</tspan></text>
 <g fill="#000000" stroke="#000000" stroke-width="3.0" opacity="0.05" stroke-linejoin="round" aria-hidden="true">
 <path d="M326.2,132 L434.2,132 L446.2,144 L446.2,182 Q446.2,182 446.2,182 L338.2,182 L326.2,170 L326.2,132 Q326.2,132 326.2,132 Z"/>
 </g>
@@ -134,5 +132,4 @@
 <text x="695" y="161" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="15" fill="#000000" text-anchor="middle" dominant-baseline="central"><tspan x="695" dy="0">SPI</tspan><tspan x="695" dy="18">flash</tspan></text>
 <text x="20" y="25" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="15" fill="#000000" text-anchor="start" font-style="italic" dominant-baseline="central"><tspan x="20" dy="0">sys clock domain</tspan></text>
 <text x="740" y="25" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="15" fill="#000000" text-anchor="end" font-style="italic" dominant-baseline="central"><tspan x="740" dy="0">LiteSPI clock domain</tspan></text>
-<text x="440" y="190" font-family="Carlito, Calibri, &#x27;Liberation Sans&#x27;, Arial, sans-serif" font-size="11" fill="#000000" text-anchor="middle" font-style="italic" dominant-baseline="central"><tspan x="440" dy="0">no synchronizer</tspan></text>
 </svg>

@@ -27,23 +27,86 @@ class LiteSPISlavePort:
 
 
 class LiteSPICrossbar(Module):
+    """SPI Crossbar.
+
+    Arbitrates the PHY between the cores. With a PHY clock domain (``cd`` other than ``"sys"``),
+    the core-to-PHY transfers and the chip select cross through the TX AsyncFIFO together: each CS
+    change is a CS-only entry of the FIFO, ordered with the transfers, and the PHY side applies it
+    once the PHY has answered every transfer queued before it. A CS release, even of one ``sys``
+    cycle, is therefore never lost and never cuts a transfer; ``phy_cs`` and ``phy_source`` give
+    the CS and the transfers in the PHY clock domain.
+    """
     def __init__(self, cd, cs_width=1):
         self.cd     = cd
         self.users  = []
         self.master = LiteSPIMasterPort()
-        if cd != "sys":
-            rx_cdc = stream.AsyncFIFO(spi_phy2core_layout, 32, buffered=True)
-            tx_cdc = stream.AsyncFIFO(spi_core2phy_layout, 32, buffered=True)
-            self.submodules.rx_cdc = ClockDomainsRenamer({"write": cd, "read": "sys"})(rx_cdc)
-            self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": cd})(tx_cdc)
-            self.comb += [
-                self.rx_cdc.source.connect(self.master.sink),
-                self.master.source.connect(self.tx_cdc.sink),
-            ]
 
         self.cs           = Signal(cs_width)
         self.user_cs      = []
         self.user_request = []
+
+        if cd != "sys":
+            rx_cdc = stream.AsyncFIFO(spi_phy2core_layout, 32, buffered=True)
+            tx_cdc = stream.AsyncFIFO(spi_core2phy_layout + [("cs", cs_width), ("cs_only", 1)], 32, buffered=True)
+            self.submodules.rx_cdc = ClockDomainsRenamer({"write": cd, "read": "sys"})(rx_cdc)
+            self.submodules.tx_cdc = ClockDomainsRenamer({"write": "sys", "read": cd})(tx_cdc)
+            self.phy_source = stream.Endpoint(spi_core2phy_layout)
+            self.phy_cs     = Signal(cs_width)
+            self.comb += self.rx_cdc.source.connect(self.master.sink)
+
+            # CS Crossing (sys side): a CS change goes in the FIFO as a CS-only entry, before the
+            # transfers that follow it. A release (CS active, then changed) is remembered until
+            # its entry is written, so a one-cycle release is not lost when the FIFO is full.
+            cs_sent         = Signal(cs_width)
+            cs_release      = Signal()
+            cs_need_release = Signal()
+            self.comb += cs_need_release.eq(cs_release | ((cs_sent != 0) & (self.cs != cs_sent)))
+            self.comb += [
+                If(cs_need_release,
+                    self.tx_cdc.sink.valid.eq(1),
+                    self.tx_cdc.sink.cs.eq(0),
+                    self.tx_cdc.sink.cs_only.eq(1),
+                ).Elif(self.cs != cs_sent,
+                    self.tx_cdc.sink.valid.eq(1),
+                    self.tx_cdc.sink.cs.eq(self.cs),
+                    self.tx_cdc.sink.cs_only.eq(1),
+                ).Else(
+                    self.master.source.connect(self.tx_cdc.sink),
+                    self.tx_cdc.sink.cs.eq(cs_sent),
+                )
+            ]
+            self.sync += [
+                If(self.tx_cdc.sink.valid & self.tx_cdc.sink.ready & self.tx_cdc.sink.cs_only,
+                    cs_sent.eq(self.tx_cdc.sink.cs),
+                ),
+                If(cs_need_release,
+                    cs_release.eq(~self.tx_cdc.sink.ready),
+                ),
+            ]
+
+            # CS Crossing (PHY side): apply a CS-only entry once the PHY has answered every
+            # transfer it accepted (one answer per transfer), so CS never changes mid-transfer.
+            pending = Signal(8)
+            sync_cd = getattr(self.sync, cd)
+            self.comb += [
+                If(self.tx_cdc.source.cs_only,
+                    self.tx_cdc.source.ready.eq(pending == 0),
+                ).Else(
+                    self.tx_cdc.source.connect(self.phy_source, omit={"cs", "cs_only"}),
+                )
+            ]
+            sync_cd += [
+                If(self.tx_cdc.source.valid & self.tx_cdc.source.ready & self.tx_cdc.source.cs_only,
+                    self.phy_cs.eq(self.tx_cdc.source.cs),
+                ),
+                If(self.phy_source.valid & self.phy_source.ready,
+                    If(~(self.rx_cdc.sink.valid & self.rx_cdc.sink.ready),
+                        pending.eq(pending + 1),
+                    )
+                ).Elif(self.rx_cdc.sink.valid & self.rx_cdc.sink.ready,
+                    pending.eq(pending - 1),
+                ),
+            ]
 
     def get_port(self, cs, request = None):
         user_port     = LiteSPISlavePort()

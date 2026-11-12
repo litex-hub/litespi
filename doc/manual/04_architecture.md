@@ -174,27 +174,29 @@ direction. The frontends, the crossbar and every register stay in `sys`, as the 
 shows.
 
 ![Separate LiteSPI clock domain: the frontends and the crossbar stay in sys, two AsyncFIFOs carry
-the transfers and the returned words, the PHY register values cross through MultiReg, and the CS of
-the crossbar drives the PHY directly.](arch_cdc.svg)
+the transfers with the CS changes and the returned words, and the PHY register values cross through
+MultiReg.](arch_cdc.svg)
 
 | Signal | Crossing |
 |---------------------------------|---------------------------------------------------|
 | Transfers | `stream.AsyncFIFO`, 32 entries, `sys` to PHY domain |
+| CS of the crossbar | Same FIFO, one CS-only entry per change |
 | Returned words | `stream.AsyncFIFO`, 32 entries, PHY domain to `sys` |
 | PHY divisor and mode registers | `MultiReg` (`ResyncReg`) |
-| CS of the crossbar | None: wired to the PHY |
 
 The PHY and `LiteSPI` must receive the same domain name; `add_spi_flash` passes `clock_domain` to
 both. The design creates the clock domain itself. Both PHYs divide their clock, so a separate
 domain is only needed for an SCK that no divisor of `sys` gives ([The 1:2 PHY](#phys-ddr)).
 
-The CS of the crossbar reaches the PHY domain without a synchronizer. A frontend raises CS in the
-cycle it sends its first transfer, which then spends several cycles in the FIFO, and keeps CS until
-its last returned word is back. Between two reads that do not follow each other, however, the MMAP
-releases CS for a single `sys` cycle. A PHY clock slower than `sys` can miss that release and send
-the next opcode inside the previous command, so a separate domain has to run at least as fast as
-`sys`. No LiteX-Boards target uses a separate domain; test it in simulation first. The path crosses
-between two clocks and the design has to declare it in its timing constraints.
+The CS of the crossbar crosses with the transfers. Each CS change goes in the TX FIFO as a CS-only
+entry, ahead of the transfers that follow it, so CS and transfers keep their order. A release is
+remembered until its entry is written: the single `sys` cycle of release that the MMAP leaves
+between two reads that do not follow each other is never lost.
+
+On the PHY side, a CS-only entry waits until the PHY has returned a word for every transfer it took,
+so CS never changes in the middle of a transfer. The PHY clock may then be slower or faster than
+`sys`; a two-clock simulation of the test suite checks both. No LiteX-Boards target uses a separate
+domain, which is not validated on hardware yet.
 
 ## In the code {#arch-code}
 
