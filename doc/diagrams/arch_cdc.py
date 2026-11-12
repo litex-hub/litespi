@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 # Separate LiteSPI clock domain: the frontends and the crossbar stay in sys, two asynchronous FIFOs
-# carry the transfers and the returned words, the PHY register values are resynchronized, and the
-# CS of the crossbar drives the PHY directly.
+# carry the transfers (with the CS changes) and the returned words, and the PHY register values are
+# resynchronized.
 
 from svgdiag import *
 
@@ -18,7 +18,7 @@ def build():
     d.add(Text(740, 25, "LiteSPI clock domain", size=15, italic=True, anchor="end"))
     fe    = d.add(Box(20,  60, 110, 150, label="Frontends", fill=COLOR_ACCENT_LIGHT))
     xbar  = d.add(Box(165, 60, 100, 150, label="Crossbar", fill=COLOR_ACCENT_LIGHT))
-    tx    = d.add(Box(325, 60, 120, 50, label="AsyncFIFO\nTX"))
+    tx    = d.add(Box(325, 60, 120, 50, label="AsyncFIFO\nTX and CS"))
     rx    = d.add(Box(325, 130, 120, 50, label="AsyncFIFO\nRX"))
     regs  = d.add(Box(165, 235, 100, 45, label="PHY\nregisters"))
     sync  = d.add(Box(325, 235, 120, 45, label="MultiReg"))
@@ -29,8 +29,6 @@ def build():
     d.add(Arrow((445, 85), (495, 85), kind="accent"))
     d.add(Arrow((495, 155), (445, 155), kind="data"))
     d.add(Arrow((325, 155), (265, 155), kind="data"))
-    d.add(Arrow((265, 200), (495, 200), kind="control", label="CS", label_pos=(300, 193)))
-    d.add(Text(440, 190, "no synchronizer", size=11, italic=True))
     d.add(Arrow((265, 257), (325, 257), kind="control"))
     d.add(Arrow((445, 257), (495, 257), kind="control"))
     d.add(Arrow((605, 170), (650, 170), kind="data", heads="both"))

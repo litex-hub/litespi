@@ -75,7 +75,11 @@ class LiteSPI(LiteXModule):
         cs_width=len(phy.cs)
 
         self.crossbar = crossbar = LiteSPICrossbar(clock_domain, cs_width)
-        self.comb += phy.cs.eq(crossbar.cs)
+        if clock_domain != "sys":
+            # CS crosses to the PHY clock domain with the transfers (TX AsyncFIFO).
+            self.comb += phy.cs.eq(crossbar.phy_cs)
+        else:
+            self.comb += phy.cs.eq(crossbar.cs)
 
         if with_mmap and phy.flash:
             self.mmap = mmap = LiteSPIMMAP(flash=phy.flash,
@@ -108,7 +112,7 @@ class LiteSPI(LiteXModule):
 
         if clock_domain != "sys":
             self.comb += [
-                crossbar.tx_cdc.source.connect(phy.sink),
+                crossbar.phy_source.connect(phy.sink),
                 phy.source.connect(crossbar.rx_cdc.sink),
             ]
         else:

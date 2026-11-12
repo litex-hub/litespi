@@ -19,6 +19,7 @@ keeps one level where the real PHY talks to a model of the chip pin by pin.
 | Pin level, 1:2 | 1:2 PHY with simulated DDR I/O | Checks on the pins | `test_phy_ddr.py` |
 | PHY details | Startup cycles, CS control, vendor clock backends | Checks on the pins | `test_phy_sdr.py`, `test_cscontrol.py`, `test_phy_xilinx.py` |
 | Elaboration | Verilog of the 1:2 PHY and of STARTUPE2/E3 for vendor platforms | None | `test_phy_ddr.py`, `test_phy_xilinx.py` |
+| Clock domains | MMAP reads with the SDR PHY in a slower or faster clock domain | Pin-level flash model | `test_cs_cdc.py` |
 | Database | Module attributes, opcodes, erase geometry, quad enable | None | `test_flash_module.py`, `test_spi_nor_modules.py` |
 | System | SoC with a CPU and the BIOS in Verilator | Stream-level PHY model | `litex_sim`, not in CI |
 | Hardware | A board | The flash chip | Not in CI |

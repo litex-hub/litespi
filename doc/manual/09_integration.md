@@ -271,9 +271,8 @@ domain.
 The target must create the clock domain before the call. No LiteX-Boards target uses this option:
 it serves when the flash needs a SCK that the system clock and an even divisor cannot give.
 
-Only the data crosses through the FIFOs: the CS of the crossbar reaches the PHY domain without a
-synchronizer. Between two non-sequential reads, the MMAP releases CS for a single `sys` cycle,
-which a slower PHY clock can miss. Use a PHY clock at least as fast as `sys`, declare the crossing
+The CS of the crossbar crosses through the TX FIFO with the transfers, so the PHY clock may be
+slower or faster than `sys` ([Clock domains](#arch-cdc)). Declare the two clocks as asynchronous
 in the timing constraints, and test the design in simulation first.
 
 ## Without the LiteX SoC {#integ-direct}
