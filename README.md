@@ -36,25 +36,12 @@ Core:
 
 [> Documentation
 ----------------
-The **SPI Flash & SPI Memory Core manual** is the reference of LiteSPI: a nightly
-[PDF](https://github.com/litex-hub/litespi/releases/download/manual-nightly/litespi_manual.pdf)
-and [HTML page](https://github.com/litex-hub/litespi/releases/download/manual-nightly/litespi_manual.html)
-are published on the [manual-nightly](https://github.com/litex-hub/litespi/releases/tag/manual-nightly)
-release. Sources in [doc/manual](doc/manual/README.md) (build: `python3 doc/manual/build.py`, outputs in
-`build/doc/`; pandoc, XeLaTeX and the fonts listed in the README of `doc/manual`):
+The **SPI Flash & SPI Memory Core manual** is the reference of the project, from the primers to the integration,
+the examples, the debugging and the registers:
 
-- **Understand**: [introduction](doc/manual/01_introduction.md), [SPI memories in a nutshell](doc/manual/02_spi_primer.md)
-  (bus, modes, x-y-z widths, command phases), [inside a SPI NOR flash](doc/manual/03_flash_primer.md)
-  (erase and program, status registers, QE bit, 4-byte addressing, XIP).
-- **The core**: [architecture](doc/manual/04_architecture.md), [PHYs](doc/manual/05_phys.md),
-  [memory-mapped reads and writes](doc/manual/06_mmap.md), [register master](doc/manual/07_master.md),
-  [SPI memory database](doc/manual/08_modules.md).
-- **Use it**: [integration in a LiteX SoC](doc/manual/09_integration.md), [BIOS, boot and flash update](doc/manual/10_software.md),
-  [supported FPGAs and boards](doc/manual/11_boards.md), [simulation and tests](doc/manual/12_simulation.md),
-  [debugging](doc/manual/13_debugging.md).
-- **Appendices**: [registers](doc/manual/A_registers.md), [build options](doc/manual/B_build_options.md),
-  [glossary](doc/manual/C_glossary.md), [performance and resources](doc/manual/D_performance.md),
-  [maintaining this manual](doc/manual/E_maintenance.md) (for contributors).
+- Read it: [PDF](https://github.com/litex-hub/litespi/releases/download/manual-nightly/litespi_manual.pdf) or
+  [HTML](https://github.com/litex-hub/litespi/releases/download/manual-nightly/litespi_manual.html) (rebuilt nightly).
+- Sources and local build: [doc/manual](doc/manual/README.md).
 
 [> Getting started
 ------------------
